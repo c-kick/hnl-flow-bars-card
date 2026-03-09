@@ -2,6 +2,8 @@
 
 A custom Home Assistant Lovelace card that visualizes power production vs consumption as proportional stacked bars with accolade connectors.
 
+<img width="927" height="87" alt="image" src="https://github.com/user-attachments/assets/1f5d5d67-b1b0-411b-ab72-46cc1fa778a6" />
+
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
 
 ## Installation
@@ -107,3 +109,4 @@ npm run build  # production build
 ## License
 
 MIT
+

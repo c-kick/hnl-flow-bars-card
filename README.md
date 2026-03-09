@@ -17,6 +17,15 @@ So if you need to see:
 
 Then is the card for you.
 
+## Basic idea
+
+<img width="502" height="233" alt="hnl-flow-bars-card basic idea" src="https://github.com/user-attachments/assets/7de8024a-dbe8-4f5b-89a0-53f4054098da" />
+
+The card compares sources (production) against destinations (consumption) as proportional bars. 
+- When sources produce more than destinations consume, the leftover appears as a surplus bar.
+- When destinations need more than sources provide, the gap appears as a shortfall bar.
+Both bars scale proportionally so you can see the balance at a glance.
+
 ## Examples
 ### Example 1 - Current energy flow
 - Show how much solar power is generated
@@ -50,6 +59,7 @@ Then is the card for you.
 Or, smaller, with less decimals and slightly different colors + dotted theme:
 
 <img width="209" height="56" alt="image" src="https://github.com/user-attachments/assets/4c137778-5e72-4090-b4ee-210890fb9a5b" />
+
 
 ## Don't we already have the Distribution Card for this?
 
@@ -191,6 +201,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

@@ -1,4 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, unsafeCSS } from 'lit';
+import { COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS } from '../const.js';
 import './entity-list-editor.js';
 import './remainder-editor.js';
 
@@ -30,14 +31,11 @@ class HnlPowerBarsCardEditor extends LitElement {
   _fireConfigChanged() {
     const config = { ...this._config };
 
-    // Clean up empty optional fields to keep YAML tidy
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
 
-    // Clean entity arrays: remove entries with no entity selected
     config.production = config.production.filter((e) => e.entity);
     config.consumption = config.consumption.filter((e) => e.entity);
 
-    // Strip empty optional fields from entities
     const cleanEntity = (ent) => {
       const cleaned = { entity: ent.entity };
       if (ent.icon) cleaned.icon = ent.icon;
@@ -45,16 +43,16 @@ class HnlPowerBarsCardEditor extends LitElement {
       if (ent.unit_of_measurement) cleaned.unit_of_measurement = ent.unit_of_measurement;
       if (ent.bg_opacity) cleaned.bg_opacity = ent.bg_opacity;
       if (ent.text_color) cleaned.text_color = ent.text_color;
+      if (ent.hatched) cleaned.hatched = ent.hatched;
       return cleaned;
     };
     config.production = config.production.map(cleanEntity);
     config.consumption = config.consumption.map(cleanEntity);
 
-    // Clean remainder objects: only include if user customized them
     ['production_remainder', 'consumption_remainder'].forEach((key) => {
       if (config[key]) {
         const r = config[key];
-        const hasCustomValues = r.name || r.icon || r.color || r.bg_opacity || r.text_color || r.unit_of_measurement;
+        const hasCustomValues = r.name || r.icon || r.color || r.bg_opacity || r.text_color || r.hatched || r.unit_of_measurement;
         if (!hasCustomValues) {
           delete config[key];
         }
@@ -104,6 +102,33 @@ class HnlPowerBarsCardEditor extends LitElement {
     this._fireConfigChanged();
   }
 
+  _renderRemainderDiagram() {
+    return html`
+      <div class="remainder-diagram">
+        <div class="diagram-bar diagram-sources">
+          <span class="diagram-label">Sources</span>
+          <span class="diagram-fill source-fill"></span>
+          <span class="diagram-fill shortfall-fill"></span>
+        </div>
+        <div class="diagram-bar diagram-destinations">
+          <span class="diagram-label">Destinations</span>
+          <span class="diagram-fill destination-fill"></span>
+          <span class="diagram-fill surplus-fill"></span>
+        </div>
+        <div class="diagram-legend">
+          <span class="legend-item">
+            <span class="legend-swatch shortfall-swatch"></span>
+            Shortfall
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch surplus-swatch"></span>
+            Surplus
+          </span>
+        </div>
+      </div>
+    `;
+  }
+
   render() {
     if (!this.hass || !this._config) return html``;
 
@@ -111,16 +136,21 @@ class HnlPowerBarsCardEditor extends LitElement {
       <div class="editor">
 
         <div class="section">
-          <h3>General Settings</h3>
+          <div class="section-header">
+            <ha-icon icon="mdi:cog" class="section-icon"></ha-icon>
+            <h3>General</h3>
+          </div>
 
           <ha-textfield
             .label=${'Unit of measurement'}
             .value=${this._config.unit_of_measurement || ''}
+            .helper=${'Override the unit for all entities (e.g. W, L/min, m\u00B3)'}
+            helperPersistent
             @input=${(ev) => this._textChanged('unit_of_measurement', ev)}
           ></ha-textfield>
 
           <ha-textfield
-            .label=${'Decimal places (rounding)'}
+            .label=${'Decimal places'}
             .value=${String(this._config.rounding ?? 0)}
             type="number"
             min="0"
@@ -129,7 +159,10 @@ class HnlPowerBarsCardEditor extends LitElement {
           ></ha-textfield>
 
           <div class="toggle-row">
-            <span>Hide zero values</span>
+            <div class="toggle-label">
+              <span>Hide zero values</span>
+              <span class="toggle-description">Hide bars with a value of zero</span>
+            </div>
             <ha-switch
               .checked=${this._config.hide_zero_values ?? true}
               @change=${(ev) => this._toggleChanged('hide_zero_values', ev)}
@@ -137,7 +170,10 @@ class HnlPowerBarsCardEditor extends LitElement {
           </div>
 
           <div class="toggle-row">
-            <span>Transparent background</span>
+            <div class="toggle-label">
+              <span>Transparent background</span>
+              <span class="toggle-description">Remove the card background</span>
+            </div>
             <ha-switch
               .checked=${this._config.transparent ?? true}
               @change=${(ev) => this._toggleChanged('transparent', ev)}
@@ -145,7 +181,10 @@ class HnlPowerBarsCardEditor extends LitElement {
           </div>
 
           <div class="toggle-row">
-            <span>Smooth transitions (easing)</span>
+            <div class="toggle-label">
+              <span>Smooth transitions</span>
+              <span class="toggle-description">Ease value changes over time</span>
+            </div>
             <ha-switch
               .checked=${this._config.easing ?? false}
               @change=${(ev) => this._toggleChanged('easing', ev)}
@@ -153,33 +192,60 @@ class HnlPowerBarsCardEditor extends LitElement {
           </div>
         </div>
 
+        <div class="divider"></div>
+
         <entity-list-editor
           .hass=${this.hass}
           .entities=${this._config.production || []}
-          .label=${'Production Sources'}
+          .label=${'Sources'}
+          .description=${'Entities that supply or produce units \u2014 shown in the top bar.'}
+          .icon=${'mdi:arrow-right-bold-box'}
           @entities-changed=${this._productionChanged}
         ></entity-list-editor>
+
+        <div class="divider"></div>
 
         <entity-list-editor
           .hass=${this.hass}
           .entities=${this._config.consumption || []}
-          .label=${'Consumption Destinations'}
+          .label=${'Destinations'}
+          .description=${'Entities that consume or use units \u2014 shown in the bottom bar.'}
+          .icon=${'mdi:arrow-left-bold-box'}
           @entities-changed=${this._consumptionChanged}
         ></entity-list-editor>
 
-        <remainder-editor
-          .hass=${this.hass}
-          .label=${'Production Remainder (Grid Import)'}
-          .remainder=${this._config.production_remainder || {}}
-          @remainder-changed=${this._productionRemainderChanged}
-        ></remainder-editor>
+        <div class="divider"></div>
 
-        <remainder-editor
-          .hass=${this.hass}
-          .label=${'Consumption Remainder (Grid Export)'}
-          .remainder=${this._config.consumption_remainder || {}}
-          @remainder-changed=${this._consumptionRemainderChanged}
-        ></remainder-editor>
+        <div class="section">
+          <div class="section-header">
+            <ha-icon icon="mdi:scale-unbalanced" class="section-icon"></ha-icon>
+            <h3>Remainders</h3>
+          </div>
+          <p class="section-description">
+            When sources and destinations are unequal, a remainder bar
+            appears to account for the difference.
+          </p>
+
+          ${this._renderRemainderDiagram()}
+
+          <remainder-editor
+            .hass=${this.hass}
+            .label=${'Shortfall'}
+            .description=${'When total demand exceeds supply. Shown on the source side (top bar) to fill the gap.'}
+            .icon=${'mdi:arrow-down-bold-circle-outline'}
+            .remainder=${this._config.production_remainder || {}}
+            @remainder-changed=${this._productionRemainderChanged}
+          ></remainder-editor>
+
+          <remainder-editor
+            .hass=${this.hass}
+            .label=${'Surplus'}
+            .description=${'When total supply exceeds demand. Shown on the destination side (bottom bar) as the excess.'}
+            .icon=${'mdi:arrow-up-bold-circle-outline'}
+            .remainder=${this._config.consumption_remainder || {}}
+            @remainder-changed=${this._consumptionRemainderChanged}
+          ></remainder-editor>
+        </div>
 
       </div>
     `;
@@ -190,31 +256,175 @@ class HnlPowerBarsCardEditor extends LitElement {
       .editor {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 20px;
         padding: 16px 0;
       }
+
       .section {
         display: flex;
         flex-direction: column;
         gap: 12px;
       }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-icon {
+        --mdc-icon-size: 20px;
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
+
       h3 {
         margin: 0;
         font-size: 1em;
         font-weight: 500;
         color: var(--primary-text-color);
       }
+
+      .section-description {
+        margin: -4px 0 4px 0;
+        font-size: 0.85em;
+        line-height: 1.4;
+        color: var(--secondary-text-color);
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--divider-color, rgba(0, 0, 0, 0.12));
+      }
+
       .toggle-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 4px 0;
+        gap: 16px;
       }
-      .toggle-row span {
+
+      .toggle-label {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+      }
+
+      .toggle-label > span:first-child {
         color: var(--primary-text-color);
+        font-size: 0.95em;
       }
+
+      .toggle-description {
+        font-size: 0.8em;
+        color: var(--secondary-text-color);
+      }
+
       ha-textfield {
         display: block;
+      }
+
+      /* Remainder diagram */
+      .remainder-diagram {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--card-background-color, var(--primary-background-color));
+        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+      }
+
+      .diagram-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 26px;
+      }
+
+      .diagram-label {
+        font-size: 0.75em;
+        color: var(--secondary-text-color);
+        width: 80px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      .diagram-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: flex-basis 0.3s ease;
+      }
+
+      .source-fill {
+        flex: 3 0 0;
+        background: ${unsafeCSS(COLOR_SOURCE)};
+        opacity: 0.75;
+      }
+
+      .shortfall-fill {
+        flex: 1 0 0;
+        background: repeating-linear-gradient(
+          -45deg,
+          ${unsafeCSS(COLOR_SHORTFALL)} 0px,
+          ${unsafeCSS(COLOR_SHORTFALL)} 3px,
+          transparent 3px,
+          transparent 6px
+        );
+        opacity: 0.6;
+        border-radius: 4px;
+      }
+
+      .destination-fill {
+        flex: 3 0 0;
+        background: ${unsafeCSS(COLOR_DESTINATION)};
+        opacity: 0.75;
+      }
+
+      .surplus-fill {
+        flex: 1 0 0;
+        background: repeating-linear-gradient(
+          -45deg,
+          ${unsafeCSS(COLOR_SURPLUS)} 0px,
+          ${unsafeCSS(COLOR_SURPLUS)} 3px,
+          transparent 3px,
+          transparent 6px
+        );
+        opacity: 0.6;
+        border-radius: 4px;
+      }
+
+      .diagram-legend {
+        display: flex;
+        gap: 16px;
+        padding: 6px 0 2px 88px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.75em;
+        color: var(--secondary-text-color);
+      }
+
+      .legend-swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      .shortfall-swatch {
+        background: ${unsafeCSS(COLOR_SHORTFALL)};
+        opacity: 0.7;
+      }
+
+      .surplus-swatch {
+        background: ${unsafeCSS(COLOR_SURPLUS)};
+        opacity: 0.7;
       }
     `;
   }

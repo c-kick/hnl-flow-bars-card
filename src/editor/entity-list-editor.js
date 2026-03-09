@@ -7,6 +7,8 @@ class EntityListEditor extends LitElement {
       hass: { type: Object },
       entities: { type: Array },
       label: { type: String },
+      description: { type: String },
+      icon: { type: String },
     };
   }
 
@@ -107,9 +109,43 @@ class EntityListEditor extends LitElement {
           <ha-textfield
             .label=${'Color (CSS, optional)'}
             .value=${entity.color || ''}
+            .helper=${'Any CSS color: #hex, rgb(), var(--name)'}
+            helperPersistent
             @input=${(ev) =>
               this._entityFieldChanged(index, 'color', ev.target.value)}
           ></ha-textfield>
+
+          <ha-textfield
+            .label=${'Text color (CSS, optional)'}
+            .value=${entity.text_color || ''}
+            @input=${(ev) =>
+              this._entityFieldChanged(index, 'text_color', ev.target.value)}
+          ></ha-textfield>
+
+          <div class="toggle-row">
+            <span>Hatched background</span>
+            <ha-switch
+              .checked=${entity.hatched ?? false}
+              @change=${(ev) =>
+                this._entityFieldChanged(index, 'hatched', ev.target.checked)}
+            ></ha-switch>
+          </div>
+
+          <div class="slider-row">
+            <label>Background opacity</label>
+            <div class="slider-control">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                .value=${String(entity.bg_opacity || '0.5')}
+                @input=${(ev) =>
+                  this._entityFieldChanged(index, 'bg_opacity', ev.target.value)}
+              />
+              <span class="slider-value">${entity.bg_opacity || '0.5'}</span>
+            </div>
+          </div>
 
           <ha-textfield
             .label=${'Unit of measurement (optional)'}
@@ -125,7 +161,11 @@ class EntityListEditor extends LitElement {
   render() {
     return html`
       <div class="entity-list">
-        <h3>${this.label || 'Entities'}</h3>
+        <div class="section-header">
+          ${this.icon ? html`<ha-icon icon=${this.icon} class="section-icon"></ha-icon>` : ''}
+          <h3>${this.label || 'Entities'}</h3>
+        </div>
+        ${this.description ? html`<p class="section-description">${this.description}</p>` : ''}
         ${this.entities.map((ent, i) => this._renderEntityRow(ent, i))}
         <ha-button @click=${this._addEntity}>
           <ha-icon icon="mdi:plus" slot="icon"></ha-icon>
@@ -142,28 +182,119 @@ class EntityListEditor extends LitElement {
         flex-direction: column;
         gap: 8px;
       }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-icon {
+        --mdc-icon-size: 20px;
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
+
       h3 {
-        margin: 16px 0 4px;
+        margin: 0;
         font-size: 1em;
         font-weight: 500;
         color: var(--primary-text-color);
       }
+
+      .section-description {
+        margin: -2px 0 4px 0;
+        font-size: 0.85em;
+        line-height: 1.4;
+        color: var(--secondary-text-color);
+      }
+
       .entity-fields {
         display: flex;
         flex-direction: column;
         gap: 12px;
         padding: 12px 0;
       }
+
       .row-actions {
         display: flex;
         align-items: center;
       }
+
       ha-textfield,
       ha-entity-picker {
         display: block;
       }
+
       ha-button {
         align-self: flex-start;
+      }
+
+      .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+      }
+
+      .toggle-row span {
+        font-size: 0.95em;
+        color: var(--primary-text-color);
+      }
+
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .slider-row label {
+        font-size: 0.85em;
+        color: var(--primary-text-color);
+      }
+
+      .slider-control {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .slider-control input[type="range"] {
+        flex: 1;
+        height: 4px;
+        appearance: none;
+        background: var(--divider-color, rgba(0, 0, 0, 0.12));
+        border-radius: 2px;
+        outline: none;
+      }
+
+      .slider-control input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: 2px solid var(--card-background-color, #fff);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-control input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: 2px solid var(--card-background-color, #fff);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-value {
+        min-width: 2.2em;
+        text-align: right;
+        font-size: 0.85em;
+        color: var(--secondary-text-color);
+        font-variant-numeric: tabular-nums;
       }
     `;
   }

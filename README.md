@@ -85,14 +85,27 @@ consumption_remainder:
 | `bg_opacity` | string | `inherit` | Background opacity |
 | `text_color` | string | theme variable | Text color |
 
-## Theming
+## Default colors
 
-The card exposes CSS variables for customization. Set a base production/consumption color and variations are auto-generated using `oklch()`:
+The card's default colors follow the Home Assistant Energy Dashboard conventions:
+
+| Bar type | Default color | HA variable | Notes |
+|---|---|---|---|
+| **Sources** | `#ff9800` (orange) | `--energy-solar-color` | Production/supply entities |
+| **Destinations** | `#488fc2` (blue) | `--energy-grid-consumption-color` | Consumption/demand entities |
+| **Shortfall** | `#488fc2` (blue) | `--energy-grid-consumption-color` | Demand that sources couldn't cover |
+| **Surplus** | `#8353d1` (purple) | `--energy-grid-return-color` | Supply that destinations didn't use |
+
+Destinations and shortfall share the same blue because both represent consumption from the grid's perspective — shortfall is the portion of demand that had to be imported. The hatched background pattern (enabled by default on shortfall and surplus) visually distinguishes remainders from regular bars.
+
+These defaults are defined in `src/const.js` and can be overridden per entity/remainder in the card config. The card also exposes CSS custom properties for theme-level overrides:
 
 ```css
 :host {
-  --hnl-power-bars-color-production: #ffc107;
-  --hnl-power-bars-color-consumption: var(--energy-grid-consumption-color);
+  --hnl-power-bars-color-production: #ff9800;
+  --hnl-power-bars-color-consumption: #488fc2;
+  --hnl-power-bars-color-production-remainder: #488fc2;
+  --hnl-power-bars-color-consumption-remainder: #8353d1;
 }
 ```
 

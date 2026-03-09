@@ -1,6 +1,10 @@
 import { LitElement, html, css } from 'lit';
 import { computeEntityIcon } from './utils.js';
-import { CARD_VERSION, CARD_NAME, CARD_DESCRIPTION } from './const.js';
+import {
+    CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
+    COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS,
+    TEXT_COLOR_SHORTFALL, TEXT_COLOR_SURPLUS,
+} from './const.js';
 import './editor/hnl-power-bars-card-editor.js';
 
 console.info(
@@ -25,6 +29,7 @@ class HnlPowerBarsCard extends LitElement {
     static get properties() {
         return {
             hass: {},
+            layout: { type: String },
         };
     }
 
@@ -76,6 +81,7 @@ class HnlPowerBarsCard extends LitElement {
                 color: item.color || fallbackVar,
                 bg_opacity: item.bg_opacity || 'inherit',
                 text_color: item.text_color || 'inherit',
+                hatched: item.hatched || false,
                 unit_of_measurement: item.unit_of_measurement,
               };
             }
@@ -98,6 +104,7 @@ class HnlPowerBarsCard extends LitElement {
               color: item.color || fallbackVar,
               bg_opacity: item.bg_opacity || 'inherit',
               text_color: item.text_color || 'inherit',
+              hatched: item.hatched || false,
               unit_of_measurement: unit,
             };
           });
@@ -140,6 +147,7 @@ class HnlPowerBarsCard extends LitElement {
                 color: ent.color,
                 bg_opacity: ent.bg_opacity,
                 text_color: ent.text_color,
+                hatched: ent.hatched,
                 width,
                 unit_of_measurement: unit,
             };
@@ -154,41 +162,43 @@ class HnlPowerBarsCard extends LitElement {
     }
 
     _renderSourceLabel(ent) {
-        return html`<hnl-power-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-power-bar-source-label class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span></hnl-power-bar-source-label>`;
     }
 
     _renderAccolade(ent) {
-        return html`<hnl-power-bar-source-accolade style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-power-bar-source-accolade>`;
+        return html`<hnl-power-bar-source-accolade class="${ent.hatched ? 'hatched' : ''}" style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-power-bar-source-accolade>`;
     }
 
     _renderDestination(ent) {
-        return html`<hnl-power-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-power-bar-destination class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
-          </span></hnl-power-bar-destination>`;
+          </span><span class="entity-name">${ent.name}</span></hnl-power-bar-destination>`;
     }
 
     _renderRemainder(type, remainderValue) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
+        const hatchedClass = cfg.hatched ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-power-bar-source-label title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
+            return html`<hnl-power-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
                 <ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
                 </span></hnl-power-bar-source-label>`;
         }
-        return html`<hnl-power-bar-destination title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
+        return html`<hnl-power-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
             <ha-icon icon="${cfg.icon}"></ha-icon>
             <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
-            </span></hnl-power-bar-destination>`;
+            </span><span class="entity-name">${cfg.name}</span></hnl-power-bar-destination>`;
     }
 
     _renderRemainderAccolade(type) {
         const cfg = this._parsedConfig[`${type}_remainder`];
-        return html`<hnl-power-bar-source-accolade style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-power-bar-source-accolade>`;
+        const hatchedClass = cfg.hatched ? 'hatched' : '';
+        return html`<hnl-power-bar-source-accolade class="${hatchedClass}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-power-bar-source-accolade>`;
     }
 
     _normalizeEntityConfig(input) {
@@ -313,19 +323,21 @@ class HnlPowerBarsCard extends LitElement {
             production: this._normalizeEntityConfig(config.production),
             consumption: this._normalizeEntityConfig(config.consumption),
             production_remainder: {
-                name: config.production_remainder?.name || "Production remainder",
+                name: config.production_remainder?.name || "Shortfall",
                 icon: config.production_remainder?.icon || 'mdi:eye',
-                color: config.production_remainder?.color || 'var(--hnl-power-bars-color-production-remainder)',
+                color: config.production_remainder?.color || COLOR_SHORTFALL,
                 bg_opacity: config.production_remainder?.bg_opacity || 'inherit',
-                text_color: config.production_remainder?.text_color || 'var(--hnl-power-bars-text-color-production-remainder)',
+                text_color: config.production_remainder?.text_color || TEXT_COLOR_SHORTFALL,
+                hatched: config.production_remainder?.hatched ?? true,
                 unit_of_measurement: config.production_remainder?.unit_of_measurement || null
             },
             consumption_remainder: {
-                name: config.consumption_remainder?.name || "Consumption remainder",
+                name: config.consumption_remainder?.name || "Surplus",
                 icon: config.consumption_remainder?.icon || 'mdi:eye',
-                color: config.consumption_remainder?.color || 'var(--hnl-power-bars-color-consumption-remainder)',
+                color: config.consumption_remainder?.color || COLOR_SURPLUS,
                 bg_opacity: config.consumption_remainder?.bg_opacity || 'inherit',
-                text_color: config.consumption_remainder?.text_color || 'var(--hnl-power-bars-text-color-consumption-remainder)',
+                text_color: config.consumption_remainder?.text_color || TEXT_COLOR_SURPLUS,
+                hatched: config.consumption_remainder?.hatched ?? true,
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null
             },
             easing: config.easing ?? false,
@@ -351,11 +363,19 @@ class HnlPowerBarsCard extends LitElement {
         };
     }
 
-    //part of HASS card API
-    // The height of your card. Home Assistant uses this to automatically
-    // distribute all cards over the available columns.
+    //part of HASS card API — masonry view sizing (1 unit = 50px)
     getCardSize() {
-        return this._rawConfig?.grid_options?.rows || 3; // default to 3 if unspecified
+        return this._rawConfig?.grid_options?.rows || 2;
+    }
+
+    //part of HASS card API — section view grid sizing
+    getGridOptions() {
+        return {
+            columns: 6,
+            min_columns: 3,
+            rows: 2,
+            min_rows: 1,
+        };
     }
 
     //part of LitElement interface
@@ -374,25 +394,26 @@ class HnlPowerBarsCard extends LitElement {
 
                 --hnl-power-bars-color-default: hsl(205, 90%, 55%);
 
-                --hnl-power-bars-color-production: #ffc107;
+                /* Base colors — keep in sync with const.js COLOR_* constants */
+                --hnl-power-bars-color-production: #ff9800;
                 --hnl-power-bars-color-production-0: oklch(from var(--hnl-power-bars-color-production) l c h / 1);
                 --hnl-power-bars-color-production-1: oklch(from var(--hnl-power-bars-color-production) calc(l * .9) c calc(h - 10) / 1);
                 --hnl-power-bars-color-production-2: oklch(from var(--hnl-power-bars-color-production) calc(l * 1.1) c calc(h + 10) / 1);
                 --hnl-power-bars-color-production-3: oklch(from var(--hnl-power-bars-color-production) calc(l * .9) c calc(h - 30) / 1);
                 --hnl-power-bars-color-production-4: oklch(from var(--hnl-power-bars-color-production) calc(l * 1.1) c calc(h + 30) / 1);
 
-                --hnl-power-bars-color-production-remainder: var(--energy-grid-consumption-color-1);
-                --hnl-power-bars-text-color-production-remainder: #FFF;
+                --hnl-power-bars-color-production-remainder: #488fc2;
+                --hnl-power-bars-text-color-production-remainder: #fff;
 
-                --hnl-power-bars-color-consumption: var(--energy-grid-consumption-color);
+                --hnl-power-bars-color-consumption: #488fc2;
                 --hnl-power-bars-color-consumption-0: oklch(from var(--hnl-power-bars-color-consumption) l c h / 1);
                 --hnl-power-bars-color-consumption-1: oklch(from var(--hnl-power-bars-color-consumption) calc(l * .9) c calc(h - 10) / 1);
                 --hnl-power-bars-color-consumption-2: oklch(from var(--hnl-power-bars-color-consumption) calc(l * 1.1) c calc(h + 10) / 1);
                 --hnl-power-bars-color-consumption-3: oklch(from var(--hnl-power-bars-color-consumption) calc(l * .9) c calc(h - 30) / 1);
                 --hnl-power-bars-color-consumption-4: oklch(from var(--hnl-power-bars-color-consumption) calc(l * 1.1) c calc(h + 30) / 1);
 
-                --hnl-power-bars-color-consumption-remainder: #00c1a0;
-                --hnl-power-bars-text-color-consumption-remainder: #000e;
+                --hnl-power-bars-color-consumption-remainder: #8353d1;
+                --hnl-power-bars-text-color-consumption-remainder: #fff;
 
                 font-size: var(--font-size, 0.8em);
                 font-weight: 500;
@@ -408,6 +429,8 @@ class HnlPowerBarsCard extends LitElement {
                 display: block;
                 height: 100%;
                 overflow: hidden;
+                container-type: size;
+                container-name: card;
             }
             ha-card.transparent {
                 background: none;
@@ -498,6 +521,7 @@ class HnlPowerBarsCard extends LitElement {
                 padding: max(.15cqi,2px);
                 background-color: var(--adjusted-bg-color);
                 color: white;
+                overflow: hidden;
                 --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
             }
             hnl-power-bar-destination:last-child {
@@ -547,18 +571,77 @@ class HnlPowerBarsCard extends LitElement {
                 --correction: min(var(--accolade-height), calc(var(--ha-card-border-radius, 14px) / 2), var(--accolade-border-width));
                 padding-right: calc(var(--border-radius, 8px) - var(--correction, 0px));
                 margin-bottom: calc(-1 * var(--correction, 5px));
+                border-top-left-radius: var(--border-radius, 8px);
+                overflow: hidden;
             }
 
             hnl-power-bar-source-label > span {
                 --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
                 align-items: center;
                 background: var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
-                border-top-right-radius: 0;
                 color: var(--text-color, oklch(from var(--adjusted-bg-color) calc(l * .3) c h / 1));
                 padding-right: calc((var(--label-edge-padding) / 2) + var(--slanted-edge, 20px));
                 clip-path: polygon(0 0, calc(100% - var(--slanted-edge, 20px)) 0%, 100% 100%, 0% 100%);
+            }
+
+            /* Entity names — hidden by default, shown when card is tall enough */
+            .entity-name {
+                display: none;
+                font-size: 0.85em;
+                opacity: 0.8;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                padding: 0 4px;
+                max-width: 100%;
+            }
+
+            /* When card height >= 160px, show destination names below the value */
+            @container card (min-height: 160px) {
+                hnl-power-bar-destination {
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 2px;
+                }
+
+                hnl-power-bar-destination .entity-name {
+                    display: block;
+                    color: inherit;
+                    opacity: 0.85;
+                }
+            }
+
+            /* When card height >= 200px, scale up spacing */
+            @container card (min-height: 200px) {
+                hnl-power-bars {
+                    --accolade-height: 10px;
+                }
+            }
+
+            /* Hatched background pattern (per-element, not on source labels) */
+            hnl-power-bar-source-accolade.hatched {
+                background: repeating-linear-gradient(
+                    -45deg,
+                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 0px,
+                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 3px,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 3px,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 6px
+                );
+            }
+
+            hnl-power-bar-destination.hatched {
+                background: repeating-linear-gradient(
+                    -45deg,
+                    var(--adjusted-bg-color) 0px,
+                    var(--adjusted-bg-color) 3px,
+                    oklch(from var(--adjusted-bg-color) calc(l * 0.75) c h / 1) 3px,
+                    oklch(from var(--adjusted-bg-color) calc(l * 0.75) c h / 1) 6px
+                );
+            }
+
+            hnl-power-bar-destination.hatched > span {
+                background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 0.6);
             }
 
         `;

@@ -1,6 +1,6 @@
 {
   "name": "hnl-power-bars-card",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "description": "A power bar visualization card for Home Assistant",
   "keywords": [
@@ -25,6 +25,6 @@
   },
   "scripts": {
     "start": "rollup -c --watch",
-    "build": "rm -rf dist && rollup -c"
+    "build": "mkdir -p dist && rollup -c"
   }
 }

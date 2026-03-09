@@ -22,8 +22,10 @@ Then is the card for you.
 <img width="502" height="233" alt="hnl-flow-bars-card basic idea" src="https://github.com/user-attachments/assets/7de8024a-dbe8-4f5b-89a0-53f4054098da" />
 
 The card compares sources (production) against destinations (consumption) as proportional bars. 
+
 - When sources produce more than destinations consume, the leftover appears as a surplus bar.
 - When destinations need more than sources provide, the gap appears as a shortfall bar.
+
 Both bars scale proportionally so you can see the balance at a glance.
 
 ## Examples
@@ -201,6 +203,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

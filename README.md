@@ -91,17 +91,22 @@ unit_of_measurement: W
 rounding: 0
 hide_zero_values: true
 transparent: true
-easing: false
+easing: true
+slanted_edge: true
+fill_height: false
+show_names: true
 accolade_style: hatched
 production:
   - entity: sensor.solar_power
     icon: mdi:solar-power-variant
   - entity: sensor.battery_discharge
     icon: mdi:battery-arrow-down
+    name: Battery
     color: "#4caf50"
 consumption:
   - entity: sensor.house_power
     icon: mdi:home
+    name: House
   - entity: sensor.ev_charger_power
     icon: mdi:car-electric
     color: "#2196f3"
@@ -123,8 +128,12 @@ consumption_remainder:
 | `rounding` | number | `0` | Decimal places for displayed values |
 | `hide_zero_values` | bool | `true` | Hide bars with zero values |
 | `transparent` | bool | `true` | Remove card background |
-| `easing` | bool | `false` | Smooth value transitions |
+| `easing` | bool | `true` | Smooth value transitions over time |
+| `slanted_edge` | bool | `true` | Slant the right edge of source labels |
+| `fill_height` | bool | `false` | Stretch to fill the available card height |
+| `show_names` | bool | `true` | Show entity names when the card is tall enough |
 | `accolade_style` | string | `hatched` | Visual theme (see [Themes](#themes) below) |
+| `grid_options` | object | `{}` | Override HA grid sizing (e.g. `{ columns: 6, rows: 2 }`) |
 | `production_remainder` | object | | Config for production remainder bar |
 | `consumption_remainder` | object | | Config for consumption remainder bar |
 
@@ -133,9 +142,10 @@ consumption_remainder:
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `entity` | string | **required** | Entity ID |
-| `icon` | string | auto-detected | MDI icon override |
-| `color` | string | auto-generated | CSS color |
-| `bg_opacity` | string | `inherit` | Background opacity |
+| `name` | string | `friendly_name` | Custom display name (shown when card is tall enough) |
+| `icon` | string | auto-detected | MDI icon override (defaults: `mdi:solar-power-variant` for sources, `mdi:power-plug` for destinations) |
+| `color` | string | auto-generated | CSS color (`#hex`, `rgb()`, `var(--name)`) |
+| `bg_opacity` | string | `inherit` | Background opacity (0–1) |
 | `text_color` | string | `inherit` | Text color override |
 | `unit_of_measurement` | string | from entity | Unit override |
 
@@ -157,6 +167,7 @@ The `accolade_style` option controls the visual style of the bracket connectors 
 | Value | Description |
 |---|---|
 | `hatched` | **(default)** Solid fill with hatched pattern on remainder bars |
+| `animated` | Animated diagonal stripes on remainder bars (shortfall scrolls left, surplus scrolls right) |
 | `classic` | Solid fill with border, no hatching |
 | `gradient` | Fades from source color downward |
 | `tapered` | Narrows toward destination (Sankey-diagram feel) |
@@ -164,6 +175,30 @@ The `accolade_style` option controls the visual style of the bracket connectors 
 | `dashed` | Dashed border with cross-hatch fill |
 | `shadow` | Invisible body with inset shadow and vertical lines |
 | `double-line` | Twin parallel lines with sparse diagonal stripes |
+
+### Responsive behavior
+
+The card adapts to its available height:
+
+- **Compact (1 row):** Only icon + value shown in source labels and destinations.
+- **Taller layouts (2+ rows, or `fill_height: true`):** Entity names automatically appear below the value in both source labels and destination bars when there is enough vertical space. The threshold is content-relative (based on `em` units, not fixed pixels), so it scales with font size.
+- **`show_names: false`:** Disables entity names entirely, regardless of available space.
+
+### Entity warnings
+
+The card shows inline warnings when:
+- An entity is not found in Home Assistant
+- An entity state is `unavailable` or `unknown`
+- An entity has a non-numeric state
+
+### Editor features
+
+The visual editor includes:
+- **Entity management:** Add, remove, and reorder entities with up/down buttons per list.
+- **Flip button:** Swap all sources and destinations in one click.
+- **Entity deduplication:** Already-used entities are excluded from the picker to prevent duplicates.
+- **Per-entity customization:** Name, icon, color, text color, background opacity, and unit override per entity.
+- **Remainder editors:** Customize shortfall and surplus appearance with a visual diagram explaining the concept.
 
 ## Default colors
 
@@ -182,12 +217,29 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
 
 ```css
 :host {
+  /* Base source/destination colors */
   --hnl-flow-bars-color-production: #ff9800;
   --hnl-flow-bars-color-consumption: #488fc2;
+
+  /* Auto-generated palette variants (0–4 per side, shifted in hue/lightness) */
+  --hnl-flow-bars-color-production-0: /* base */;
+  --hnl-flow-bars-color-production-1: /* darker, hue-shifted */;
+  --hnl-flow-bars-color-production-2: /* lighter, hue-shifted */;
+  --hnl-flow-bars-color-production-3: /* darker, wider hue shift */;
+  --hnl-flow-bars-color-production-4: /* lighter, wider hue shift */;
+  /* Same pattern for consumption-0 through consumption-4 */
+
+  /* Remainder colors and text */
   --hnl-flow-bars-color-production-remainder: #488fc2;
+  --hnl-flow-bars-text-color-production-remainder: #fff;
   --hnl-flow-bars-color-consumption-remainder: #8353d1;
+  --hnl-flow-bars-text-color-consumption-remainder: #fff;
 }
 ```
+
+## Grid sizing
+
+The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, `min_rows: 1`). Override with `grid_options` in the card config, or resize via the HA UI.
 
 ## Development
 
@@ -202,17 +254,3 @@ npm run build  # production build
 ## License
 
 MIT
-
-
-
-
-
-
-
-
-
-
-
-
-
-

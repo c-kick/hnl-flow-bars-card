@@ -53,6 +53,10 @@ Both bars scale proportionally so you can see the balance at a glance.
 
 <sub>2a: 6kWh shortfall</sub>
 
+<img width="471" height="64" alt="image" src="https://github.com/user-attachments/assets/c30a26e2-b909-44e8-8a8b-6e2ec8eba2e3" />
+
+<sub>2b: 6kWh surplus</sub>
+
 ### Example 3 - Gas usage today (sources and destination flipped)
 - How much gas was spent on central heating
 - How much gas was spent on warm water
@@ -205,6 +209,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

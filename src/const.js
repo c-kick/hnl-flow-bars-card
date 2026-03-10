@@ -1,4 +1,4 @@
-export const CARD_VERSION = '1.2.3';
+export const CARD_VERSION = '1.3.0';
 export const CARD_NAME = 'hnl-flow-bars-card';
 export const CARD_DESCRIPTION = 'A flow bar visualization card for Home Assistant';
 
@@ -16,6 +16,7 @@ export const TEXT_COLOR_SURPLUS = '#fff';
 export const DEFAULT_ACCOLADE_STYLE = 'hatched';
 export const ACCOLADE_STYLES = [
     { value: 'hatched',     label: 'Hatched',       description: 'Solid fill, hatched remainders' },
+    { value: 'animated',    label: 'Animated',      description: 'Animated diagonal stripes' },
     { value: 'classic',     label: 'Classic',       description: 'Solid fill with border' },
     { value: 'gradient',    label: 'Gradient fade', description: 'Fades from source color downward' },
     { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },

@@ -39,6 +39,7 @@ class HnlFlowBarsCardEditor extends LitElement {
 
     const cleanEntity = (ent) => {
       const cleaned = { entity: ent.entity };
+      if (ent.name) cleaned.name = ent.name;
       if (ent.icon) cleaned.icon = ent.icon;
       if (ent.color) cleaned.color = ent.color;
       if (ent.unit_of_measurement) cleaned.unit_of_measurement = ent.unit_of_measurement;
@@ -79,6 +80,15 @@ class HnlFlowBarsCardEditor extends LitElement {
   _numberChanged(field, ev) {
     const val = parseInt(ev.target.value, 10);
     this._config = { ...this._config, [field]: isNaN(val) ? 0 : val };
+    this._fireConfigChanged();
+  }
+
+  _flipSourcesAndDestinations() {
+    this._config = {
+      ...this._config,
+      production: [...(this._config.consumption || [])],
+      consumption: [...(this._config.production || [])],
+    };
     this._fireConfigChanged();
   }
 
@@ -131,6 +141,11 @@ class HnlFlowBarsCardEditor extends LitElement {
 
   render() {
     if (!this.hass || !this._config) return html``;
+
+    const usedEntities = [
+      ...(this._config.production || []),
+      ...(this._config.consumption || []),
+    ].map((e) => e.entity).filter(Boolean);
 
     return html`
       <div class="editor">
@@ -186,8 +201,41 @@ class HnlFlowBarsCardEditor extends LitElement {
               <span class="toggle-description">Ease value changes over time</span>
             </div>
             <ha-switch
-              .checked=${this._config.easing ?? false}
+              .checked=${this._config.easing ?? true}
               @change=${(ev) => this._toggleChanged('easing', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Slanted edge</span>
+              <span class="toggle-description">Slant the right edge of source labels</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.slanted_edge ?? true}
+              @change=${(ev) => this._toggleChanged('slanted_edge', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Fill height</span>
+              <span class="toggle-description">Stretch to fill the available card height</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.fill_height ?? false}
+              @change=${(ev) => this._toggleChanged('fill_height', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Show names</span>
+              <span class="toggle-description">Show entity names when there is enough room</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.show_names ?? true}
+              @change=${(ev) => this._toggleChanged('show_names', ev)}
             ></ha-switch>
           </div>
 
@@ -214,17 +262,26 @@ class HnlFlowBarsCardEditor extends LitElement {
         <entity-list-editor
           .hass=${this.hass}
           .entities=${this._config.production || []}
+          .usedEntities=${usedEntities}
           .label=${'Sources'}
           .description=${'Entities that supply or produce units \u2014 shown in the top bar.'}
           .icon=${'mdi:arrow-right-bold-box'}
           @entities-changed=${this._productionChanged}
         ></entity-list-editor>
 
-        <div class="divider"></div>
+        <div class="flip-row">
+          <div class="divider flip-divider"></div>
+          <ha-button @click=${this._flipSourcesAndDestinations}>
+            <ha-icon icon="mdi:swap-vertical" slot="icon"></ha-icon>
+            Flip sources &amp; destinations
+          </ha-button>
+          <div class="divider flip-divider"></div>
+        </div>
 
         <entity-list-editor
           .hass=${this.hass}
           .entities=${this._config.consumption || []}
+          .usedEntities=${usedEntities}
           .label=${'Destinations'}
           .description=${'Entities that consume or use units \u2014 shown in the bottom bar.'}
           .icon=${'mdi:arrow-left-bold-box'}
@@ -312,6 +369,16 @@ class HnlFlowBarsCardEditor extends LitElement {
       .divider {
         height: 1px;
         background: var(--divider-color, rgba(0, 0, 0, 0.12));
+      }
+
+      .flip-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .flip-divider {
+        flex: 1;
       }
 
       .toggle-row {

@@ -17,6 +17,7 @@ class EntityListEditor extends LitElement {
     return {
       hass: { type: Object },
       entities: { type: Array },
+      usedEntities: { type: Array },
       label: { type: String },
       description: { type: String },
       icon: { type: String },
@@ -26,6 +27,7 @@ class EntityListEditor extends LitElement {
   constructor() {
     super();
     this.entities = [];
+    this.usedEntities = [];
   }
 
   _fireChanged() {
@@ -72,7 +74,7 @@ class EntityListEditor extends LitElement {
   }
 
   _renderEntityRow(entity, index) {
-    const name = this._getEntityName(entity);
+    const name = entity.name || this._getEntityName(entity);
 
     return html`
       <ha-expansion-panel .header=${name} outlined>
@@ -105,9 +107,18 @@ class EntityListEditor extends LitElement {
             .value=${entity.entity || ''}
             .label=${'Entity'}
             .allowCustomEntity=${true}
+            .excludeEntities=${this.usedEntities.filter((e) => e !== entity.entity)}
             @value-changed=${(ev) =>
               this._entityFieldChanged(index, 'entity', ev.detail.value)}
           ></ha-entity-picker>
+
+          <ha-textfield
+            .label=${'Name (optional)'}
+            .value=${entity.name || ''}
+            .placeholder=${this._getEntityName({ entity: entity.entity })}
+            @input=${(ev) =>
+              this._entityFieldChanged(index, 'name', ev.target.value)}
+          ></ha-textfield>
 
           <ha-icon-picker
             .hass=${this.hass}

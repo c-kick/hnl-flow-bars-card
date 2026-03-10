@@ -91,38 +91,12 @@ We do, but I found that card falls short when you need insight in one glance. Se
 
 ## Configuration
 
-```yaml
-type: custom:hnl-flow-bars-card
-unit_of_measurement: W
-rounding: 0
-hide_zero_values: true
-transparent: true
-easing: true
-slanted_edge: true
-fill_height: false
-show_names: true
-accolade_style: hatched
-production:
-  - entity: sensor.solar_power
-    icon: mdi:solar-power-variant
-  - entity: sensor.battery_discharge
-    icon: mdi:battery-arrow-down
-    name: Battery
-    color: "#4caf50"
-consumption:
-  - entity: sensor.house_power
-    icon: mdi:home
-    name: House
-  - entity: sensor.ev_charger_power
-    icon: mdi:car-electric
-    color: "#2196f3"
-production_remainder:
-  name: Grid import
-  icon: mdi:transmission-tower-import
-consumption_remainder:
-  name: Grid export
-  icon: mdi:transmission-tower-export
-```
+The card is equipped with a visual editor, with which you can adjust all settings.
+
+<img width="506" height="555" alt="image" src="https://github.com/user-attachments/assets/f147d4f6-3bb2-4e6c-848f-6ccc782376cf" />
+
+<img width="512" height="643" alt="image" src="https://github.com/user-attachments/assets/96f2c126-4d4a-4f3e-8ee0-18e059d99559" />
+
 
 ### Card options
 
@@ -181,6 +155,41 @@ The `accolade_style` option controls the visual style of the bracket connectors 
 | `dashed` | Dashed border with cross-hatch fill |
 | `shadow` | Invisible body with inset shadow and vertical lines |
 | `double-line` | Twin parallel lines with sparse diagonal stripes |
+
+### YAML Configuration
+
+```yaml
+type: custom:hnl-flow-bars-card
+unit_of_measurement: W
+rounding: 0
+hide_zero_values: true
+transparent: true
+easing: true
+slanted_edge: true
+fill_height: false
+show_names: true
+accolade_style: hatched
+production:
+  - entity: sensor.solar_power
+    icon: mdi:solar-power-variant
+  - entity: sensor.battery_discharge
+    icon: mdi:battery-arrow-down
+    name: Battery
+    color: "#4caf50"
+consumption:
+  - entity: sensor.house_power
+    icon: mdi:home
+    name: House
+  - entity: sensor.ev_charger_power
+    icon: mdi:car-electric
+    color: "#2196f3"
+production_remainder:
+  name: Grid import
+  icon: mdi:transmission-tower-import
+consumption_remainder:
+  name: Grid export
+  icon: mdi:transmission-tower-export
+```
 
 ### Responsive behavior
 
@@ -260,5 +269,6 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 

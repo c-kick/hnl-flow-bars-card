@@ -65,9 +65,9 @@ Or, smaller, with less decimals and slightly different colors + dotted theme:
 
 ## Don't we already have the Distribution Card for this?
 
-We do, but I think that card falls short when you need insight in one glance. See the difference for yourself:
+We do, but I found that card falls short when you need insight in one glance. See the difference for yourself:
 
-<img width="443" height="233" alt="image" src="https://github.com/user-attachments/assets/672b872a-85b0-4c7a-a35c-a8fc2035b66b" />
+<img width="415" height="192" alt="image" src="https://github.com/user-attachments/assets/710acb08-59fb-4531-b93d-219ea11f5045" />
 
 ## Installation
 
@@ -203,6 +203,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

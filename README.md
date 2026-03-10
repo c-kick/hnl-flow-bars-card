@@ -49,7 +49,9 @@ Both bars scale proportionally so you can see the balance at a glance.
 - How much was returned to the grid
 - How much was drawn additionally from the grid
 
-<img width="430" height="83" alt="image" src="https://github.com/user-attachments/assets/8cf637e8-d219-4867-a424-0eb84d677b6c" />
+<img width="471" height="68" alt="image" src="https://github.com/user-attachments/assets/d308d241-b9e7-45f5-9cf9-db120b82359e" />
+
+<sub>2a: 6kWh shortfall</sub>
 
 ### Example 3 - Gas usage today (sources and destination flipped)
 - How much gas was spent on central heating
@@ -203,6 +205,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

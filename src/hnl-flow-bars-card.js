@@ -189,7 +189,8 @@ class HnlFlowBarsCard extends LitElement {
     _getAccoladeClasses(isRemainder = false) {
         const style = this._rawConfig.accolade_style;
         const isAnimated = style === 'animated';
-        const themeClass = style !== 'classic' && style !== DEFAULT_ACCOLADE_STYLE && !isAnimated ? `accolade-${style}` : '';
+        const isNative = style === 'native';
+        const themeClass = style !== 'classic' && style !== DEFAULT_ACCOLADE_STYLE && !isAnimated && !isNative ? `accolade-${style}` : '';
         const hatchedClass = isRemainder && (style === DEFAULT_ACCOLADE_STYLE || isAnimated) ? 'hatched' : '';
         return [themeClass, hatchedClass].filter(Boolean).join(' ');
     }
@@ -309,7 +310,7 @@ class HnlFlowBarsCard extends LitElement {
                     </div>
                 ` : null}
                 <div class="card-content">
-        <hnl-flow-bars class="${this._rawConfig.slanted_edge ? '' : 'no-slant'} ${this._rawConfig.fill_height ? 'fill-height' : ''} ${this._rawConfig.show_names ? '' : 'hide-names'} ${this._rawConfig.accolade_style === 'animated' ? 'animated' : ''}">
+        <hnl-flow-bars class="${this._rawConfig.slanted_edge ? '' : 'no-slant'} ${this._rawConfig.fill_height ? 'fill-height' : ''} ${this._rawConfig.show_names ? '' : 'hide-names'} ${this._rawConfig.accolade_style === 'animated' ? 'animated' : ''} ${this._rawConfig.accolade_style === 'native' ? 'native' : ''}">
             <hnl-flow-bar-source-group>
                 <hnl-flow-bar-source-labels>
                     ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
@@ -905,6 +906,84 @@ class HnlFlowBarsCard extends LitElement {
             hnl-flow-bar-source-accolade.accolade-double-line::after { bottom: 0; }
             hnl-flow-bar-source-accolade.accolade-double-line:last-child::before {
                 border-radius: 0 var(--border-radius, 8px) 0 0;
+            }
+
+            /* ═══ Accolade variant: Native (HA distribution card feel) ═══ */
+
+            /* Two stacked bar rows — flatten to simple 2-row grid with gap */
+            hnl-flow-bars.native {
+                grid-template-rows: auto auto;
+                gap: 4px;
+                border-radius: 0;
+            }
+            hnl-flow-bars.native.fill-height {
+                grid-template-rows: 1fr 1fr;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-group {
+                display: flex;
+                grid-row: 1;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-accolades {
+                display: none;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-labels {
+                flex: 1;
+                align-items: stretch;
+            }
+            hnl-flow-bars.native hnl-flow-bar-destination-group {
+                grid-row: 2;
+            }
+
+            /* Padding to prevent pill ends clipping against card border-radius */
+            ha-card.transparent .card-content:has(.native) {
+                padding: 8px;
+            }
+
+            /* Source labels — full bars, no slant */
+            hnl-flow-bars.native hnl-flow-bar-source-label {
+                --slanted-edge: 0px;
+                padding-right: 0;
+                margin-bottom: 0;
+                --correction: 0px;
+                background: oklch(from var(--background-color) l c h / 1);
+                justify-content: center;
+                border-radius: 0;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-label > span {
+                clip-path: none;
+                background: none;
+                padding-right: var(--label-padding, 0.4em);
+                border-radius: 0;
+                border-top-left-radius: 0;
+                justify-items: center;
+            }
+            /* Rounded ends only on outer edges */
+            hnl-flow-bars.native hnl-flow-bar-source-label:first-child {
+                border-radius: 9999px 0 0 9999px;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-label:last-child {
+                border-radius: 0 9999px 9999px 0;
+            }
+            hnl-flow-bars.native hnl-flow-bar-source-label:only-child {
+                border-radius: 9999px;
+            }
+
+            /* Destination bars — rounded ends only on outer edges, no inner span background */
+            hnl-flow-bars.native hnl-flow-bar-destination {
+                border-radius: 0;
+            }
+            hnl-flow-bars.native hnl-flow-bar-destination > span {
+                background: none;
+                border-radius: 0;
+            }
+            hnl-flow-bars.native hnl-flow-bar-destination:first-child {
+                border-radius: 9999px 0 0 9999px;
+            }
+            hnl-flow-bars.native hnl-flow-bar-destination:last-child {
+                border-radius: 0 9999px 9999px 0;
+            }
+            hnl-flow-bars.native hnl-flow-bar-destination:only-child {
+                border-radius: 9999px;
             }
 
             /* ═══ No slanted edge ═══ */

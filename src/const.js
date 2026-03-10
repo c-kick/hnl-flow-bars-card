@@ -24,4 +24,5 @@ export const ACCOLADE_STYLES = [
     { value: 'dashed',      label: 'Dashed rail',   description: 'Dashed border, cross-hatch fill' },
     { value: 'shadow',      label: 'Shadow',        description: 'Invisible body, shadow only' },
     { value: 'double-line', label: 'Double line',   description: 'Twin lines, sparse stripes' },
+    { value: 'native',      label: 'Native',        description: 'Matches HA distribution card style' },
 ];

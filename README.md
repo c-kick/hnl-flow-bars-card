@@ -35,13 +35,13 @@ Both bars scale proportionally so you can see the balance at a glance.
 - If something remains: how much flows back to the grid?
 - If we fall short: how much is drawn from the grid?
 
-<img width="474" height="72" src="https://github.com/user-attachments/assets/d836f34a-3950-4c76-8cdc-40e5454569fa" />
+<img width="470" height="62" alt="image" src="https://github.com/user-attachments/assets/caed18fc-78ca-4418-8432-bdad4e134ce2" />
 
-<sub>1a: 527W surplus</sub>
+<sub>1a: 805W surplus</sub>
 
-<img width="471" height="66" alt="image" src="https://github.com/user-attachments/assets/f9f0d65b-bbd4-4dda-861c-60616947e18a" />
+<img width="471" height="63" alt="image" src="https://github.com/user-attachments/assets/427557fe-cc5e-4481-b5fa-4998d5a4ae5f" />
 
-<sub>1b: 2386W Shortfall</sub>
+<sub>1b: 822W Shortfall</sub>
 
 ### Example 2 - Total energy flow
 - Show how much solar power was generated today
@@ -49,24 +49,30 @@ Both bars scale proportionally so you can see the balance at a glance.
 - How much was returned to the grid
 - How much was drawn additionally from the grid
 
-<img width="471" height="68" alt="image" src="https://github.com/user-attachments/assets/d308d241-b9e7-45f5-9cf9-db120b82359e" />
+<img width="469" height="63" alt="image" src="https://github.com/user-attachments/assets/d2828741-d399-4aa6-99d0-61a1953a8882" />
 
-<sub>2a: 6kWh shortfall</sub>
+<sub>2a: 7kWh shortfall</sub>
 
-<img width="471" height="64" alt="image" src="https://github.com/user-attachments/assets/c30a26e2-b909-44e8-8a8b-6e2ec8eba2e3" />
+<img width="471" height="62" alt="image" src="https://github.com/user-attachments/assets/5df197ca-89ae-4f24-a889-59f9dd43aa1a" />
 
-<sub>2b: 6kWh surplus</sub>
+<sub>2b: 7kWh surplus</sub>
 
 ### Example 3 - Small mode
-The card performs very well in small spaces. Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
+The card performs very well in small spaces (as this was the initial intended purpose when I started work on it). Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
 
 <img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/8fec86bd-3b9a-4978-9804-46cd82f56997" />
+
+### Example 4 - Compare whatever you like
+
+As long as the entities you use have a numeric (int/float/decimal) value, you can use them - even if it makes no sense at all.
+
+<img width="468" height="60" alt="image" src="https://github.com/user-attachments/assets/3ee0b6f3-1653-4ce5-9732-84b6a36aa39c" />
 
 ## Don't we already have the Distribution Card for this?
 
 We do, but I found that card falls short when you need insight in one glance. See the difference for yourself:
 
-<img width="415" height="192" alt="image" src="https://github.com/user-attachments/assets/710acb08-59fb-4531-b93d-219ea11f5045" />
+<img width="458" height="186" alt="image" src="https://github.com/user-attachments/assets/adc6b306-0b84-476f-965a-c197813e1c17" />
 
 ## Installation
 
@@ -254,4 +260,5 @@ npm run build  # production build
 ## License
 
 MIT
+
 

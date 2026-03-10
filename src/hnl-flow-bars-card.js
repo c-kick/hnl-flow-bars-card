@@ -385,7 +385,7 @@ class HnlFlowBarsCard extends LitElement {
             },
             accolade_style: config.accolade_style || DEFAULT_ACCOLADE_STYLE,
             slanted_edge: config.slanted_edge ?? true,
-            fill_height: config.fill_height ?? false,
+            fill_height: config.fill_height ?? true,
             show_names: config.show_names ?? true,
             easing: config.easing ?? true,
             hide_zero_values: config.hide_zero_values ?? true,
@@ -403,10 +403,50 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     //part of HASS card API
-    static getStubConfig() {
+    static getStubConfig(hass) {
+        if (!hass) {
+            return {
+                production: [{ entity: "sensor.solar_power" }],
+                consumption: [{ entity: "sensor.house_power" }],
+            };
+        }
+
+        // Find numeric sensor entities, preferring power/energy ones
+        const states = Object.values(hass.states);
+        const numeric = states.filter(
+            (s) =>
+                s.entity_id.startsWith("sensor.") &&
+                !isNaN(parseFloat(s.state)) &&
+                isFinite(s.state)
+        );
+
+        // Prefer power (W) sensors, then energy (kWh/Wh), then any numeric sensor
+        const byPreference = (keyword) =>
+            numeric.find(
+                (s) =>
+                    s.entity_id.includes(keyword) ||
+                    (s.attributes.device_class || "") === keyword
+            );
+
+        const source =
+            byPreference("solar") ||
+            byPreference("power") ||
+            numeric[0];
+        const dest =
+            numeric.find(
+                (s) =>
+                    s !== source &&
+                    (s.entity_id.includes("consumption") ||
+                        s.entity_id.includes("house") ||
+                        s.entity_id.includes("load") ||
+                        (s.attributes.device_class || "") === "power")
+            ) ||
+            numeric.find((s) => s !== source) ||
+            source;
+
         return {
-            production: [{ entity: "sensor.solar_power" }],
-            consumption: [{ entity: "sensor.house_power" }],
+            production: [{ entity: source?.entity_id || "sensor.solar_power" }],
+            consumption: [{ entity: dest?.entity_id || "sensor.house_power" }],
         };
     }
 
@@ -458,6 +498,9 @@ class HnlFlowBarsCard extends LitElement {
                 --hnl-flow-bars-color-consumption-remainder: #8353d1;
                 --hnl-flow-bars-text-color-consumption-remainder: #fff;
 
+                display: block;
+                height: 100%;
+                min-height: var(--row-height, 56px);
                 font-size: var(--font-size, 0.8em);
                 font-weight: 500;
             }
@@ -477,7 +520,8 @@ class HnlFlowBarsCard extends LitElement {
             }
             ha-card.transparent {
                 background: none;
-                overflow: unset;
+                border: none;
+                box-shadow: none;
             }
 
             .card-content {

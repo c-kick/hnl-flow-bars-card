@@ -815,6 +815,9 @@ class HnlFlowBarsCard extends LitElement {
             hnl-flow-bar-source-accolade.accolade-tapered:last-child {
                 clip-path: polygon(0 0, 100% 0, 100% 100%, 4px 100%);
             }
+            hnl-flow-bar-source-accolade.accolade-tapered:only-child {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
 
             /* ═══ Accolade variant: Dotted ═══ */
             hnl-flow-bar-source-accolade.accolade-dotted {
@@ -912,12 +915,9 @@ class HnlFlowBarsCard extends LitElement {
 
             /* Two stacked bar rows — flatten to simple 2-row grid with gap */
             hnl-flow-bars.native {
-                grid-template-rows: auto auto;
+                grid-template-rows: 1fr 1fr;
                 gap: 4px;
                 border-radius: 0;
-            }
-            hnl-flow-bars.native.fill-height {
-                grid-template-rows: 1fr 1fr;
             }
             hnl-flow-bars.native hnl-flow-bar-source-group {
                 display: flex;
@@ -952,7 +952,7 @@ class HnlFlowBarsCard extends LitElement {
             hnl-flow-bars.native hnl-flow-bar-source-label > span {
                 clip-path: none;
                 background: none;
-                padding-right: var(--label-padding, 0.4em);
+                padding-right: calc(var(--font-size, 0.8em) * 0.5);
                 border-radius: 0;
                 border-top-left-radius: 0;
                 justify-items: center;
@@ -991,7 +991,7 @@ class HnlFlowBarsCard extends LitElement {
                 --slanted-edge: 0px;
                 padding-right: 0;
             }
-            hnl-flow-bars.no-slant hnl-flow-bar-source-label > span {
+            hnl-flow-bars.no-slant:not(.native) hnl-flow-bar-source-label > span {
                 clip-path: none;
                 border-top-right-radius: var(--border-radius, 8px);
             }

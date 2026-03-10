@@ -57,10 +57,17 @@ Both bars scale proportionally so you can see the balance at a glance.
 
 <sub>2b: 7kWh surplus</sub>
 
-### Example 3 - Small mode
+### Example 3 - Layout variants
+
+#### Small (half width)
 The card performs very well in small spaces (as this was the initial intended purpose when I started work on it). Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
 
 <img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/8fec86bd-3b9a-4978-9804-46cd82f56997" />
+
+#### Larger (higher)
+Or, spread over 2 rows, with `Show names` enabled:
+
+<img width="472" height="112" alt="image" src="https://github.com/user-attachments/assets/75beb743-19da-467a-a276-da5fa374f36f" />
 
 ### Example 4 - Compare whatever you like
 
@@ -93,10 +100,17 @@ We do, but I found that card falls short when you need insight in one glance. Se
 
 The card is equipped with a visual editor, with which you can adjust all settings.
 
+### General settings
+
 <img width="506" height="555" alt="image" src="https://github.com/user-attachments/assets/f147d4f6-3bb2-4e6c-848f-6ccc782376cf" />
+
+### Entites & surplus/shortfall
 
 <img width="512" height="643" alt="image" src="https://github.com/user-attachments/assets/96f2c126-4d4a-4f3e-8ee0-18e059d99559" />
 
+### Settings per entity:
+
+<img width="490" height="563" alt="image" src="https://github.com/user-attachments/assets/c33db103-bed5-497d-98a2-8e0ac5502549" />
 
 ### Card options
 
@@ -269,6 +283,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

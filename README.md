@@ -9,11 +9,11 @@ Production sources (e.g. solar, battery) are shown on top with slanted labels an
 The main purpose of this card is to show source(s), destination(s), surplus and shortfall - all in one.
 
 So if you need to see:
-- How much [x] is generated?
-- How much of it is consumed?
+- How much units are generated?
+- How much units are consumed?
 - Does anything remain? Or do we fall short?
 
-> x = solar, water, gas, apples, oranges - whatever you want.
+> units can be solar, water, gas, kilograms, liters, apples, oranges - whatever you want!
 
 Then is the card for you.
 
@@ -283,6 +283,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 

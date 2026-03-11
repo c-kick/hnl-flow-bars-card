@@ -24,6 +24,7 @@ export const LAYOUTS = [
             { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
             { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
             { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
+            { value: 'minimal',     label: 'Minimal',       description: 'Minimalistic' },
         ],
     },
     {

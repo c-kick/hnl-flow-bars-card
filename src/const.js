@@ -24,7 +24,6 @@ export const LAYOUTS = [
             { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
             { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
             { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
-            { value: 'minimal',     label: 'Minimal',       description: 'Minimalistic' },
         ],
     },
     {
@@ -37,7 +36,7 @@ export const LAYOUTS = [
             { value: 'split-corners', label: 'Split corners', description: 'Rounded corners matching HA card radius' },
             { value: 'gradient',              label: 'Gradient',              description: 'Horizontal gradient from base to darker shade' },
             { value: 'split-corners-gradient', label: 'Split corners gradient', description: 'Split corners with horizontal gradient' },
-
+            { value: 'minimal',     label: 'Minimal',       description: 'Minimalistic' },
         ],
     },
 ];

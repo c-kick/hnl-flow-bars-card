@@ -85,9 +85,9 @@ You can add as many sources and destinations as you like, but keep in mind that 
 
 ## Don't we already have the Distribution Card for this?
 
-We do, but that card only shows composition, not the flow from production to consumption (and its limited to energy entities only). See the difference for yourself:
+We do, but that card only shows _composition_, not the flow from production to consumption (and its limited to energy entities only). See the difference for yourself:
 
-<img width="458" height="186" alt="image" src="https://github.com/user-attachments/assets/adc6b306-0b84-476f-965a-c197813e1c17" />
+<img width="510" height="158" alt="image" src="https://github.com/user-attachments/assets/ee50cadb-7ec6-4b70-94ba-5efe6177b35e" />
 
 ## Installation
 

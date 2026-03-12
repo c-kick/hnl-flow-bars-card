@@ -208,7 +208,6 @@ class HnlFlowBarsCard extends LitElement {
 
         // Toggles
         if (this._rawConfig.animated) classes.push('animated');
-        if (this._rawConfig.hatched) classes.push('hatched');
 
         return classes.join(' ');
     }
@@ -245,7 +244,7 @@ class HnlFlowBarsCard extends LitElement {
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
         const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-flow-bar-source-label title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};"><span>
+            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};"><span>
                 <span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span></span>
                 <span class="entity-name">${cfg.name}</span>
@@ -652,11 +651,13 @@ class HnlFlowBarsCard extends LitElement {
                 align-items: center;
                 justify-content: center;
                 padding: 0 1.5cqi;
-                background-color: var(--adjusted-bg-color);
+                --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
+                --bg-gradient: linear-gradient(transparent, transparent);
+                --bg-hatched: linear-gradient(transparent, transparent);
+                background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color);
                 color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
                 overflow: hidden;
                 min-width: var(--min-bar-width);
-                --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
                 box-shadow: inset 0 0 0 2px var(--background-color);
             }
             hnl-flow-bar-destination:last-child {
@@ -667,7 +668,8 @@ class HnlFlowBarsCard extends LitElement {
                 grid-row: 2;
                 border: var(--accolade-border-width, var(--accolade-height, 2px)) solid var(--adjusted-bg-color, green);
                 border-bottom: 0;
-                background: oklch(from var(--background-color) l c h / var(--accolade-bg-opacity));
+                --bg-hatched: linear-gradient(transparent, transparent);
+                background: var(--bg-hatched), oklch(from var(--background-color) l c h / var(--accolade-bg-opacity));
                 color: oklch(from var(--background-color) calc(l * .3) c h / 1);
                 --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
                 overflow: hidden;
@@ -715,8 +717,10 @@ class HnlFlowBarsCard extends LitElement {
 
             hnl-flow-bar-source-label > span {
                 --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
+                --bg-gradient: linear-gradient(transparent, transparent);
+                --bg-hatched: linear-gradient(transparent, transparent);
                 align-items: center;
-                background: var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
+                background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
                 color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
                 padding: 10cqb 1.5cqi;
                 padding-right: calc((var(--label-edge-padding) / 2) + var(--slanted-edge, 20px));
@@ -780,68 +784,36 @@ class HnlFlowBarsCard extends LitElement {
                 display: none !important;
             }
 
-            /* ═══ THEME: Hatched (default) ═══ */
-            hnl-flow-bar-source-accolade.hatched {
-                background: repeating-linear-gradient(
-                    -45deg,
-                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 0px,
-                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 3px,
-                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 3px,
-                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 6px
-                );
+            /* ═══ TOGGLE: Animated — keyframes ═══ */
+            /* 3-layer: gradient (static), hatched (animated), base (static) */
+            @keyframes stripe-scroll-left-3 {
+                0% { background-position: 0 0, 0 0, 0 0; }
+                100% { background-position: -8.485px 0, 0 0, 0 0; }
+            }
+            @keyframes stripe-scroll-right-3 {
+                0% { background-position: 0 0, 0 0, 0 0; }
+                100% { background-position: 8.485px 0, 0 0, 0 0; }
+            }
+            /* 2-layer: hatched (animated), base (static) — for accolades */
+            @keyframes stripe-scroll-left-2 {
+                0% { background-position: 0 0, 0 0; }
+                100% { background-position: -8.485px 0, 0 0; }
+            }
+            @keyframes stripe-scroll-right-2 {
+                0% { background-position: 0 0, 0 0; }
+                100% { background-position: 8.485px 0, 0 0; }
             }
 
-            hnl-flow-bar-destination.hatched {
-                background: repeating-linear-gradient(
-                    -45deg,
-                    var(--adjusted-bg-color) 0px,
-                    var(--adjusted-bg-color) 3px,
-                    oklch(from var(--adjusted-bg-color) calc(l * 0.75) c h / 1) 3px,
-                    oklch(from var(--adjusted-bg-color) calc(l * 0.75) c h / 1) 6px
-                );
-            }
-
-            hnl-flow-bar-destination.hatched > span {
-                background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 0.6);
-            }
-
-            /* ═══ THEME: Animated ═══ */
-            @keyframes stripe-scroll-left {
-                0% { background-position: 0 0; }
-                100% { background-position: -8.485px 0; }
-            }
-            @keyframes stripe-scroll-right {
-                0% { background-position: 0 0; }
-                100% { background-position: 8.485px 0; }
-            }
-
-            hnl-flow-bars.animated hnl-flow-bar-source-accolade.hatched {
-                background: repeating-linear-gradient(
-                    -45deg,
-                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 0px,
-                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 3px,
-                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 3px,
-                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.5)) 6px
-                );
-                background-size: 8.485px 8.485px;
-                animation: stripe-scroll-left 0.6s linear infinite;
-            }
-
-            hnl-flow-bars.animated hnl-flow-bar-destination.hatched {
-                background-size: 8.485px 8.485px;
-                animation: stripe-scroll-right 0.6s linear infinite;
-            }
-
-            /* ═══ THEME: Gradient ═══ */
+            /* ═══ TOGGLE: Gradient ═══ */
             hnl-flow-bars.gradient hnl-flow-bar-source-label > span {
-                background: linear-gradient(
+                --bg-gradient: linear-gradient(
                     to left,
                     oklch(from var(--background-color) l c h / 1),
                     oklch(from var(--background-color) calc(l * 0.85) c calc(h - 30) / 1)
                 );
             }
             hnl-flow-bars.gradient hnl-flow-bar-destination {
-                background: linear-gradient(
+                --bg-gradient: linear-gradient(
                     to left,
                     oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity)),
                     oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--destination-bg-opacity))
@@ -884,7 +856,9 @@ class HnlFlowBarsCard extends LitElement {
                 padding-right: 0;
                 margin-bottom: 0;
                 --correction: 0px;
-                background: oklch(from var(--background-color) l c h / var(--source-bg-opacity, 1));
+                --bg-gradient: linear-gradient(transparent, transparent);
+                --bg-hatched: linear-gradient(transparent, transparent);
+                background: var(--bg-hatched), var(--bg-gradient), oklch(from var(--background-color) l c h / var(--source-bg-opacity, 1));
                 justify-content: center;
                 border-radius: 0;
                 box-shadow: inset 0 0 0 2px var(--background-color);
@@ -950,16 +924,16 @@ class HnlFlowBarsCard extends LitElement {
                 border-radius: 0 0 var(--ha-card-border-radius,var(--ha-border-radius-lg)) var(--ha-card-border-radius,var(--ha-border-radius-lg));
             }
 
-            /* ═══ NATIVE THEME: Gradient ═══ */
+            /* ═══ NATIVE TOGGLE: Gradient ═══ */
             hnl-flow-bars.native.gradient hnl-flow-bar-source-label {
-                background: linear-gradient(
+                --bg-gradient: linear-gradient(
                     to left,
                     oklch(from var(--background-color) l c h / var(--source-bg-opacity, 1)),
                     oklch(from var(--background-color) calc(l * 0.85) c calc(h - 30) / var(--source-bg-opacity, 1))
                 );
             }
             hnl-flow-bars.native.gradient hnl-flow-bar-destination {
-                background: linear-gradient(
+                --bg-gradient: linear-gradient(
                     to left,
                     oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity)),
                     oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--destination-bg-opacity))
@@ -1032,6 +1006,59 @@ class HnlFlowBarsCard extends LitElement {
             hnl-flow-bar-source-label > span {
                 align-self: stretch;
                 justify-content: center;
+            }
+
+            /* ═══ TOGGLE: Hatched ═══ */
+            hnl-flow-bar-destination.hatched > span {
+                background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 0.6);
+            }
+
+            hnl-flow-bars hnl-flow-bar-source-accolade.hatched,
+            hnl-flow-bars hnl-flow-bar-destination.hatched,
+            hnl-flow-bars hnl-flow-bar-source-label.hatched {
+                --hatch-opacity: var(--source-bg-opacity);
+                --bg-hatched: repeating-linear-gradient(
+                    -45deg,
+                    oklch(from var(--background-color) calc(l * 1.1) c h / var(--hatch-opacity, 1)) 0px,
+                    oklch(from var(--background-color) calc(l * 1.1) c h / var(--hatch-opacity, 1)) 3px,
+                    transparent 3px,
+                    transparent 6px
+                );
+            }
+            /* 3-layer background-size: gradient, hatched, base */
+            hnl-flow-bars hnl-flow-bar-source-label.hatched > span,
+            hnl-flow-bars hnl-flow-bar-source-label.hatched,
+            hnl-flow-bars hnl-flow-bar-destination.hatched {
+                background-size: 8.485px 8.485px, auto, auto;
+            }
+            /* 2-layer background-size: hatched, base (accolade has no gradient layer) */
+            hnl-flow-bars hnl-flow-bar-source-accolade.hatched {
+                background-size: 8.485px 8.485px, auto;
+            }
+            hnl-flow-bars hnl-flow-bar-source-label.hatched {
+                --hatch-opacity: var(--source-bg-opacity);
+            }
+            hnl-flow-bars hnl-flow-bar-source-accolade.hatched {
+                --hatch-opacity: var(--accolade-bg-opacity);
+            }
+            hnl-flow-bars hnl-flow-bar-destination.hatched {
+                --hatch-opacity: var(--destination-bg-opacity);
+            }
+
+            /* 3-layer elements: destinations scroll right, source-labels scroll left */
+            hnl-flow-bars.animated hnl-flow-bar-destination.hatched {
+                animation: stripe-scroll-right-3 0.6s linear infinite;
+            }
+            hnl-flow-bars.animated hnl-flow-bar-source-label.hatched {
+                animation: stripe-scroll-left-3 0.6s linear infinite;
+            }
+            /* Accolade source-label: animate the > span (where background lives) */
+            hnl-flow-bars.animated hnl-flow-bar-source-label.hatched > span {
+                animation: stripe-scroll-left-3 0.6s linear infinite;
+            }
+            /* 2-layer elements: accolades scroll left */
+            hnl-flow-bars.animated hnl-flow-bar-source-accolade.hatched {
+                animation: stripe-scroll-left-2 0.6s linear infinite;
             }
 
         `;

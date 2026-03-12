@@ -92,6 +92,10 @@ We do, but that card only shows composition, not the flow from production to con
 2. Add `c-kick/hnl-flow-bars-card` with category **Dashboard**
 3. Install "HNL Flow Bars Card"
 4. Restart Home Assistant
+5. Add a card and search for "HNL Flow Bars Card"
+6. Use the visual editor to set it up
+
+<img width="371" height="371" alt="image" src="https://github.com/user-attachments/assets/e007e6a4-9776-41bc-8eac-434ac01e2a56" />
 
 ### Manual
 1. Download `hnl-flow-bars-card.js` from the [latest release](https://github.com/c-kick/hnl-flow-bars-card/releases)
@@ -106,15 +110,15 @@ The card is equipped with a visual editor, with which you can adjust all setting
 
 ### General settings
 
-<img width="506" height="555" alt="image" src="https://github.com/user-attachments/assets/f147d4f6-3bb2-4e6c-848f-6ccc782376cf" />
+<img width="502" height="712" alt="image" src="https://github.com/user-attachments/assets/7b0abc96-da7e-4380-b29b-440c9a5979cd" />
 
 ### Entites & surplus/shortfall
 
-<img width="512" height="643" alt="image" src="https://github.com/user-attachments/assets/96f2c126-4d4a-4f3e-8ee0-18e059d99559" />
+<img width="507" height="641" alt="image" src="https://github.com/user-attachments/assets/ed74985b-f516-445d-89f5-c5bc014d8eb9" />
 
 ### Settings per entity:
 
-<img width="490" height="563" alt="image" src="https://github.com/user-attachments/assets/c33db103-bed5-497d-98a2-8e0ac5502549" />
+<img width="497" height="566" alt="image" src="https://github.com/user-attachments/assets/517b3da8-b9b2-41fa-98fe-93a5fbbc115b" />
 
 ### Card options
 

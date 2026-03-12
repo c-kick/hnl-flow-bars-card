@@ -2,8 +2,6 @@
 
 A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars with accolade connectors.
 
-[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=c-kick&repository=hnl-flow-bars-card&category=plugin)
-
 <img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" />
 
 <img width="518" height="63" alt="image" src="https://github.com/user-attachments/assets/852d8bfe-4447-419a-a672-e2b42b260841" />

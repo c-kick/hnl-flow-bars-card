@@ -282,11 +282,12 @@ The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, 
    - Currently, the `native` layout has themes: `default`, `split-pill`, `minimal` and `contained`
    - The `accolade` layout only has a `classic` (default) theme.
 
-Below is an overview of the available themes 
+Below is an overview of the available themes (screenshots taken using the default HA theme in dark-mode)
 
-<sup>note: this is from v1.3.4 and might not be up to date</sup>
+<sup>note: this is from v1.4.0 and might not be up to date</sup>
 
-![scrnli_7Vrd7i7N3MKJm4](https://github.com/user-attachments/assets/166aa35d-a495-4d03-844a-21d0aaa63f6b)
+<img width="2136" height="2124" alt="scrnli_78tV96eZf90bNh" src="https://github.com/user-attachments/assets/94d2dc29-2d7e-40ab-a6c0-660fb4a8dd52" />
+
 
 ## Development
 

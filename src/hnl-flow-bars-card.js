@@ -23,8 +23,6 @@ window.customCards.push({
 class HnlFlowBarsCard extends LitElement {
 
     _updatedParsedConfig = null;
-    _previousValues = {};
-
     //part of LitElement interface
     static get properties() {
         return {
@@ -105,12 +103,6 @@ class HnlFlowBarsCard extends LitElement {
               warning = `${displayName}: ${raw}`;
             } else if (isNonNumeric) {
               warning = `${displayName}: non-numeric state "${raw}"`;
-            }
-
-            if (this._rawConfig.easing) {
-              const prev = this._previousValues[entityId] ?? value;
-              value = (prev + value) / 2;
-              this._previousValues[entityId] = value;
             }
 
             const unit = item.unit_of_measurement ?? stateObj.attributes.unit_of_measurement;
@@ -387,7 +379,6 @@ class HnlFlowBarsCard extends LitElement {
             throw new Error("You need to define both production and consumption entities");
         }
 
-        this._previousValues = {};
         const resolved = resolveLayoutAndTheme(config);
         this._rawConfig = {
             production: this._normalizeEntityConfig(config.production),
@@ -413,7 +404,6 @@ class HnlFlowBarsCard extends LitElement {
             borders: config.borders ?? (resolved.layout === 'native'),
 
             show_names: config.show_names ?? true,
-            easing: config.easing ?? true,
             hide_zero_values: config.hide_zero_values ?? true,
             rounding: config.rounding ?? 0,
             transparent: config.transparent ?? true,

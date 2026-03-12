@@ -2,6 +2,8 @@
 
 A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars with accolade connectors.
 
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=c-kick&repository=hnl-flow-bars-card&category=plugin)
+
 <img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" />
 
 <img width="518" height="63" alt="image" src="https://github.com/user-attachments/assets/852d8bfe-4447-419a-a672-e2b42b260841" />
@@ -142,7 +144,6 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `rounding` | number | `0` | Decimal places for displayed values |
 | `hide_zero_values` | bool | `true` | Hide bars with zero values |
 | `transparent` | bool | `true` | Remove card background |
-| `easing` | bool | `true` | Smooth value transitions over time |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
@@ -186,7 +187,6 @@ unit_of_measurement: W
 rounding: 0
 hide_zero_values: true
 transparent: true
-easing: true
 slanted_edge: true
 show_names: true
 layout: accolade

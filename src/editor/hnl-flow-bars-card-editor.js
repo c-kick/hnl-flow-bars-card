@@ -222,17 +222,6 @@ class HnlFlowBarsCardEditor extends LitElement {
             ></ha-switch>
           </div>
 
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <span>Smooth transitions</span>
-              <span class="toggle-description">Ease value changes over time</span>
-            </div>
-            <ha-switch
-              .checked=${this._config.easing ?? true}
-              @change=${(ev) => this._toggleChanged('easing', ev)}
-            ></ha-switch>
-          </div>
-
           ${this._config.layout !== 'native' ? html`
           <div class="toggle-row">
             <div class="toggle-label">

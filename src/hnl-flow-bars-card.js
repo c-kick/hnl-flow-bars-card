@@ -760,6 +760,10 @@ class HnlFlowBarsCard extends LitElement {
                     min-width: 0;
                 }
 
+                hnl-flow-bar-destination {
+                    min-width: 0;
+                }
+
                 hnl-flow-bar-destination > span {
                     flex-direction: column;
                     gap: 2px;

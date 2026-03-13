@@ -176,7 +176,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _shouldShowBar(ent) {
-        return ent.value > 0 || !this._parsedConfig.hide_zero_values;
+        return this._roundOff(ent.value) > 0 || !this._parsedConfig.hide_zero_values;
     }
 
     get _flowBarsClasses() {
@@ -952,8 +952,9 @@ class HnlFlowBarsCard extends LitElement {
 				grid-row: 1 / -1;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-destination-group {
-				padding: min(1cqi, 4cqb);
+				margin: min(1cqi, 4cqb);
 				height: 50cqb;
+				border-radius: 15cqb;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-source-label > span {
 				height: 50cqb;
@@ -968,13 +969,13 @@ class HnlFlowBarsCard extends LitElement {
 				border-radius: 15cqb;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-destination:first-child {
-				border-radius: 3cqi 0 0 3cqi;
+				border-radius: 15cqb 0 0 15cqb;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-destination:last-child {
-				border-radius: 0 3cqi 3cqi 0;
+				border-radius: 0 15cqb 15cqb 0;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-destination:only-child {
-				border-radius: 3cqi;
+				border-radius: 15cqb;
 			}
 			
             /* ═══ LAYOUT MODIFIER: No borders ═══ */

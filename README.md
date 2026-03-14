@@ -150,6 +150,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `hatched` | bool | `false` | Apply diagonal stripe pattern to remainder bars (shortfall/surplus) |
 | `animated` | bool | `false` | Animate background patterns (e.g. hatched stripes) |
 | `borders` | bool | layout default | Show bar outlines (default: on for native, off for accolade) |
+| `energy_date_selection` | bool | `false` | Sync with HA Energy Dashboard date picker (see [Energy Dashboard integration](#energy-dashboard-integration)) |
 | `grid_options` | object | `{}` | Override HA grid sizing (e.g. `{ columns: 6, rows: 2 }`) |
 | `production_remainder` | object | | Config for production remainder bar |
 | `consumption_remainder` | object | | Config for consumption remainder bar |
@@ -184,6 +185,7 @@ type: custom:hnl-flow-bars-card
 unit_of_measurement: W
 rounding: 0
 hide_zero_values: true
+energy_date_selection: false
 transparent: true
 slanted_edge: true
 show_names: true
@@ -212,6 +214,24 @@ production_remainder:
 consumption_remainder:
   name: Grid export
   icon: mdi:transmission-tower-export
+```
+
+### Energy Dashboard integration
+
+When `energy_date_selection` is enabled and the card is placed on a view that contains an `energy-date-selection` card, bar values automatically reflect the selected date range (today, this week, this month, etc.) using recorder statistics instead of live sensor states. This lets you use the card as a companion to the built-in Energy Dashboard.
+
+Requirements:
+- Add a `type: energy-date-selection` card to the same view (this is the date picker from the Energy Dashboard)
+- Your entities must have recorder statistics available (energy sensors typically do)
+
+```yaml
+type: custom:hnl-flow-bars-card
+energy_date_selection: true
+unit_of_measurement: kWh
+production:
+  - entity: sensor.solar_energy_today
+consumption:
+  - entity: sensor.house_energy_today
 ```
 
 ### Responsive behavior

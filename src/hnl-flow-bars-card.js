@@ -324,7 +324,7 @@ class HnlFlowBarsCard extends LitElement {
                 <span class="entity-name">${cfg.name}</span>
                 </span></hnl-flow-bar-source-label>`;
         }
-        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
+        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
             <span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon>
             <span>${remainderValue} ${unit}</span></span>
             <span class="entity-name">${cfg.name}</span>
@@ -490,7 +490,7 @@ class HnlFlowBarsCard extends LitElement {
             production_remainder: {
                 name: config.production_remainder?.name || "Shortfall",
                 icon: config.production_remainder?.icon || 'mdi:eye',
-                color: config.production_remainder?.color || 'var(--hnl-flow-bars-color-shortfall)',
+                color: config.production_remainder?.color || config.global_color || 'var(--hnl-flow-bars-color-shortfall)',
                 bg_opacity: config.production_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
                 text_color: config.production_remainder?.text_color || config.global_text_color || 'inherit',
                 unit_of_measurement: config.production_remainder?.unit_of_measurement || null,
@@ -499,7 +499,7 @@ class HnlFlowBarsCard extends LitElement {
             consumption_remainder: {
                 name: config.consumption_remainder?.name || "Surplus",
                 icon: config.consumption_remainder?.icon || 'mdi:eye',
-                color: config.consumption_remainder?.color || 'var(--hnl-flow-bars-color-surplus)',
+                color: config.consumption_remainder?.color || config.global_color || 'var(--hnl-flow-bars-color-surplus)',
                 bg_opacity: config.consumption_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
                 text_color: config.consumption_remainder?.text_color || config.global_text_color || 'inherit',
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null,

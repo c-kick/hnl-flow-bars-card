@@ -139,6 +139,9 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `production` | list | **required** | Production source entities |
 | `consumption` | list | **required** | Consumption destination entities |
 | `unit_of_measurement` | string | from entity | Override unit for all bars |
+| `global_color` | string | auto-generated | Default bar color for all entities (CSS color, overridden per entity) |
+| `global_text_color` | string | `inherit` | Default text color for all entities (overridden per entity) |
+| `global_bg_opacity` | string | `inherit` | Default background opacity for all entities and remainders (0–1, overridden per entity) |
 | `rounding` | number | `0` | Decimal places for displayed values |
 | `hide_zero_values` | bool | `true` | Hide bars with zero values |
 | `transparent` | bool | `true` | Remove card background |
@@ -176,7 +179,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `color` | string | theme variable | CSS color |
 | `bg_opacity` | string | `inherit` | Background opacity |
 | `text_color` | string | theme variable | Text color |
-| `unit_of_measurement` | string | from entity | Unit override |
+| `unit_of_measurement` | string | from first entity | Unit override (defaults to first source entity for shortfall, first destination for surplus) |
 
 ### YAML Configuration
 

@@ -140,6 +140,10 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _hydrateParsedConfig() {
+        const globalColor = this._rawConfig.global_color;
+        const globalTextColor = this._rawConfig.global_text_color;
+        const globalBgOpacity = this._rawConfig.global_bg_opacity;
+
         const hydrate = (items, fallbackIcon, colorType) => {
           return items.map((item, index) => {
             const entityId = item.entity;
@@ -152,9 +156,9 @@ class HnlFlowBarsCard extends LitElement {
                 name: item.name || entityId,
                 value: 0,
                 icon: item.icon || fallbackIcon,
-                color: item.color || fallbackVar,
-                bg_opacity: item.bg_opacity || 'inherit',
-                text_color: item.text_color || 'inherit',
+                color: item.color || globalColor || fallbackVar,
+                bg_opacity: item.bg_opacity || globalBgOpacity || 'inherit',
+                text_color: item.text_color || globalTextColor || 'inherit',
                 unit_of_measurement: item.unit_of_measurement,
                 warning: `${entityId}: entity not found`,
               };
@@ -186,9 +190,9 @@ class HnlFlowBarsCard extends LitElement {
               name: displayName,
               value,
               icon: item.icon || computeEntityIcon(stateObj) || fallbackIcon,
-              color: item.color || fallbackVar,
-              bg_opacity: item.bg_opacity || 'inherit',
-              text_color: item.text_color || 'inherit',
+              color: item.color || globalColor || fallbackVar,
+              bg_opacity: item.bg_opacity || globalBgOpacity || 'inherit',
+              text_color: item.text_color || globalTextColor || 'inherit',
               hatched: item.hatched || false,
               unit_of_measurement: unit,
               warning,
@@ -307,18 +311,22 @@ class HnlFlowBarsCard extends LitElement {
 
     _renderRemainder(type, remainderValue) {
         const cfg = this._parsedConfig[`${type}_remainder`];
-        const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
+        // Unit priority: explicit remainder unit > global unit > inherited from first source/destination entity
+        const inheritedUnit = cfg._inherit_unit_from
+            ? this.hass?.states[cfg._inherit_unit_from]?.attributes?.unit_of_measurement
+            : null;
+        const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || inheritedUnit || '';
         const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
         if (type === 'production') {
             return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};"><span>
                 <span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon>
-                <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span></span>
+                <span>${remainderValue} ${unit}</span></span>
                 <span class="entity-name">${cfg.name}</span>
                 </span></hnl-flow-bar-source-label>`;
         }
         return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
             <span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon>
-            <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span></span>
+            <span>${remainderValue} ${unit}</span></span>
             <span class="entity-name">${cfg.name}</span>
             </span></hnl-flow-bar-destination>`;
     }
@@ -474,24 +482,28 @@ class HnlFlowBarsCard extends LitElement {
         }
 
         const resolved = resolveLayoutAndTheme(config);
+        const production = this._normalizeEntityConfig(config.production);
+        const consumption = this._normalizeEntityConfig(config.consumption);
         this._rawConfig = {
-            production: this._normalizeEntityConfig(config.production),
-            consumption: this._normalizeEntityConfig(config.consumption),
+            production,
+            consumption,
             production_remainder: {
                 name: config.production_remainder?.name || "Shortfall",
                 icon: config.production_remainder?.icon || 'mdi:eye',
                 color: config.production_remainder?.color || 'var(--hnl-flow-bars-color-shortfall)',
-                bg_opacity: config.production_remainder?.bg_opacity || 'inherit',
-                text_color: config.production_remainder?.text_color || 'inherit',
-                unit_of_measurement: config.production_remainder?.unit_of_measurement || null
+                bg_opacity: config.production_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
+                text_color: config.production_remainder?.text_color || config.global_text_color || 'inherit',
+                unit_of_measurement: config.production_remainder?.unit_of_measurement || null,
+                _inherit_unit_from: production[0]?.entity || null,
             },
             consumption_remainder: {
                 name: config.consumption_remainder?.name || "Surplus",
                 icon: config.consumption_remainder?.icon || 'mdi:eye',
                 color: config.consumption_remainder?.color || 'var(--hnl-flow-bars-color-surplus)',
-                bg_opacity: config.consumption_remainder?.bg_opacity || 'inherit',
-                text_color: config.consumption_remainder?.text_color || 'inherit',
-                unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null
+                bg_opacity: config.consumption_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
+                text_color: config.consumption_remainder?.text_color || config.global_text_color || 'inherit',
+                unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null,
+                _inherit_unit_from: consumption[0]?.entity || null,
             },
             ...resolved,
             slanted_edge: config.slanted_edge ?? true,
@@ -502,6 +514,9 @@ class HnlFlowBarsCard extends LitElement {
             rounding: config.rounding ?? 0,
             transparent: config.transparent ?? true,
             unit_of_measurement: config.unit_of_measurement,
+            global_color: config.global_color || null,
+            global_text_color: config.global_text_color || null,
+            global_bg_opacity: config.global_bg_opacity || null,
             energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };

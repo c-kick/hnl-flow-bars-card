@@ -129,7 +129,7 @@ export async function fetchStatistics(hass, startTime, endTime, entityIds) {
         end_time: endTime.toISOString(),
         statistic_ids: entityIds,
         period,
-        types: ['state', 'sum', 'mean'],
+        types: ['change', 'sum', 'mean'],
     });
 
     const result = {};
@@ -141,16 +141,14 @@ export async function fetchStatistics(hass, startTime, endTime, entityIds) {
             continue;
         }
 
-        // For cumulative sensors (e.g. energy), use the change in `state`
-        // between first and last entry if available.
-        const first = entries[0];
-        const last = entries[entries.length - 1];
-
-        if (first.state != null && last.state != null) {
-            result[entityId] = last.state - first.state;
-        } else if (last.sum != null && first.sum != null) {
-            // Use the change in `sum` over the period
-            result[entityId] = last.sum - first.sum;
+        // Prefer summing `change` values — works correctly for both
+        // cumulative (total_increasing) and daily-resetting sensors.
+        const changes = entries.filter(e => e.change != null).map(e => e.change);
+        if (changes.length) {
+            result[entityId] = changes.reduce((a, b) => a + b, 0);
+        } else if (entries[entries.length - 1].sum != null && entries[0].sum != null) {
+            // Fallback: use the difference in cumulative `sum`
+            result[entityId] = entries[entries.length - 1].sum - entries[0].sum;
         } else {
             // Fallback: average the mean values across all entries
             const means = entries.filter(e => e.mean != null).map(e => e.mean);

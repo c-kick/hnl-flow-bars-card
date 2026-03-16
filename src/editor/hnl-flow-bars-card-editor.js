@@ -43,6 +43,9 @@ class HnlFlowBarsCardEditor extends LitElement {
     const config = { ...this._config };
 
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
+    if (!config.global_color) delete config.global_color;
+    if (!config.global_text_color) delete config.global_text_color;
+    if (!config.global_bg_opacity) delete config.global_bg_opacity;
     if (!config.energy_date_selection) delete config.energy_date_selection;
     // Remove legacy key
     delete config.accolade_style;
@@ -201,6 +204,40 @@ class HnlFlowBarsCardEditor extends LitElement {
             @input=${(ev) => this._numberChanged('rounding', ev)}
           ></ha-textfield>
 
+          <ha-textfield
+            .label=${'Default color (CSS, optional)'}
+            .value=${this._config.global_color || ''}
+            .helper=${'Fallback bar color when not set per entity'}
+            helperPersistent
+            @input=${(ev) => this._textChanged('global_color', ev)}
+          ></ha-textfield>
+
+          <ha-textfield
+            .label=${'Default text color (CSS, optional)'}
+            .value=${this._config.global_text_color || ''}
+            .helper=${'Fallback text color when not set per entity'}
+            helperPersistent
+            @input=${(ev) => this._textChanged('global_text_color', ev)}
+          ></ha-textfield>
+
+          <div class="slider-row">
+            <label>Default background opacity</label>
+            <span class="slider-helper">Fallback opacity when not set per entity</span>
+            <div class="slider-control">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                .value=${String(this._config.global_bg_opacity || '1')}
+                @input=${(ev) => this._textChanged('global_bg_opacity', ev)}
+              />
+              <span class="slider-value">${this._config.global_bg_opacity || '1'}</span>
+            </div>
+          </div>
+
+          <h4 class="subsection-header">Behavior</h4>
+
           <div class="toggle-row">
             <div class="toggle-label">
               <span>Energy date selection</span>
@@ -222,6 +259,55 @@ class HnlFlowBarsCardEditor extends LitElement {
               @change=${(ev) => this._toggleChanged('hide_zero_values', ev)}
             ></ha-switch>
           </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Show names</span>
+              <span class="toggle-description">Show entity names when there is enough room</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.show_names ?? true}
+              @change=${(ev) => this._toggleChanged('show_names', ev)}
+            ></ha-switch>
+          </div>
+
+          <h4 class="subsection-header">Appearance</h4>
+
+          <div class="select-row">
+            <div class="select-label">
+              <span>Layout</span>
+              <span class="toggle-description">Bar structure and geometry</span>
+            </div>
+            <select
+              .value=${this._config.layout || DEFAULT_LAYOUT}
+              @change=${this._layoutChanged}
+            >
+              ${LAYOUTS.map((l) => html`
+                <option value="${l.value}" ?selected=${(this._config.layout || DEFAULT_LAYOUT) === l.value}>
+                  ${l.label}
+                </option>
+              `)}
+            </select>
+          </div>
+
+          ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.length > 1 ? html`
+          <div class="select-row">
+            <div class="select-label">
+              <span>Theme</span>
+              <span class="toggle-description">Visual style of connectors and fills</span>
+            </div>
+            <select
+              .value=${this._config.theme}
+              @change=${(ev) => this._textChanged('theme', ev)}
+            >
+              ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.map((t) => html`
+                <option value="${t.value}" ?selected=${this._config.theme === t.value}>
+                  ${t.label}
+                </option>
+              `)}
+            </select>
+          </div>
+          ` : null}
 
           <div class="toggle-row">
             <div class="toggle-label">
@@ -290,53 +376,6 @@ class HnlFlowBarsCardEditor extends LitElement {
               @change=${(ev) => this._toggleChanged('animated', ev)}
             ></ha-switch>
           </div>
-
-          <div class="toggle-row">
-            <div class="toggle-label">
-              <span>Show names</span>
-              <span class="toggle-description">Show entity names when there is enough room</span>
-            </div>
-            <ha-switch
-              .checked=${this._config.show_names ?? true}
-              @change=${(ev) => this._toggleChanged('show_names', ev)}
-            ></ha-switch>
-          </div>
-
-          <div class="select-row">
-            <div class="select-label">
-              <span>Layout</span>
-              <span class="toggle-description">Bar structure and geometry</span>
-            </div>
-            <select
-              .value=${this._config.layout || DEFAULT_LAYOUT}
-              @change=${this._layoutChanged}
-            >
-              ${LAYOUTS.map((l) => html`
-                <option value="${l.value}" ?selected=${(this._config.layout || DEFAULT_LAYOUT) === l.value}>
-                  ${l.label}
-                </option>
-              `)}
-            </select>
-          </div>
-
-          ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.length > 1 ? html`
-          <div class="select-row">
-            <div class="select-label">
-              <span>Theme</span>
-              <span class="toggle-description">Visual style of connectors and fills</span>
-            </div>
-            <select
-              .value=${this._config.theme}
-              @change=${(ev) => this._textChanged('theme', ev)}
-            >
-              ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.map((t) => html`
-                <option value="${t.value}" ?selected=${this._config.theme === t.value}>
-                  ${t.label}
-                </option>
-              `)}
-            </select>
-          </div>
-          ` : null}
         </div>
 
         <div class="divider"></div>
@@ -488,8 +527,79 @@ class HnlFlowBarsCardEditor extends LitElement {
         color: var(--secondary-text-color);
       }
 
+      h4.subsection-header {
+        margin: 8px 0 0 0;
+        padding: 0 0 4px 0;
+        font-size: 0.85em;
+        font-weight: 600;
+        color: var(--secondary-text-color);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+      }
+
       ha-textfield {
         display: block;
+      }
+
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .slider-row label {
+        font-size: 0.85em;
+        color: var(--primary-text-color);
+      }
+
+      .slider-helper {
+        font-size: 0.75em;
+        color: var(--secondary-text-color);
+      }
+
+      .slider-control {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .slider-control input[type="range"] {
+        flex: 1;
+        height: 4px;
+        appearance: none;
+        background: var(--divider-color, rgba(0, 0, 0, 0.12));
+        border-radius: 2px;
+        outline: none;
+      }
+
+      .slider-control input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: 2px solid var(--card-background-color, #fff);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-control input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: 2px solid var(--card-background-color, #fff);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-value {
+        min-width: 2.2em;
+        text-align: right;
+        font-size: 0.85em;
+        color: var(--secondary-text-color);
+        font-variant-numeric: tabular-nums;
       }
 
       .select-row {

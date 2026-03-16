@@ -194,6 +194,67 @@ describe('buildBarData', () => {
     });
 });
 
+describe('remainder rounding artifact prevention', () => {
+    const makeEntity = (id, value, unit = 'kWh') => ({
+        entity_id: id,
+        name: id,
+        value,
+        icon: 'mdi:flash',
+        color: '#ff0',
+        bg_opacity: 'inherit',
+        text_color: 'inherit',
+        unit_of_measurement: unit,
+    });
+
+    /**
+     * Simulates the card's render logic: compute maxValue from raw totals,
+     * build bar data for both sides, then clamp the dominant side's remainder.
+     */
+    function computeTotals(prodEntities, consEntities, rounding = 1) {
+        const productionTotal = prodEntities.reduce((sum, ent) => sum + ent.value, 0);
+        const consumptionTotal = consEntities.reduce((sum, ent) => sum + ent.value, 0);
+        const maxValue = roundOff(Math.max(productionTotal, consumptionTotal), rounding);
+
+        const prod = buildBarData(prodEntities, maxValue, null, rounding);
+        const cons = buildBarData(consEntities, maxValue, null, rounding);
+
+        return {
+            production_remainder: productionTotal >= consumptionTotal ? 0 : prod.remainder,
+            consumption_remainder: consumptionTotal >= productionTotal ? 0 : cons.remainder,
+        };
+    }
+
+    it('does not show shortfall when production is dominant (rounding artifact)', () => {
+        // 3.64 + 7.14 = 10.78 → maxValue rounds to 10.8
+        // roundOff(3.64,1) + roundOff(7.14,1) = 3.6 + 7.1 = 10.7
+        // Without fix: prodRemainder = 0.1 (spurious shortfall)
+        const prod = [makeEntity('sensor.solar', 3.64), makeEntity('sensor.wind', 7.14)];
+        const cons = [makeEntity('sensor.home', 0.5)];
+        const totals = computeTotals(prod, cons, 1);
+
+        expect(totals.production_remainder).toBe(0);
+        expect(totals.consumption_remainder).toBeGreaterThan(0);
+    });
+
+    it('does not show surplus when consumption is dominant (rounding artifact)', () => {
+        const prod = [makeEntity('sensor.solar', 0.5)];
+        const cons = [makeEntity('sensor.home', 3.64), makeEntity('sensor.ev', 7.14)];
+        const totals = computeTotals(prod, cons, 1);
+
+        expect(totals.consumption_remainder).toBe(0);
+        expect(totals.production_remainder).toBeGreaterThan(0);
+    });
+
+    it('handles equal totals with no remainder on either side', () => {
+        const prod = [makeEntity('sensor.solar', 5.0)];
+        const cons = [makeEntity('sensor.home', 5.0)];
+        const totals = computeTotals(prod, cons, 1);
+
+        expect(totals.production_remainder).toBe(0);
+        expect(totals.consumption_remainder).toBe(0);
+    });
+});
+
 describe('normalizeEntityConfig', () => {
     it('wraps a string into an array with entity key', () => {
         expect(normalizeEntityConfig('sensor.power')).toEqual([

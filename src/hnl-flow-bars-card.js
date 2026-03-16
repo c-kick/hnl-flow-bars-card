@@ -409,9 +409,9 @@ class HnlFlowBarsCard extends LitElement {
 
         const totals = {
             production: prodSum,
-            production_remainder: prodRemainder,
+            production_remainder: productionTotal >= consumptionTotal ? 0 : prodRemainder,
             consumption: consSum,
-            consumption_remainder: consRemainder,
+            consumption_remainder: consumptionTotal >= productionTotal ? 0 : consRemainder,
         };
 
         const visibleProd = barData.production.filter((ent) => this._shouldShowBar(ent));

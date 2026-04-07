@@ -289,8 +289,13 @@ class HnlFlowBarsCard extends LitElement {
         return '';
     }
 
+    _animDuration(width) {
+        // 0% → 1.5s (slow), 100% → 0.3s (fast)
+        return `${(1.5 - (Math.max(0, Math.min(100, width)) / 100) * 1.2).toFixed(2)}s`;
+    }
+
     _renderSourceLabel(ent) {
-        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--bar-width:${ent.width}%;--source-bg-opacity:${ent.bg_opacity};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--bar-width:${ent.width}%;--source-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
             <span class="source-value"><ha-icon icon="${ent.icon || 'mdi:eye'}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span></span>
             <span class="entity-name">${ent.name}</span>
@@ -298,18 +303,18 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _renderAccolade(ent) {
-        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses()}" style="--background-color:${ent.color};--bar-width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-flow-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses()}" style="--background-color:${ent.color};--bar-width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};"></hnl-flow-bar-source-accolade>`;
     }
 
     _renderDestination(ent) {
-        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--bar-width:${ent.width}%;cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--bar-width:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
             <span class="destination-value"><ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span></span>
             <span class="entity-name">${ent.name}</span>
           </span></hnl-flow-bar-destination>`;
     }
 
-    _renderRemainder(type, remainderValue) {
+    _renderRemainder(type, remainderValue, width = 50) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         // Unit priority: explicit remainder unit > global unit > inherited from first source/destination entity
         const inheritedUnit = cfg._inherit_unit_from
@@ -318,22 +323,22 @@ class HnlFlowBarsCard extends LitElement {
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || inheritedUnit || '';
         const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};"><span>
+            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span>
                 <span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${unit}</span></span>
                 <span class="entity-name">${cfg.name}</span>
                 </span></hnl-flow-bar-source-label>`;
         }
-        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
+        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span>
             <span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon>
             <span>${remainderValue} ${unit}</span></span>
             <span class="entity-name">${cfg.name}</span>
             </span></hnl-flow-bar-destination>`;
     }
 
-    _renderRemainderAccolade(type) {
+    _renderRemainderAccolade(type, width = 50) {
         const cfg = this._parsedConfig[`${type}_remainder`];
-        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses(true)}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-flow-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses(true)}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"></hnl-flow-bar-source-accolade>`;
     }
 
     _normalizeEntityConfig(input) {
@@ -431,16 +436,16 @@ class HnlFlowBarsCard extends LitElement {
             <hnl-flow-bar-source-group>
                 <hnl-flow-bar-source-labels>
                     ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
-                    ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder) : null}
+                    ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder, Math.round((totals.production_remainder / maxValue) * 100)) : null}
                 </hnl-flow-bar-source-labels>
                 <hnl-flow-bar-source-accolades>
                     ${visibleProd.map((ent) => this._renderAccolade(ent))}
-                    ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production') : null}
+                    ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production', Math.round((totals.production_remainder / maxValue) * 100)) : null}
                 </hnl-flow-bar-source-accolades>
             </hnl-flow-bar-source-group>
             <hnl-flow-bar-destination-group>
                 ${visibleCons.map((ent) => this._renderDestination(ent))}
-                ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder) : null}
+                ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder, Math.round((totals.consumption_remainder / maxValue) * 100)) : null}
             </hnl-flow-bar-destination-group>
         </hnl-flow-bars>
                 </div>
@@ -1158,18 +1163,18 @@ class HnlFlowBarsCard extends LitElement {
 
             /* 3-layer elements: destinations scroll right, source-labels scroll left */
             hnl-flow-bars.animated hnl-flow-bar-destination.hatched {
-                animation: stripe-scroll-right-3 0.6s linear infinite;
+                animation: stripe-scroll-right-3 var(--animation-duration, 0.6s) linear infinite;
             }
             hnl-flow-bars.animated hnl-flow-bar-source-label.hatched {
-                animation: stripe-scroll-left-3 0.6s linear infinite;
+                animation: stripe-scroll-left-3 var(--animation-duration, 0.6s) linear infinite;
             }
             /* Accolade source-label: animate the > span (where background lives) */
             hnl-flow-bars.animated hnl-flow-bar-source-label.hatched > span {
-                animation: stripe-scroll-left-3 0.6s linear infinite;
+                animation: stripe-scroll-left-3 var(--animation-duration, 0.6s) linear infinite;
             }
             /* 2-layer elements: accolades scroll left */
             hnl-flow-bars.animated hnl-flow-bar-source-accolade.hatched {
-                animation: stripe-scroll-left-2 0.6s linear infinite;
+                animation: stripe-scroll-left-2 var(--animation-duration, 0.6s) linear infinite;
             }
 
         `;

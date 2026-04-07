@@ -16,9 +16,31 @@ const ENERGY_POLL_INTERVAL = 100;   // ms between polls
 /**
  * Retrieve the energy data collection from the HA connection.
  * Returns null if not (yet) available.
+ *
+ * HA 2026.4+ changed the collection key from `_energy` to
+ * `_energy_${hass.panelUrl}` (panel-specific). We try the new key first,
+ * then fall back to the legacy key, then scan all `_energy*` keys.
  */
 export function getEnergyDataCollection(hass) {
-    return hass?.connection?.['_energy'] || null;
+    if (!hass?.connection) return null;
+    const conn = hass.connection;
+    const isCollection = (obj) => obj && typeof obj.subscribe === 'function';
+
+    // HA 2026.4+: panel-specific key
+    const panelKey = `_energy_${hass.panelUrl}`;
+    if (isCollection(conn[panelKey])) return conn[panelKey];
+
+    // Legacy key (HA < 2026.4)
+    if (isCollection(conn['_energy'])) return conn['_energy'];
+
+    // Fallback: scan for any _energy* collection
+    for (const key of Object.keys(conn)) {
+        if (key.startsWith('_energy') && isCollection(conn[key])) {
+            return conn[key];
+        }
+    }
+
+    return null;
 }
 
 /**

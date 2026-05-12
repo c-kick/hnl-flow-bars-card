@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { applyTransform } from '../src/utils.js';
 
 /**
  * Tests for the core calculation logic in HnlFlowBarsCard.
@@ -295,5 +296,37 @@ describe('normalizeEntityConfig', () => {
     it('throws on invalid input', () => {
         expect(() => normalizeEntityConfig(42)).toThrow('Invalid entity format');
         expect(() => normalizeEntityConfig({})).toThrow('Invalid entity format');
+    });
+});
+
+describe('Transform functions', () => {
+    it('applies simple multiplication transform', () => {
+        expect(applyTransform(100, 'x => x * 2')).toBe(200);
+        expect(applyTransform(50, 'x => x * 2')).toBe(100);
+    });
+
+    it('applies complex mathematical operations', () => {
+        expect(applyTransform(16, 'x => Math.sqrt(x)')).toBe(4);
+        expect(applyTransform(2, 'x => Math.pow(x, 3)')).toBe(8);
+    });
+
+    it('applies conditional transforms', () => {
+        expect(applyTransform(2000, 'x => x > 1000 ? x / 1000 : x')).toBe(2);
+        expect(applyTransform(500, 'x => x > 1000 ? x / 1000 : x')).toBe(500);
+    });
+
+    it('returns original value if transform is null', () => {
+        expect(applyTransform(100, null)).toBe(100);
+        expect(applyTransform(50, '')).toBe(50);
+    });
+
+    it('returns original value if transform has syntax error', () => {
+        expect(applyTransform(100, 'invalid syntax')).toBe(100);
+        expect(applyTransform(100, 'x =>')).toBe(100);
+    });
+
+    it('returns original value if transform returns non-numeric', () => {
+        expect(applyTransform(100, 'x => "string"')).toBe(100);
+        expect(applyTransform(100, 'x => null')).toBe(100);
     });
 });

@@ -169,6 +169,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `bg_opacity` | string | `inherit` | Background opacity (0–1) |
 | `text_color` | string | `inherit` | Text color override |
 | `unit_of_measurement` | string | from entity | Unit override |
+| `transform` | string | | Optional JS arrow expression to transform the entity value (e.g. `x => x / 1000`) |
 
 ### Remainder options
 
@@ -211,6 +212,7 @@ consumption:
   - entity: sensor.ev_charger_power
     icon: mdi:car-electric
     color: "#2196f3"
+    transform: "x => x < 25 ? 0 : x"
 production_remainder:
   name: Grid import
   icon: mdi:transmission-tower-import

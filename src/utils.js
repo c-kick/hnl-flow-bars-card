@@ -172,3 +172,43 @@ export function computeEntityIcon(stateObj) {
             return 'mdi:bookmark-outline';
     }
 }
+
+/**
+ * Helps to apply transformations to sensor values based on user-provided JavaScript code snippets.
+ * The `transform` parameter is expected to be a string representing an arrow function, e.g. "x => x * 2".
+ * The `createTransformFunction` compiles this string into a callable function.
+ * The `applyTransform` function applies the transformation to a given value and attempts to parse it as a float.
+ * If any step fails (invalid code, runtime error, or non-numeric result), it gracefully returns the original value.
+ */
+
+export function createTransformFunction(transform) {
+    if (!transform || typeof transform !== 'string') {
+        return null;
+    }
+
+    try {
+        // Create a function from the arrow function string which should be like "x => x * 2"
+        return new Function('x', `"use strict"; return (${transform})(x)`);
+    } catch (err) {
+        return null;
+    }
+}
+
+export function applyTransform(value, transform) {
+    if (!transform) {
+        return value;
+    }
+
+    const transformFunction = createTransformFunction(transform);
+    if (!transformFunction) {
+        return value;
+    }
+
+    try {
+        const raw = transformFunction(value);
+        const parsed = parseFloat(raw);
+        return isNaN(parsed) ? value : parsed;
+    } catch (err) {
+        return value;
+    }
+}

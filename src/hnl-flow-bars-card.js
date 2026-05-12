@@ -1,5 +1,8 @@
 import { LitElement, html, css } from 'lit';
-import { computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
+import {
+    computeEntityIcon, resolveLayoutAndTheme,
+    applyTransform
+} from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -172,7 +175,13 @@ class HnlFlowBarsCard extends LitElement {
             const isUnavailable = raw === 'unavailable' || raw === 'unknown';
             const parsed = parseFloat(raw);
             const isNonNumeric = !isUnavailable && isNaN(parsed);
-            let value = Math.max(0, parsed || 0);
+            let value = parsed || 0;
+
+            if (!isUnavailable && !isNonNumeric) {
+                value = applyTransform(value, item.transform);
+            }
+            value = Math.max(0, value);
+
             const displayName = item.name || stateObj.attributes.friendly_name || entityId;
             let warning = null;
             if (useEnergy && this._energyStats[entityId] == null) {

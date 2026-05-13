@@ -169,6 +169,12 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `bg_opacity` | string | `inherit` | Background opacity (0–1) |
 | `text_color` | string | `inherit` | Text color override |
 | `unit_of_measurement` | string | from entity | Unit override |
+| `zero_threshold` | number | | Treat values with an absolute value at or below this threshold as zero |
+
+`zero_threshold` is applied before totals and remainders are calculated. This is useful for
+noisy sensors such as EV chargers that report a few watts while idle. When the threshold
+turns a value into `0`, the existing `hide_zero_values` option decides whether that bar is
+hidden or shown as `0`.
 
 ### Remainder options
 
@@ -211,6 +217,7 @@ consumption:
   - entity: sensor.ev_charger_power
     icon: mdi:car-electric
     color: "#2196f3"
+    zero_threshold: 25
 production_remainder:
   name: Grid import
   icon: mdi:transmission-tower-import
@@ -331,4 +338,3 @@ npm run build  # production build
 ## License
 
 MIT
-

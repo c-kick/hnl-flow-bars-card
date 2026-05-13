@@ -166,6 +166,16 @@ class EntityListEditor extends LitElement {
             @input=${(ev) =>
               this._entityFieldChanged(index, 'unit_of_measurement', ev.target.value)}
           ></ha-textfield>
+
+          <ha-input
+            .label=${'Transform lambda (optional)'}
+            .value=${entity.transform || ''}
+            .placeholder=${'x => x / 1000'}
+            .helper=${'Arrow function to transform value: x => x * 2, x => Math.abs(x), etc.'}
+            helperPersistent
+            @input=${(ev) =>
+              this._entityFieldChanged(index, 'transform', ev.target.value)}
+          ></ha-input>
         </div>
       </ha-expansion-panel>
     `;

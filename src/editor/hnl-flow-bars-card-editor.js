@@ -65,6 +65,7 @@ class HnlFlowBarsCardEditor extends LitElement {
       if (ent.unit_of_measurement) cleaned.unit_of_measurement = ent.unit_of_measurement;
       if (ent.bg_opacity) cleaned.bg_opacity = ent.bg_opacity;
       if (ent.text_color) cleaned.text_color = ent.text_color;
+      if (ent.transform) cleaned.transform = ent.transform;
       return cleaned;
     };
     config.production = config.production.map(cleanEntity);

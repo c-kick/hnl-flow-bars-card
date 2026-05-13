@@ -93,21 +93,30 @@ We do, but that card only shows _composition_, not the flow from production to c
 
 ## Installation
 
-### HACS (recommended)
-#### Add the repository
-[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=c-kick&repository=hnl-flow-bars-card&category=plugin)
+### HACS
 
-Or, if you prefer to do this manually:
-1. Open HACS → three-dot menu → Custom repositories
-2. Add `c-kick/hnl-flow-bars-card` with category **Dashboard**
+HNL Flow Bars Card is available in the official HACS default repository.
 
-#### Install
-1. Search HACS for "HNL Flow Bars Card" and install it
-2. Restart Home Assistant
-3. Add a card and search for "HNL Flow Bars Card"
-4. Use the visual editor to set it up
+1. Open HACS
+2. Search for **HNL Flow Bars Card**
+3. Install it
+4. Restart Home Assistant if prompted
+5. Add a card and search for **HNL Flow Bars Card**
+6. Use the visual editor to set it up
 
 <img width="371" height="371" alt="image" src="https://github.com/user-attachments/assets/e007e6a4-9776-41bc-8eac-434ac01e2a56" />
+
+#### Custom repository fallback
+
+If the card does not appear in HACS yet, refresh HACS first. If you still need to add it manually:
+
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=c-kick&repository=hnl-flow-bars-card&category=plugin)
+
+Or add it manually:
+
+1. Open HACS → three-dot menu → Custom repositories
+2. Add `c-kick/hnl-flow-bars-card` with category **Dashboard**
+3. Search HACS for **HNL Flow Bars Card** and install it
 
 ### Manual
 1. Download `hnl-flow-bars-card.js` from the [latest release](https://github.com/c-kick/hnl-flow-bars-card/releases)

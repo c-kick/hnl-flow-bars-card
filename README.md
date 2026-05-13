@@ -169,12 +169,19 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `bg_opacity` | string | `inherit` | Background opacity (0–1) |
 | `text_color` | string | `inherit` | Text color override |
 | `unit_of_measurement` | string | from entity | Unit override |
+| `invert` | bool | `false` | Multiply the entity value by `-1` before thresholding and positive-value display |
 | `zero_threshold` | number | | Treat values with an absolute value at or below this threshold as zero |
 
-`zero_threshold` is applied before totals and remainders are calculated. This is useful for
-noisy sensors such as EV chargers that report a few watts while idle. When the threshold
-turns a value into `0`, the existing `hide_zero_values` option decides whether that bar is
-hidden or shown as `0`.
+`invert` is useful for signed sensors, such as battery power sensors where one direction is
+reported as a negative value. `zero_threshold` is applied after inversion and before totals
+and remainders are calculated. This is useful for noisy sensors such as EV chargers that
+report a few watts while idle. When the threshold turns a value into `0`, the existing
+`hide_zero_values` option decides whether that bar is hidden or shown as `0`.
+
+The card only displays positive values. After optional inversion and thresholding, negative
+values are clamped to `0`; they are not shown as negative bars, even when every configured
+entity is negative. Use `invert: true` on an entity when its negative readings represent the
+positive flow you want to visualize.
 
 ### Remainder options
 
@@ -210,6 +217,7 @@ production:
     icon: mdi:battery-arrow-down
     name: Battery
     color: "#4caf50"
+    invert: true
 consumption:
   - entity: sensor.house_power
     icon: mdi:home

@@ -167,6 +167,18 @@ class EntityListEditor extends LitElement {
               this._entityFieldChanged(index, 'unit_of_measurement', ev.target.value)}
           ></ha-input>
 
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Invert value</span>
+              <span class="toggle-description">Use negative readings as positive values</span>
+            </div>
+            <ha-switch
+              .checked=${entity.invert ?? false}
+              @change=${(ev) =>
+                this._entityFieldChanged(index, 'invert', ev.target.checked)}
+            ></ha-switch>
+          </div>
+
           <ha-input
             .label=${'Zero threshold (optional)'}
             .value=${entity.zero_threshold ?? ''}
@@ -259,11 +271,24 @@ class EntityListEditor extends LitElement {
         justify-content: space-between;
         align-items: center;
         padding: 4px 0;
+        gap: 16px;
       }
 
-      .toggle-row span {
+      .toggle-label {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+      }
+
+      .toggle-label > span:first-child {
         font-size: 0.95em;
         color: var(--primary-text-color);
+      }
+
+      .toggle-description {
+        font-size: 0.8em;
+        color: var(--secondary-text-color);
       }
 
       .slider-row {

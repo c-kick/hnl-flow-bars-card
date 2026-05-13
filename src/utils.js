@@ -185,3 +185,8 @@ export function applyZeroThreshold(value, zeroThreshold) {
 
     return Math.abs(value) <= threshold ? 0 : value;
 }
+
+export function applyEntityValueOptions(value, item = {}) {
+    const effectiveValue = item.invert ? -value : value;
+    return applyZeroThreshold(effectiveValue, item.zero_threshold);
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyZeroThreshold, computeEntityIcon } from '../src/utils.js';
+import { applyEntityValueOptions, applyZeroThreshold, computeEntityIcon } from '../src/utils.js';
 
 describe('computeEntityIcon', () => {
     it('returns explicit icon from attributes', () => {
@@ -99,5 +99,17 @@ describe('applyZeroThreshold', () => {
         expect(applyZeroThreshold(3, null)).toBe(3);
         expect(applyZeroThreshold(3, '')).toBe(3);
         expect(applyZeroThreshold(3, 'abc')).toBe(3);
+    });
+});
+
+describe('applyEntityValueOptions', () => {
+    it('inverts values before applying zero_threshold', () => {
+        expect(applyEntityValueOptions(-24, { invert: true, zero_threshold: 25 })).toBe(0);
+        expect(applyEntityValueOptions(-26, { invert: true, zero_threshold: 25 })).toBe(26);
+    });
+
+    it('leaves non-inverted values unchanged before thresholding', () => {
+        expect(applyEntityValueOptions(26, { invert: false, zero_threshold: 25 })).toBe(26);
+        expect(applyEntityValueOptions(24, { invert: false, zero_threshold: 25 })).toBe(0);
     });
 });

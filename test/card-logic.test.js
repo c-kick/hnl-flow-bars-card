@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyZeroThreshold } from '../src/utils.js';
+import { applyEntityValueOptions } from '../src/utils.js';
 
 /**
  * Tests for the core calculation logic in HnlFlowBarsCard.
@@ -61,9 +61,9 @@ function normalizeEntityConfig(input) {
     throw new Error('Invalid entity format: ' + JSON.stringify(input));
 }
 
-function hydrateEntityValue(raw, zeroThreshold) {
+function hydrateEntityValue(raw, options = {}) {
     const parsed = parseFloat(raw);
-    const value = Math.max(0, applyZeroThreshold(parsed || 0, zeroThreshold));
+    const value = Math.max(0, applyEntityValueOptions(parsed || 0, options));
     return value;
 }
 
@@ -267,7 +267,7 @@ describe('zero_threshold entity normalization', () => {
         const entity = {
             entity_id: 'sensor.ev_charger',
             name: 'EV charger',
-            value: hydrateEntityValue('3', 25),
+            value: hydrateEntityValue('3', { zero_threshold: 25 }),
             icon: 'mdi:car-electric',
             color: '#2196f3',
             bg_opacity: 'inherit',
@@ -279,6 +279,12 @@ describe('zero_threshold entity normalization', () => {
 
         expect(entity.value).toBe(0);
         expect(result.total).toBe(0);
+    });
+
+    it('inverts values before zero thresholding and clamping', () => {
+        expect(hydrateEntityValue('-26', { invert: true, zero_threshold: 25 })).toBe(26);
+        expect(hydrateEntityValue('-24', { invert: true, zero_threshold: 25 })).toBe(0);
+        expect(hydrateEntityValue('26', { invert: true, zero_threshold: 25 })).toBe(0);
     });
 });
 

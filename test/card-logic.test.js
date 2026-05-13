@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { applyZeroThreshold } from '../src/utils.js';
 
 /**
  * Tests for the core calculation logic in HnlFlowBarsCard.
@@ -58,6 +59,12 @@ function normalizeEntityConfig(input) {
         return [input];
     }
     throw new Error('Invalid entity format: ' + JSON.stringify(input));
+}
+
+function hydrateEntityValue(raw, zeroThreshold) {
+    const parsed = parseFloat(raw);
+    const value = Math.max(0, applyZeroThreshold(parsed || 0, zeroThreshold));
+    return value;
 }
 
 // ── Tests ──
@@ -252,6 +259,26 @@ describe('remainder rounding artifact prevention', () => {
 
         expect(totals.production_remainder).toBe(0);
         expect(totals.consumption_remainder).toBe(0);
+    });
+});
+
+describe('zero_threshold entity normalization', () => {
+    it('treats values at or below the threshold as zero before totals are built', () => {
+        const entity = {
+            entity_id: 'sensor.ev_charger',
+            name: 'EV charger',
+            value: hydrateEntityValue('3', 25),
+            icon: 'mdi:car-electric',
+            color: '#2196f3',
+            bg_opacity: 'inherit',
+            text_color: 'inherit',
+            unit_of_measurement: 'W',
+        };
+
+        const result = buildBarData([entity], 100, null);
+
+        expect(entity.value).toBe(0);
+        expect(result.total).toBe(0);
     });
 });
 

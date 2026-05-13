@@ -166,6 +166,17 @@ class EntityListEditor extends LitElement {
             @input=${(ev) =>
               this._entityFieldChanged(index, 'unit_of_measurement', ev.target.value)}
           ></ha-textfield>
+
+          <ha-textfield
+            .label=${'Zero threshold (optional)'}
+            .value=${entity.zero_threshold ?? ''}
+            type="number"
+            min="0"
+            .helper=${'Treat values at or below this as zero'}
+            helperPersistent
+            @input=${(ev) =>
+              this._entityFieldChanged(index, 'zero_threshold', ev.target.value)}
+          ></ha-textfield>
         </div>
       </ha-expansion-panel>
     `;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeEntityIcon } from '../src/utils.js';
+import { applyZeroThreshold, computeEntityIcon } from '../src/utils.js';
 
 describe('computeEntityIcon', () => {
     it('returns explicit icon from attributes', () => {
@@ -80,5 +80,24 @@ describe('computeEntityIcon', () => {
             attributes: {},
         };
         expect(computeEntityIcon(stateObj)).toBe('mdi:bookmark-outline');
+    });
+});
+
+describe('applyZeroThreshold', () => {
+    it('returns zero when the absolute value is at or below the threshold', () => {
+        expect(applyZeroThreshold(3, 25)).toBe(0);
+        expect(applyZeroThreshold(25, 25)).toBe(0);
+        expect(applyZeroThreshold(-10, 25)).toBe(0);
+    });
+
+    it('keeps values above the threshold unchanged', () => {
+        expect(applyZeroThreshold(26, 25)).toBe(26);
+        expect(applyZeroThreshold(-26, 25)).toBe(-26);
+    });
+
+    it('ignores missing or invalid thresholds', () => {
+        expect(applyZeroThreshold(3, null)).toBe(3);
+        expect(applyZeroThreshold(3, '')).toBe(3);
+        expect(applyZeroThreshold(3, 'abc')).toBe(3);
     });
 });

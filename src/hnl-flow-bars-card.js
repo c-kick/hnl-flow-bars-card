@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
+import { applyZeroThreshold, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -172,7 +172,8 @@ class HnlFlowBarsCard extends LitElement {
             const isUnavailable = raw === 'unavailable' || raw === 'unknown';
             const parsed = parseFloat(raw);
             const isNonNumeric = !isUnavailable && isNaN(parsed);
-            let value = Math.max(0, parsed || 0);
+            let value = applyZeroThreshold(parsed || 0, item.zero_threshold);
+            value = Math.max(0, value);
             const displayName = item.name || stateObj.attributes.friendly_name || entityId;
             let warning = null;
             if (useEnergy && this._energyStats[entityId] == null) {
@@ -194,6 +195,7 @@ class HnlFlowBarsCard extends LitElement {
               bg_opacity: item.bg_opacity || globalBgOpacity || 'inherit',
               text_color: item.text_color || globalTextColor || 'inherit',
               hatched: item.hatched || false,
+              zero_threshold: item.zero_threshold,
               unit_of_measurement: unit,
               warning,
             };

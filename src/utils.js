@@ -172,3 +172,16 @@ export function computeEntityIcon(stateObj) {
             return 'mdi:bookmark-outline';
     }
 }
+
+export function applyZeroThreshold(value, zeroThreshold) {
+    if (zeroThreshold === null || zeroThreshold === undefined || zeroThreshold === '') {
+        return value;
+    }
+
+    const threshold = Number(zeroThreshold);
+    if (!Number.isFinite(threshold)) {
+        return value;
+    }
+
+    return Math.abs(value) <= threshold ? 0 : value;
+}

@@ -112,13 +112,13 @@ class EntityListEditor extends LitElement {
               this._entityFieldChanged(index, 'entity', ev.detail.value)}
           ></ha-entity-picker>
 
-          <ha-textfield
+          <ha-input
             .label=${'Name (optional)'}
             .value=${entity.name || ''}
             .placeholder=${this._getEntityName({ entity: entity.entity })}
             @input=${(ev) =>
               this._entityFieldChanged(index, 'name', ev.target.value)}
-          ></ha-textfield>
+          ></ha-input>
 
           <ha-icon-picker
             .hass=${this.hass}
@@ -128,21 +128,21 @@ class EntityListEditor extends LitElement {
               this._entityFieldChanged(index, 'icon', ev.detail.value)}
           ></ha-icon-picker>
 
-          <ha-textfield
+          <ha-input
             .label=${'Color (CSS, optional)'}
             .value=${entity.color || ''}
             .helper=${'Any CSS color: #hex, rgb(), var(--name)'}
             helperPersistent
             @input=${(ev) =>
               this._entityFieldChanged(index, 'color', ev.target.value)}
-          ></ha-textfield>
+          ></ha-input>
 
-          <ha-textfield
+          <ha-input
             .label=${'Text color (CSS, optional)'}
             .value=${entity.text_color || ''}
             @input=${(ev) =>
               this._entityFieldChanged(index, 'text_color', ev.target.value)}
-          ></ha-textfield>
+          ></ha-input>
 
           <div class="slider-row">
             <label>Background opacity</label>
@@ -160,14 +160,14 @@ class EntityListEditor extends LitElement {
             </div>
           </div>
 
-          <ha-textfield
+          <ha-input
             .label=${'Unit of measurement (optional)'}
             .value=${entity.unit_of_measurement || ''}
             @input=${(ev) =>
               this._entityFieldChanged(index, 'unit_of_measurement', ev.target.value)}
-          ></ha-textfield>
+          ></ha-input>
 
-          <ha-textfield
+          <ha-input
             .label=${'Zero threshold (optional)'}
             .value=${entity.zero_threshold ?? ''}
             type="number"
@@ -176,7 +176,7 @@ class EntityListEditor extends LitElement {
             helperPersistent
             @input=${(ev) =>
               this._entityFieldChanged(index, 'zero_threshold', ev.target.value)}
-          ></ha-textfield>
+          ></ha-input>
         </div>
       </ha-expansion-panel>
     `;
@@ -245,7 +245,7 @@ class EntityListEditor extends LitElement {
         align-items: center;
       }
 
-      ha-textfield,
+      ha-input,
       ha-entity-picker {
         display: block;
       }

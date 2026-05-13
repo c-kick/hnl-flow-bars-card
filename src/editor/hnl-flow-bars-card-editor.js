@@ -188,38 +188,38 @@ class HnlFlowBarsCardEditor extends LitElement {
             <h3>General</h3>
           </div>
 
-          <ha-textfield
+          <ha-input
             .label=${'Unit of measurement'}
             .value=${this._config.unit_of_measurement || ''}
             .helper=${'Override the unit for all entities (e.g. W, L/min, m\u00B3)'}
             helperPersistent
             @input=${(ev) => this._textChanged('unit_of_measurement', ev)}
-          ></ha-textfield>
+          ></ha-input>
 
-          <ha-textfield
+          <ha-input
             .label=${'Decimal places'}
             .value=${String(this._config.rounding ?? 0)}
             type="number"
             min="0"
             max="6"
             @input=${(ev) => this._numberChanged('rounding', ev)}
-          ></ha-textfield>
+          ></ha-input>
 
-          <ha-textfield
+          <ha-input
             .label=${'Default color (CSS, optional)'}
             .value=${this._config.global_color || ''}
             .helper=${'Fallback bar color when not set per entity'}
             helperPersistent
             @input=${(ev) => this._textChanged('global_color', ev)}
-          ></ha-textfield>
+          ></ha-input>
 
-          <ha-textfield
+          <ha-input
             .label=${'Default text color (CSS, optional)'}
             .value=${this._config.global_text_color || ''}
             .helper=${'Fallback text color when not set per entity'}
             helperPersistent
             @input=${(ev) => this._textChanged('global_text_color', ev)}
-          ></ha-textfield>
+          ></ha-input>
 
           <div class="slider-row">
             <label>Default background opacity</label>
@@ -539,7 +539,7 @@ class HnlFlowBarsCardEditor extends LitElement {
         border-bottom: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
       }
 
-      ha-textfield {
+      ha-input {
         display: block;
       }
 

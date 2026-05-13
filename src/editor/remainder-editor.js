@@ -38,13 +38,13 @@ class RemainderEditor extends LitElement {
         <div class="remainder-content">
           ${this.description ? html`<p class="remainder-description">${this.description}</p>` : ''}
           <div class="remainder-fields">
-            <ha-textfield
+            <ha-input
               .label=${'Display name'}
               .value=${this.remainder.name || ''}
               .helper=${'Label shown on the bar'}
               helperPersistent
               @input=${(ev) => this._valueChanged('name', ev)}
-            ></ha-textfield>
+            ></ha-input>
 
             <ha-icon-picker
               .hass=${this.hass}
@@ -56,13 +56,13 @@ class RemainderEditor extends LitElement {
               }}
             ></ha-icon-picker>
 
-            <ha-textfield
+            <ha-input
               .label=${'Color (CSS)'}
               .value=${this.remainder.color || ''}
               .helper=${'Any CSS color: #hex, rgb(), var(--name)'}
               helperPersistent
               @input=${(ev) => this._valueChanged('color', ev)}
-            ></ha-textfield>
+            ></ha-input>
 
             <div class="slider-row">
               <label>Background opacity</label>
@@ -79,17 +79,17 @@ class RemainderEditor extends LitElement {
               </div>
             </div>
 
-            <ha-textfield
+            <ha-input
               .label=${'Text color (CSS)'}
               .value=${this.remainder.text_color || ''}
               @input=${(ev) => this._valueChanged('text_color', ev)}
-            ></ha-textfield>
+            ></ha-input>
 
-            <ha-textfield
+            <ha-input
               .label=${'Unit of measurement'}
               .value=${this.remainder.unit_of_measurement || ''}
               @input=${(ev) => this._valueChanged('unit_of_measurement', ev)}
-            ></ha-textfield>
+            ></ha-input>
           </div>
         </div>
       </ha-expansion-panel>
@@ -130,7 +130,7 @@ class RemainderEditor extends LitElement {
         gap: 12px;
       }
 
-      ha-textfield {
+      ha-input {
         display: block;
       }
 

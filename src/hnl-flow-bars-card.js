@@ -739,16 +739,16 @@ class HnlFlowBarsCard extends LitElement {
             }
 
             hnl-flow-bar-source-label,
-             hnl-flow-bar-source-accolade,
-             hnl-flow-bar-destination {
-                 display: flex;
-                 flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
-                 transition: flex-basis 0.3s ease;
+            hnl-flow-bar-source-accolade,
+            hnl-flow-bar-destination {
+                display: flex;
+                flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
+                transition: flex-basis 0.3s ease;
  				font-size: var(--user-font-size, calc(var(--user-font-size-scale, 1) * clamp(var(--ha-font-size-xs, 9px), 22cqb, 14px)));
-                 --mdc-icon-size: min(1.25em, 1.2em);
-                 --label-padding: 0.15em 0.5em;
-                 --label-edge-padding: 0.7em;
-             }
+                --mdc-icon-size: min(1.25em, 1.2em);
+                --label-padding: 0.15em 0.5em;
+                --label-edge-padding: 0.7em;
+            }
 			
 			hnl-flow-bar-source-group,
 			hnl-flow-bar-destination-group {

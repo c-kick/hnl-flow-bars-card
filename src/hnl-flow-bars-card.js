@@ -223,6 +223,7 @@ class HnlFlowBarsCard extends LitElement {
             rounding: this._rawConfig.rounding,
             hide_zero_values: this._rawConfig.hide_zero_values,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
+            font_size: this._rawConfig.font_size,
             card_class: [
                 this._rawConfig.transparent ? 'transparent' : '',
                 this._rawConfig.theme === 'minimal' ? 'minimal' : '',
@@ -425,6 +426,12 @@ class HnlFlowBarsCard extends LitElement {
         const visibleProd = barData.production.filter((ent) => this._shouldShowBar(ent));
         const visibleCons = barData.consumption.filter((ent) => this._shouldShowBar(ent));
 
+        const fontSizeValue = this._parsedConfig.font_size?.trim();
+        const flowBarsStyle = !fontSizeValue ? '' :
+            /^\d+(\.\d+)?$/.test(fontSizeValue) // If it has no units, it's a scale value
+                ? `--user-font-size-scale: ${fontSizeValue};`
+                : `--user-font-size: ${fontSizeValue};`;
+
         return html`
             <ha-card class="${this._parsedConfig.card_class}">
                 ${this._parsedConfig.warnings.length ? html`
@@ -435,7 +442,7 @@ class HnlFlowBarsCard extends LitElement {
                     </div>
                 ` : null}
                 <div class="card-content">
-        <hnl-flow-bars class="${this._flowBarsClasses}">
+        <hnl-flow-bars class="${this._flowBarsClasses}" style="${flowBarsStyle}">
             <hnl-flow-bar-source-group>
                 <hnl-flow-bar-source-labels>
                     ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
@@ -525,6 +532,7 @@ class HnlFlowBarsCard extends LitElement {
             global_color: config.global_color || null,
             global_text_color: config.global_text_color || null,
             global_bg_opacity: config.global_bg_opacity || null,
+            font_size: config.font_size || null,
             energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };
@@ -731,16 +739,16 @@ class HnlFlowBarsCard extends LitElement {
             }
 
             hnl-flow-bar-source-label,
-            hnl-flow-bar-source-accolade,
-            hnl-flow-bar-destination {
-                display: flex;
-                flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
-                transition: flex-basis 0.3s ease;
-				font-size: clamp(var(--ha-font-size-xs, 9px), 22cqb, 14px);
-                --mdc-icon-size: min(1.25em, 1.2em);
-                --label-padding: 0.15em 0.5em;
-                --label-edge-padding: 0.7em;
-            }
+             hnl-flow-bar-source-accolade,
+             hnl-flow-bar-destination {
+                 display: flex;
+                 flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
+                 transition: flex-basis 0.3s ease;
+ 				font-size: var(--user-font-size, calc(var(--user-font-size-scale, 1) * clamp(var(--ha-font-size-xs, 9px), 22cqb, 14px)));
+                 --mdc-icon-size: min(1.25em, 1.2em);
+                 --label-padding: 0.15em 0.5em;
+                 --label-edge-padding: 0.7em;
+             }
 			
 			hnl-flow-bar-source-group,
 			hnl-flow-bar-destination-group {

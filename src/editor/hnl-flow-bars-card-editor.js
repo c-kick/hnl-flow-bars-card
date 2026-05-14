@@ -46,6 +46,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     if (!config.global_color) delete config.global_color;
     if (!config.global_text_color) delete config.global_text_color;
     if (!config.global_bg_opacity) delete config.global_bg_opacity;
+    if (!config.font_size) delete config.font_size;
     if (!config.energy_date_selection) delete config.energy_date_selection;
     // Remove legacy key
     delete config.accolade_style;
@@ -237,6 +238,14 @@ class HnlFlowBarsCardEditor extends LitElement {
               <span class="slider-value">${this._config.global_bg_opacity || '1'}</span>
             </div>
           </div>
+
+          <ha-input
+            .label=${'Font size (CSS value, optional)'}
+            .value=${this._config.font_size || ''}
+            .helper=${'Scale factor (e.g. 1.2, 0.8) or absolute value (e.g. 16px, 1.2em)'}
+            helperPersistent
+            @input=${(ev) => this._textChanged('font_size', ev)}
+          ></ha-input>
 
           <h4 class="subsection-header">Behavior</h4>
 

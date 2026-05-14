@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { applyEntityValueOptions, applyZeroThreshold, computeEntityIcon } from '../src/utils.js';
+import {
+    applyEntityValueOptions,
+    applyFontSizeOptions,
+    applyZeroThreshold,
+    computeEntityIcon,
+} from '../src/utils.js';
 
 describe('computeEntityIcon', () => {
     it('returns explicit icon from attributes', () => {
@@ -80,6 +85,56 @@ describe('computeEntityIcon', () => {
             attributes: {},
         };
         expect(computeEntityIcon(stateObj)).toBe('mdi:bookmark-outline');
+    });
+});
+
+describe('applyFontSizeOptions', () => {
+    it('omits font size variables when no options are configured', () => {
+        expect(applyFontSizeOptions({})).toEqual({});
+    });
+
+    it('maps configured scale and max to scoped CSS variables', () => {
+        expect(applyFontSizeOptions({
+            font_size_scale: 1.25,
+            font_size_max: '18px',
+        })).toEqual({
+            '--hnl-flow-bars-font-size-scale': '1.25',
+            '--hnl-flow-bars-font-size-fluid': '27.5cqb',
+            '--hnl-flow-bars-font-size-max': '18px',
+        });
+    });
+
+    it('ignores invalid scale values', () => {
+        expect(applyFontSizeOptions({
+            font_size_scale: 'large',
+            font_size_max: '18px',
+        })).toEqual({
+            '--hnl-flow-bars-font-size-max': '18px',
+        });
+    });
+
+    it('accepts CSS variable and calc values for max font size', () => {
+        expect(applyFontSizeOptions({
+            font_size_max: 'var(--ha-font-size-l)',
+        })).toEqual({
+            '--hnl-flow-bars-font-size-max': 'var(--ha-font-size-l)',
+        });
+
+        expect(applyFontSizeOptions({
+            font_size_max: 'calc(var(--ha-font-size-m) * 1.25)',
+        })).toEqual({
+            '--hnl-flow-bars-font-size-max': 'calc(var(--ha-font-size-m) * 1.25)',
+        });
+    });
+
+    it('ignores invalid max font size values', () => {
+        expect(applyFontSizeOptions({
+            font_size_max: '18',
+        })).toEqual({});
+
+        expect(applyFontSizeOptions({
+            font_size_max: 'large',
+        })).toEqual({});
     });
 });
 

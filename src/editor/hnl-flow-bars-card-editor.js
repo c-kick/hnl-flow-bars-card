@@ -46,6 +46,8 @@ class HnlFlowBarsCardEditor extends LitElement {
     if (!config.global_color) delete config.global_color;
     if (!config.global_text_color) delete config.global_text_color;
     if (!config.global_bg_opacity) delete config.global_bg_opacity;
+    if (!config.font_size_scale || Number(config.font_size_scale) === 1) delete config.font_size_scale;
+    if (!config.font_size_max || config.font_size_max === '14px') delete config.font_size_max;
     if (!config.energy_date_selection) delete config.energy_date_selection;
     // Remove legacy key
     delete config.accolade_style;
@@ -102,6 +104,12 @@ class HnlFlowBarsCardEditor extends LitElement {
   _numberChanged(field, ev) {
     const val = parseInt(ev.target.value, 10);
     this._config = { ...this._config, [field]: isNaN(val) ? 0 : val };
+    this._fireConfigChanged();
+  }
+
+  _floatChanged(field, ev) {
+    const val = parseFloat(ev.target.value);
+    this._config = { ...this._config, [field]: Number.isFinite(val) ? val : null };
     this._fireConfigChanged();
   }
 
@@ -378,6 +386,41 @@ class HnlFlowBarsCardEditor extends LitElement {
               @change=${(ev) => this._toggleChanged('animated', ev)}
             ></ha-switch>
           </div>
+
+          <ha-expansion-panel .header=${'Advanced'} outlined class="advanced-section">
+            <div class="advanced-content">
+              <div class="advanced-field">
+                <div class="toggle-label">
+                  <span>Responsive font growth scale</span>
+                  <span class="toggle-description">Changes how quickly text grows with row height. This only affects text below the maximum text size.</span>
+                </div>
+                <ha-input
+                  .label=${'Scale'}
+                  .value=${this._config.font_size_scale ?? ''}
+                  type="number"
+                  min="0.1"
+                  step="0.05"
+                  .helper=${'Default: 1'}
+                  helperPersistent
+                  @input=${(ev) => this._floatChanged('font_size_scale', ev)}
+                ></ha-input>
+              </div>
+
+              <div class="advanced-field">
+                <div class="toggle-label">
+                  <span>Maximum text size</span>
+                  <span class="toggle-description">Sets the largest text size the responsive scaling may reach. Use this to make larger cards more readable.</span>
+                </div>
+                <ha-input
+                  .label=${'Maximum'}
+                  .value=${this._config.font_size_max || ''}
+                  .helper=${'CSS length or variable, e.g. 18px, 1.2rem, var(--ha-font-size-l). Default: 14px'}
+                  helperPersistent
+                  @input=${(ev) => this._textChanged('font_size_max', ev)}
+                ></ha-input>
+              </div>
+            </div>
+          </ha-expansion-panel>
         </div>
 
         <div class="divider"></div>
@@ -542,6 +585,23 @@ class HnlFlowBarsCardEditor extends LitElement {
 
       ha-input {
         display: block;
+      }
+
+      .advanced-section {
+        display: block;
+      }
+
+      .advanced-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-top: 12px;
+      }
+
+      .advanced-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
       }
 
       .slider-row {

@@ -168,6 +168,9 @@ export async function fetchStatistics(hass, startTime, endTime, entityIds) {
         const changes = entries.filter(e => e.change != null).map(e => e.change);
         if (changes.length) {
             result[entityId] = changes.reduce((a, b) => a + b, 0);
+        } else if (entries[entries.length - 1].state != null && entries[0].state != null) {
+            // Fallback: use the difference in cumulative `state`
+            result[entityId] = entries[entries.length - 1].state - entries[0].state;
         } else if (entries[entries.length - 1].sum != null && entries[0].sum != null) {
             // Fallback: use the difference in cumulative `sum`
             result[entityId] = entries[entries.length - 1].sum - entries[0].sum;

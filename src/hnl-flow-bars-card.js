@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
-import { applyEntityValueOptions, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import { applyEntityValueOptions, applyFontSizeOptions, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -223,6 +224,8 @@ class HnlFlowBarsCard extends LitElement {
             rounding: this._rawConfig.rounding,
             hide_zero_values: this._rawConfig.hide_zero_values,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
+            font_size_scale: this._rawConfig.font_size_scale,
+            font_size_max: this._rawConfig.font_size_max,
             card_class: [
                 this._rawConfig.transparent ? 'transparent' : '',
                 this._rawConfig.theme === 'minimal' ? 'minimal' : '',
@@ -424,6 +427,7 @@ class HnlFlowBarsCard extends LitElement {
 
         const visibleProd = barData.production.filter((ent) => this._shouldShowBar(ent));
         const visibleCons = barData.consumption.filter((ent) => this._shouldShowBar(ent));
+        const flowBarsStyle = applyFontSizeOptions(this._parsedConfig);
 
         return html`
             <ha-card class="${this._parsedConfig.card_class}">
@@ -435,7 +439,7 @@ class HnlFlowBarsCard extends LitElement {
                     </div>
                 ` : null}
                 <div class="card-content">
-        <hnl-flow-bars class="${this._flowBarsClasses}">
+        <hnl-flow-bars class="${this._flowBarsClasses}" style=${styleMap(flowBarsStyle)}>
             <hnl-flow-bar-source-group>
                 <hnl-flow-bar-source-labels>
                     ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
@@ -525,9 +529,12 @@ class HnlFlowBarsCard extends LitElement {
             global_color: config.global_color || null,
             global_text_color: config.global_text_color || null,
             global_bg_opacity: config.global_bg_opacity || null,
+            font_size_scale: config.font_size_scale || null,
+            font_size_max: config.font_size_max || null,
             energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };
+        this._updatedParsedConfig = null;
 
         // Re-subscribe if energy mode changed while connected
         if (this.isConnected) {
@@ -614,6 +621,10 @@ class HnlFlowBarsCard extends LitElement {
                 --label-edge-padding: calc(var(--font-size, 0.8em) * .7);
                 --label-padding: calc(var(--font-size, 0.8em) * 0.15) calc(var(--font-size, 0.8em) * 0.5);
                 --min-bar-width: min-content;
+                --hnl-flow-bars-font-size-scale: 1;
+                --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
+                --hnl-flow-bars-font-size-fluid: 22cqb;
+                --hnl-flow-bars-font-size-max: 14px;
 
                 --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
@@ -692,6 +703,11 @@ class HnlFlowBarsCard extends LitElement {
                 border-radius: var(--border-radius, 8px);
                 overflow: hidden;
                 max-height: 100%;
+                --hnl-flow-bars-font-size: clamp(
+                    var(--hnl-flow-bars-font-size-min),
+                    var(--hnl-flow-bars-font-size-fluid),
+                    var(--hnl-flow-bars-font-size-max)
+                );
             }
 
             hnl-flow-bar-source-group {
@@ -710,6 +726,11 @@ class HnlFlowBarsCard extends LitElement {
                 z-index: 3;
                 overflow: hidden;
                 gap: 0;
+            }
+
+            hnl-flow-bar-source-group,
+            hnl-flow-bar-destination-group {
+                font-size: var(--hnl-flow-bars-font-size);
             }
 
             hnl-flow-bar-source-labels,
@@ -736,16 +757,19 @@ class HnlFlowBarsCard extends LitElement {
                 display: flex;
                 flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
                 transition: flex-basis 0.3s ease;
-				font-size: clamp(var(--ha-font-size-xs, 9px), 22cqb, 14px);
                 --mdc-icon-size: min(1.25em, 1.2em);
                 --label-padding: 0.15em 0.5em;
                 --label-edge-padding: 0.7em;
             }
-			
-			hnl-flow-bar-source-group,
-			hnl-flow-bar-destination-group {
-				container-type: size;
-			}
+            hnl-flow-bar-source-labels,
+            hnl-flow-bar-destination-group {
+                container-type: size;
+                container-name: bar-row;
+            }
+            hnl-flow-bar-source-group,
+            hnl-flow-bar-source-accolades {
+                container-type: size;
+            }
 
             hnl-flow-bar-source-label {
                 min-width: var(--min-bar-width);
@@ -861,8 +885,8 @@ class HnlFlowBarsCard extends LitElement {
                 max-width: 100%;
             }
 
-            /* When card is tall enough, show entity names */
-            @container card (min-height: 6em) {
+            /* When a row is tall enough, show entity names. Keep the top & bottom padding of the label's container (currently set to 10cqb) into account */
+            @container bar-row (min-height: 2lh) {
                 hnl-flow-bar-source-label > span {
                     display: grid;
                     gap: 2px;
@@ -1072,6 +1096,14 @@ class HnlFlowBarsCard extends LitElement {
 			}
 			
             /* ═══ NATIVE THEME: Contained ═══ */
+
+            /* Since this theme uses a double height for the source row, we need to apply
+            a fix that still hides the entity-name when there's no space for it */
+            @container bar-row (max-height: 4lh) {
+                hnl-flow-bars.native.contained hnl-flow-bar-source-label .entity-name {
+                    display: none;
+                }
+            }
 			hnl-flow-bars.native.contained hnl-flow-bar-source-group {
 				grid-row: 1 / -1;
 			}
@@ -1082,6 +1114,7 @@ class HnlFlowBarsCard extends LitElement {
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-source-label > span {
 				height: 50cqb;
+				padding-top: 5cqb;
 			}
 			hnl-flow-bars.native.contained hnl-flow-bar-source-label:first-child {
 				border-radius: 15cqb 0 0 15cqb;

@@ -190,3 +190,39 @@ export function applyEntityValueOptions(value, item = {}) {
     const effectiveValue = item.invert ? -value : value;
     return applyZeroThreshold(effectiveValue, item.zero_threshold);
 }
+
+function formatCssNumber(value) {
+    return Number(value.toFixed(4)).toString();
+}
+
+function isValidFontSizeMax(value) {
+    if (typeof value !== 'string') return false;
+
+    const trimmed = value.trim();
+    if (!trimmed) return false;
+
+    if (/^(var|calc|min|max|clamp)\(.+\)$/i.test(trimmed)) {
+        return true;
+    }
+
+    return /^-?(?:\d+|\d*\.\d+)(?:px|em|rem|lh|rlh|vw|vh|vmin|vmax|cqw|cqh|cqi|cqb|cqmin|cqmax|ch|ex)$/i.test(trimmed);
+}
+
+export function applyFontSizeOptions(config = {}) {
+    const styles = {};
+    const scale = Number(config.font_size_scale);
+    const max = typeof config.font_size_max === 'string'
+        ? config.font_size_max.trim()
+        : config.font_size_max;
+
+    if (Number.isFinite(scale) && scale > 0) {
+        styles['--hnl-flow-bars-font-size-scale'] = String(scale);
+        styles['--hnl-flow-bars-font-size-fluid'] = `${formatCssNumber(22 * scale)}cqb`;
+    }
+
+    if (isValidFontSizeMax(max)) {
+        styles['--hnl-flow-bars-font-size-max'] = String(max);
+    }
+
+    return styles;
+}

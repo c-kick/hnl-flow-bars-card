@@ -156,6 +156,8 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
+| `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
+| `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
 | `theme` | string | layout default | Visual theme within the chosen layout (see [Layouts & Themes](#layouts--themes)) |
 | `gradient` | bool | `false` | Apply gradient shading to bars |
@@ -214,6 +216,8 @@ energy_date_selection: false
 transparent: true
 slanted_edge: true
 show_names: true
+font_size_scale: 1
+font_size_max: 14px
 layout: accolade
 theme: classic
 gradient: false
@@ -266,8 +270,17 @@ consumption:
 The card adapts to its available height:
 
 - **Compact (1 row):** Only icon + value shown in source labels and destinations.
-- **Taller layouts (2+ rows):** Entity names automatically appear below the value in both source labels and destination bars when there is enough vertical space. Bars always stretch to fill the available card height. The threshold is content-relative (based on `em` units, not fixed pixels), so it scales with font size.
+- **Taller layouts (2+ rows):** Entity names automatically appear below the value in both source labels and destination bars *if the row has enough vertical space for two lines*. Bars always stretch to fill the available card height. The threshold is content-relative (based on `lh` units, not fixed pixels), so it scales with font size.
 - **`show_names: false`:** Disables entity names entirely, regardless of available space.
+
+The default font sizing is tuned for compact cards and uses a responsive clamp. Large cards can opt into bigger text without losing the compact-card behavior:
+
+```yaml
+font_size_scale: 1.2
+font_size_max: 18px
+```
+
+`font_size_scale` changes how aggressively the responsive font grows. `font_size_max` raises or lowers the ceiling where the font stops growing; use a CSS length or variable such as `18px`, `1.2rem`, `var(--ha-font-size-l)`, or `calc(var(--ha-font-size-m) * 1.25)`. Invalid values are ignored and the default `14px` ceiling remains active.
 
 ### Entity warnings
 
@@ -317,6 +330,20 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
   /* Remainder colors */
   --hnl-flow-bars-color-shortfall: #ce513a;
   --hnl-flow-bars-color-surplus: #3c9940;
+
+  /* Responsive font sizing */
+  --hnl-flow-bars-font-size-scale: 1;
+  --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
+  --hnl-flow-bars-font-size-fluid: 22cqb;
+  --hnl-flow-bars-font-size-max: 14px;
+}
+
+hnl-flow-bars {
+  --hnl-flow-bars-font-size: clamp(
+    var(--hnl-flow-bars-font-size-min),
+    var(--hnl-flow-bars-font-size-fluid),
+    var(--hnl-flow-bars-font-size-max)
+  );
 }
 ```
 

@@ -885,7 +885,7 @@ class HnlFlowBarsCard extends LitElement {
                 max-width: 100%;
             }
 
-            /* When a row is tall enough, show entity names. Keep the top & bottom padding of the label's container (currently set to 10cqb) into account */
+            /* When a row is tall enough, show entity names. */
             @container bar-row (min-height: 2lh) {
                 hnl-flow-bar-source-label > span {
                     display: grid;
@@ -1044,9 +1044,6 @@ class HnlFlowBarsCard extends LitElement {
             }
 			
 			/* ═══ NATIVE THEME: Split corners ═══ */
-			hnl-flow-bars.native.alternative {
-				--ha-card-border-radius: 3cqi;
-			}
             hnl-flow-bars.native.alternative hnl-flow-bar-source-label:first-child {
                 border-radius: var(--ha-card-border-radius,var(--ha-border-radius-lg)) 0 0 0;
             }

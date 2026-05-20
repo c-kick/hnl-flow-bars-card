@@ -336,6 +336,9 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
   --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
   --hnl-flow-bars-font-size-fluid: 22cqb;
   --hnl-flow-bars-font-size-max: 14px;
+
+  /* Advanced: intrinsic card row height, mainly for masonry layout */
+  --hnl-flow-bars-card-row-height: 56px;
 }
 
 hnl-flow-bars {
@@ -350,6 +353,16 @@ hnl-flow-bars {
 ## Grid sizing
 
 The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, `min_rows: 1`). Override with `grid_options` in the card config, or resize via the HA UI.
+
+In masonry layout, Home Assistant uses `getCardSize()` for column balancing but the card still needs an intrinsic height. Advanced users can override `--hnl-flow-bars-card-row-height` to control that minimum height:
+
+```yaml
+card_mod:
+  style: |
+    hnl-flow-bars-card {
+      --hnl-flow-bars-card-row-height: 72px;
+    }
+```
 
 ## Layouts & Themes
 

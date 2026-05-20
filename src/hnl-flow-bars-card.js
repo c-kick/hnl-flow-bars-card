@@ -625,6 +625,7 @@ class HnlFlowBarsCard extends LitElement {
                 --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
                 --hnl-flow-bars-font-size-fluid: 22cqb;
                 --hnl-flow-bars-font-size-max: 14px;
+                --hnl-flow-bars-card-row-height: 56px;
 
                 --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
@@ -647,7 +648,7 @@ class HnlFlowBarsCard extends LitElement {
 
                 display: block;
                 height: 100%;
-                min-height: var(--row-height, 56px);
+                min-height: var(--hnl-flow-bars-card-row-height, var(--ha-section-grid-row-height, 56px));
                 font-size: var(--font-size, 0.8em);
                 font-weight: 500;
             }
@@ -659,8 +660,10 @@ class HnlFlowBarsCard extends LitElement {
             }
 
             ha-card {
-                display: block;
+                display: flex;
+                flex-direction: column;
                 height: 100%;
+                min-height: inherit;
                 overflow: hidden;
             }
 			ha-card hnl-flow-bars {
@@ -681,8 +684,8 @@ class HnlFlowBarsCard extends LitElement {
 
             .card-content {
                 display: flex;
-                position: absolute;
-                inset: 0;
+                flex: 1 1 auto;
+                min-height: inherit;
                 flex-direction: row;
                 flex-wrap: nowrap;
                 align-items: center;

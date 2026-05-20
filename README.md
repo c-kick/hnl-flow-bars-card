@@ -350,6 +350,18 @@ hnl-flow-bars {
 }
 ```
 
+## CSS overrides
+
+You can use [`card_mod`](https://github.com/thomasloven/lovelace-card-mod) to override certain CSS variables. For example, if you want the bars to always have the *exact percentual width* they should have, instead of always prioritzing visibility of the value label inside as a minimum size, you can set:
+
+```
+card_mod:
+  style: |
+    :host {
+      --min-bar-width: auto !important;
+    }
+```
+
 ## Grid sizing
 
 The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, `min_rows: 1`). Override with `grid_options` in the card config, or resize via the HA UI.

@@ -45,7 +45,6 @@ export const hnlFlowBarsCardScaffolding = css`
         align-self: stretch;
         flex-basis: 100%;
         justify-items: stretch;
-        gap: 0;
         grid-template-rows: 1fr var(--accolade-height, 5px) 1fr;
         overflow: hidden;
         max-height: 100%;
@@ -75,8 +74,14 @@ export const hnlFlowBarsCardScaffolding = css`
         container-name: bar-row;
         display: flex;
         overflow: hidden;
-        gap: 0;
     }
+
+    /* Z-stack: source at the back, accolade band over the seam,
+       destination on top so it stays visible when it overlaps
+       (e.g. the "contained" theme floats its bar inside source). */
+    hnl-flow-bars hnl-flow-bars-card-source-group { z-index: 1; }
+    hnl-flow-bars hnl-flow-bars-card-accolade-group { z-index: 2; }
+    hnl-flow-bars hnl-flow-bars-card-destination-group { z-index: 3; }
 
     /* ── SEGMENTS ────────────────────────────────────────────
        flex-basis + max-width pinned to --width-value keeps
@@ -97,6 +102,9 @@ export const hnlFlowBarsCardScaffolding = css`
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    hnl-flow-bars hnl-flow-bars-card-source-group hnl-flow-bars-card-source-label {
+        justify-content: flex-start;
     }
 
     /* ── SEGMENT FLOOR ───────────────────────────────────────

@@ -50,6 +50,32 @@ describe('css module split', () => {
         expect(source).toContain('repeating-linear-gradient');
     });
 
+    it('uses namespaced layout and theme selectors for visual variants', () => {
+        const source = readFileSync(stylesPath, 'utf8');
+
+        expect(source).toContain('hnl-flow-bars.layout-native {');
+        expect(source).toContain('hnl-flow-bars.layout-native.theme-split-pill {');
+        expect(source).toContain('hnl-flow-bars.layout-native.theme-minimal {');
+        expect(source).toContain('hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-group');
+        expect(source).toContain('hnl-flow-bars.layout-native.gradient hnl-flow-bars-card-source-label');
+        expect(source).toContain('hnl-flow-bars.no-slant:not(.layout-native) hnl-flow-bars-card-source-label > div');
+        expect(source).toContain('hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label {');
+        expect(source).toContain('hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade {');
+        expect(source).toContain('hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination {');
+        expect(source).toContain('hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination-label {');
+        expect(source).toMatch(/\n\s{4}hnl-flow-bars-card-source-label > div\s*\{[^}]*--adjusted-bg-color:/);
+        expect(source).toMatch(/\n\s{4}hnl-flow-bars-card-destination\s*\{[^}]*--adjusted-bg-color:/);
+        expect(source).toMatch(/\n\s{4}hnl-flow-bars-card-destination-label\s*\{[^}]*--span-bg-color:/);
+
+        expect(source).not.toContain('hnl-flow-bars.native');
+        expect(source).not.toContain('.alternative');
+        expect(source).not.toContain('.contained');
+        expect(source).not.toContain('.minimal');
+
+        expect(source).not.toMatch(/\n\s{4}hnl-flow-bars-card-source-label\s*\{/);
+        expect(source).not.toMatch(/\n\s{4}hnl-flow-bars-card-source-accolade\s*\{/);
+    });
+
     it('implements blueprint label fitting without presentational demo css', () => {
         const source = readFileSync(scaffoldingPath, 'utf8');
 

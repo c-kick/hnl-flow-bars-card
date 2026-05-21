@@ -10,12 +10,13 @@ export const hnlFlowBarsCardStyles = css`
         --font-size: min(calc(0.12em * var(--column-size)), var(--card-primary-font-size, 14px));
         --mdc-icon-size: min(calc(var(--font-size, 0.8em) + 0.5em), 1.2em);
         --label-edge-padding: calc(var(--font-size, 0.8em) * .7);
-        --label-padding: calc(var(--font-size, 0.8em) * 0.15) calc(var(--font-size, 0.8em) * 0.5);
+        --label-padding: 0.1em 0.5em;
         --hnl-flow-bars-font-size-scale: 1;
         --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
         --hnl-flow-bars-font-size-fluid: 22cqb;
         --hnl-flow-bars-font-size-max: 14px;
         --hnl-flow-bars-card-row-height: 56px;
+        --hnl-flow-bars-card-grid-gap: 4px;
 
         --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
@@ -70,27 +71,11 @@ export const hnlFlowBarsCardStyles = css`
         font-size: var(--hnl-flow-bars-font-size);
     }
 
-    /* Z-stack: accolade band paints above the seam; destination
-       sits above source so the "contained" theme can float its
-       bar inside the source area. */
-    hnl-flow-bars hnl-flow-bars-card-source-group { z-index: 1; }
-    hnl-flow-bars hnl-flow-bars-card-destination-group { z-index: 2; }
-    hnl-flow-bars hnl-flow-bars-card-accolade-group { z-index: 3; }
-
     /* When the card has vertical headroom, give the accolade more presence */
     @container card (min-height: 12em) {
         hnl-flow-bars {
             --accolade-height: 10px;
         }
-    }
-
-    /* ═══ SEGMENT TOKENS ═════════════════════════════════════ */
-    hnl-flow-bars-card-source-label,
-    hnl-flow-bars-card-source-accolade,
-    hnl-flow-bars-card-destination {
-        --mdc-icon-size: min(1.25em, 1.2em);
-        --label-padding: 0.15em 0.5em;
-        --label-edge-padding: 0.7em;
     }
 
     /* Frames stretch vertically so theme backgrounds fill the segment */
@@ -100,32 +85,49 @@ export const hnlFlowBarsCardStyles = css`
         height: 100%;
     }
 
+    hnl-flow-bars-card-source-label > div {
+        --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
+        --bg-gradient: linear-gradient(transparent, transparent);
+        --bg-hatched: linear-gradient(transparent, transparent);
+        color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
+    }
+
+    hnl-flow-bars-card-destination {
+        --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
+        --bg-gradient: linear-gradient(transparent, transparent);
+        --bg-hatched: linear-gradient(transparent, transparent);
+        background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color);
+        color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
+        box-shadow: inset 0 0 0 2px var(--background-color);
+    }
+
+    hnl-flow-bars-card-destination-label {
+        --span-bg-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1);
+        color: var(--text-color, oklch(from var(--span-bg-color) round(1.21 - l) 0 0 / 1));
+    }
+
     /* ═══ DEFAULT (Accolade) — SOURCE LABEL ══════════════════
        The frame fills the segment and carries the colored
        label-box: slanted right edge, top-left rounding, layered
        gradient/hatch/base background. */
-    hnl-flow-bars-card-source-label {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label {
         --slanted-edge: 20px;
         --correction: min(var(--accolade-height), calc(var(--ha-card-border-radius, 14px) / 2), var(--accolade-border-width));
         padding-right: calc(var(--border-radius, 8px) - var(--correction, 0px));
         margin-bottom: calc(-1 * var(--correction, 5px));
     }
 
-    hnl-flow-bars-card-source-label > div {
-        --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
-        --bg-gradient: linear-gradient(transparent, transparent);
-        --bg-hatched: linear-gradient(transparent, transparent);
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label > div {
         background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
-        color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
         padding: 10cqb 1.5cqi;
         padding-right: calc((var(--label-edge-padding) / 2) + var(--slanted-edge, 20px));
         clip-path: polygon(0 0, calc(100% - var(--slanted-edge, 20px)) 0%, 100% 100%, 0% 100%);
         border-top-left-radius: var(--border-radius, 8px);
-        gap: 2px;
+		width: auto;
     }
 
     /* ═══ DEFAULT (Accolade) — ACCOLADE BAND ═════════════════ */
-    hnl-flow-bars-card-source-accolade {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade {
         border: var(--accolade-border-width, var(--accolade-height, 2px)) solid var(--adjusted-bg-color, green);
         border-bottom: 0;
         --bg-hatched: linear-gradient(transparent, transparent);
@@ -135,11 +137,11 @@ export const hnlFlowBarsCardStyles = css`
         min-width: var(--border-radius, 8px);
     }
 
-    hnl-flow-bars-card-source-accolade:last-child {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade:last-child {
         border-radius: 0 var(--border-radius, 8px) 0 0;
     }
-    hnl-flow-bars-card-accolade-group > hnl-flow-bars-card-source-accolade:first-child:not(:only-child),
-    hnl-flow-bars-card-source-accolade:nth-child(n+2):not(:last-child) {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-accolade-group > hnl-flow-bars-card-source-accolade:first-child:not(:only-child),
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade:nth-child(n+2):not(:last-child) {
         border-right: 0;
     }
 
@@ -147,31 +149,27 @@ export const hnlFlowBarsCardStyles = css`
        Segment carries the lighter background and the
        segment-border outline; the destination-label inside
        carries the darker chip + rounding. */
-    hnl-flow-bars-card-destination {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination {
         padding: 0 1.5cqi;
-        --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
-        --bg-gradient: linear-gradient(transparent, transparent);
-        --bg-hatched: linear-gradient(transparent, transparent);
-        background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color);
-        color: var(--text-color, oklch(from var(--background-color) clamp(0, (0.6 - l) * infinity, 1) 0 0));
-        box-shadow: inset 0 0 0 2px var(--background-color);
     }
-    hnl-flow-bars-card-destination:last-child {
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination:last-child {
         border-radius: 0 max(0px, calc(var(--border-radius, 8px) - var(--accolade-height))) 0 0;
     }
-
-    hnl-flow-bars-card-destination-label {
-        --span-bg-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1);
-        background-color: var(--span-bg-color);
-        color: var(--text-color, oklch(from var(--span-bg-color) round(1.21 - l) 0 0 / 1));
-        border-radius: clamp(5cqb, var(--border-radius, 8px), var(--ha-card-border-radius, 14px));
-        padding: var(--label-padding, 0.2em 0.4em);
-        gap: 2px;
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination.hatched > hnl-flow-bars-card-destination-label,
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination-label {
+        background: none;
+        padding: 0;
     }
 
     /* ═══ PILL + VALUE + NAME (visual layer) ═════════════════ */
     .hnl-flow-bars-card-value-pill {
         gap: 3px;
+    }
+
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination-group .hnl-flow-bars-card-value-pill {
+        background-color: var(--span-bg-color, oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1));
+        border-radius: clamp(5cqb, var(--border-radius, 8px), var(--ha-card-border-radius, 14px));
+        padding: var(--label-padding, 0.2em 0.4em);
     }
 
     .source-value,
@@ -232,28 +230,26 @@ export const hnlFlowBarsCardStyles = css`
         );
     }
 
-    /* ═══ LAYOUT: Native ═════════════════════════════════════
-       Drop the accolade band, hand both rows over to source
-       and destination, and turn each segment into a pill bar. */
-    hnl-flow-bars.native {
+    /* ═══ LAYOUT: Native ═════════════════════════════════════ */
+    hnl-flow-bars.layout-native {
         grid-template-rows: 1fr 1fr;
-        gap: 6px;
+        gap: var(--hnl-flow-bars-card-grid-gap);
         padding: 0;
         border-radius: 0;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-accolade-group {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-accolade-group {
         display: none;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-source-group {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-group {
         grid-row: 1;
         align-items: stretch;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-destination-group {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination-group {
         grid-row: 2;
     }
 
     /* Source labels — full pill, no slant */
-    hnl-flow-bars.native hnl-flow-bars-card-source-label {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label {
         --slanted-edge: 0px;
         padding-right: 0;
         margin-bottom: 0;
@@ -263,80 +259,81 @@ export const hnlFlowBarsCardStyles = css`
         background: var(--bg-hatched), var(--bg-gradient), oklch(from var(--background-color) l c h / var(--source-bg-opacity, 1));
         box-shadow: inset 0 0 0 2px var(--background-color);
     }
-    hnl-flow-bars.native hnl-flow-bars-card-source-label > div {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label > div {
         clip-path: none;
         background: none;
-        padding: 0 calc(var(--font-size, 0.8em) * 0.5);
+        padding: var(--label-padding);
+	padding-top: 0;
+	padding-bottom: 0;
         border-radius: 0;
         border-top-left-radius: 0;
     }
     /* Rounded ends only on outer edges */
-    hnl-flow-bars.native hnl-flow-bars-card-source-label:first-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label:first-child {
         border-radius: 9999px 0 0 9999px;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-source-label:last-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label:last-child {
         border-radius: 0 9999px 9999px 0;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-source-label:only-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label:only-child {
         border-radius: 9999px;
     }
 
     /* Destination bars — rounded ends on outer edges, no inner chip */
-    hnl-flow-bars.native hnl-flow-bars-card-destination {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination {
         border-radius: 0;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-destination-label {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination-label {
         --span-bg-color: var(--adjusted-bg-color);
         background: none;
         border-radius: 0;
-        padding: 0;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-destination:first-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination:first-child {
         border-radius: 9999px 0 0 9999px;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-destination:last-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination:last-child {
         border-radius: 0 9999px 9999px 0;
     }
-    hnl-flow-bars.native hnl-flow-bars-card-destination:only-child {
+    hnl-flow-bars.layout-native hnl-flow-bars-card-destination:only-child {
         border-radius: 9999px;
     }
 
     /* ═══ NATIVE THEME: Split-pill (alternative) ═════════════
        Square inner edges, HA card-radius on the outer corners. */
-    hnl-flow-bars.native.alternative {
-        gap: 2px;
+    hnl-flow-bars.layout-native.theme-split-pill {
+        gap: var(--hnl-flow-bars-card-grid-gap);
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-source-label:first-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-source-label:first-child {
         border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0 0;
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-source-label:last-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-source-label:last-child {
         border-radius: 0 var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0;
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-source-label:only-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-source-label:only-child {
         border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0;
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-destination:first-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-destination:first-child {
         border-radius: 0 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-destination:last-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-destination:last-child {
         border-radius: 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0;
     }
-    hnl-flow-bars.native.alternative hnl-flow-bars-card-destination:only-child {
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-destination:only-child {
         border-radius: 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg)) var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
 
     /* ═══ NATIVE TOGGLE: Gradient (override default gradient) ═ */
-    hnl-flow-bars.native.gradient hnl-flow-bars-card-source-label {
+    hnl-flow-bars.layout-native.gradient hnl-flow-bars-card-source-label {
         --bg-gradient: linear-gradient(
             to left,
             oklch(from var(--background-color) l c h / var(--source-bg-opacity, 1)),
             oklch(from var(--background-color) calc(l * 0.85) c calc(h - 30) / var(--source-bg-opacity, 1))
         );
     }
-    hnl-flow-bars.native.gradient hnl-flow-bars-card-source-label > div {
+    hnl-flow-bars.layout-native.gradient hnl-flow-bars-card-source-label > div {
         background: none;
     }
-    hnl-flow-bars.native.gradient hnl-flow-bars-card-destination {
+    hnl-flow-bars.layout-native.gradient hnl-flow-bars-card-destination {
         --bg-gradient: linear-gradient(
             to left,
             oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity)),
@@ -346,14 +343,14 @@ export const hnlFlowBarsCardStyles = css`
 
     /* ═══ NATIVE THEME: Minimal ══════════════════════════════
        Thin outlined bars, hard corners, tight gap. */
-    hnl-flow-bars.native.minimal {
-        gap: 2px;
+    hnl-flow-bars.layout-native.theme-minimal {
+        gap: var(--hnl-flow-bars-card-grid-gap);
     }
-    hnl-flow-bars.native.minimal hnl-flow-bars-card-destination {
+    hnl-flow-bars.layout-native.theme-minimal hnl-flow-bars-card-destination {
         box-shadow: inset 0 1px 0 1px var(--background-color);
         border-radius: 0;
     }
-    hnl-flow-bars.native.minimal hnl-flow-bars-card-source-label {
+    hnl-flow-bars.layout-native.theme-minimal hnl-flow-bars-card-source-label {
         box-shadow: inset 0 -1px 0 1px var(--background-color);
         border-radius: 0;
     }
@@ -361,39 +358,38 @@ export const hnlFlowBarsCardStyles = css`
     /* ═══ NATIVE THEME: Contained ════════════════════════════
        Source fills the card; destination floats inside as a
        smaller rounded bar. Hide the name on short rows. */
-    hnl-flow-bars.native.contained hnl-flow-bars-card-source-group {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-group {
         grid-row: 1 / -1;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-destination-group {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination-group {
         margin: min(1cqi, 4cqb);
         height: 50cqb;
         border-radius: 15cqb;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-source-label > div {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label > div {
         height: 50cqb;
-        padding-top: 5cqb;
     }
     @container bar-row (max-height: 4lh) {
-        hnl-flow-bars.native.contained hnl-flow-bars-card-source-label .entity-name {
+        hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label .entity-name {
             display: none;
         }
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-source-label:first-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:first-child {
         border-radius: 15cqb 0 0 15cqb;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-source-label:last-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:last-child {
         border-radius: 0 15cqb 15cqb 0;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-source-label:only-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:only-child {
         border-radius: 15cqb;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-destination:first-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:first-child {
         border-radius: 15cqb 0 0 15cqb;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-destination:last-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:last-child {
         border-radius: 0 15cqb 15cqb 0;
     }
-    hnl-flow-bars.native.contained hnl-flow-bars-card-destination:only-child {
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:only-child {
         border-radius: 15cqb;
     }
 
@@ -408,7 +404,7 @@ export const hnlFlowBarsCardStyles = css`
         --slanted-edge: 0px;
         padding-right: 0;
     }
-    hnl-flow-bars.no-slant:not(.native) hnl-flow-bars-card-source-label > div {
+    hnl-flow-bars.no-slant:not(.layout-native) hnl-flow-bars-card-source-label > div {
         clip-path: none;
         border-top-right-radius: var(--border-radius, 8px);
     }

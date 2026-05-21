@@ -303,7 +303,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _renderSourceLabel(ent) {
-        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--bar-width:${ent.width}%;--source-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--bar-width:${ent.width}%;--source-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span class="label-frame">
             <span class="source-value"><ha-icon icon="${ent.icon || 'mdi:eye'}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span></span>
             <span class="entity-name">${ent.name}</span>
@@ -315,7 +315,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _renderDestination(ent) {
-        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--bar-width:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--bar-width:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span class="label-frame">
             <span class="destination-value"><ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span></span>
             <span class="entity-name">${ent.name}</span>
@@ -331,13 +331,13 @@ class HnlFlowBarsCard extends LitElement {
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || inheritedUnit || '';
         const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span>
+            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span class="label-frame">
                 <span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${unit}</span></span>
                 <span class="entity-name">${cfg.name}</span>
                 </span></hnl-flow-bar-source-label>`;
         }
-        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span>
+        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"><span class="label-frame">
             <span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon>
             <span>${remainderValue} ${unit}</span></span>
             <span class="entity-name">${cfg.name}</span>

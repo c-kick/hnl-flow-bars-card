@@ -86,14 +86,6 @@ export const hnlFlowBarsCardScaffolding = css`
         z-index: 3;
     }
 
-    hnl-flow-bar-source-label,
-    hnl-flow-bar-source-accolade,
-    hnl-flow-bar-destination {
-        display: flex;
-        flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
-        transition: flex-basis 0.3s ease;
-    }
-
     hnl-flow-bar-source-labels,
     hnl-flow-bar-destination-group {
         container-type: size;
@@ -108,7 +100,25 @@ export const hnlFlowBarsCardScaffolding = css`
     hnl-flow-bar-source-label,
     hnl-flow-bar-source-accolade,
     hnl-flow-bar-destination {
+        display: flex;
+        flex-basis: var(--bar-width, 0);
+        flex-grow: var(--bar-grow, 0);
+        flex-shrink: 1;
+        max-width: var(--bar-width, auto);
+        transition: flex-basis 0.3s ease;
+    }
+
+    hnl-flow-bar-source-label,
+    hnl-flow-bar-destination {
+        align-items: center;
+        justify-content: center;
         min-width: min-content;
+        overflow: hidden;
+    }
+
+    hnl-flow-bar-source-accolade {
+        min-width: min-content;
+        overflow: hidden;
     }
 
     hnl-flow-bar-source-label:last-child,
@@ -117,54 +127,53 @@ export const hnlFlowBarsCardScaffolding = css`
         --bar-grow: 1;
     }
 
-    hnl-flow-bar-source-label > span,
-    hnl-flow-bar-destination > span {
+    .label-frame {
         display: flex;
-        max-width: 100%;
-        margin: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-height: 100%;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        max-height: 100%;
     }
 
     .source-value,
     .destination-value {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: inherit;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: visible;
+        min-width: min-content;
     }
 
     .entity-name {
         display: none;
-        text-align: center;
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100%;
+        width: 0;
+        min-width: 100%;
+        text-align: center;
     }
 
     @container bar-row (min-height: 2lh) {
-        hnl-flow-bar-source-label > span {
-            display: grid;
-        }
-
-        hnl-flow-bar-source-label .entity-name {
-            display: block;
-            min-width: 0;
-        }
-
-        hnl-flow-bar-destination {
-            min-width: 0;
-        }
-
-        hnl-flow-bar-destination > span {
-            flex-direction: column;
-        }
-
+        hnl-flow-bar-source-label .entity-name,
         hnl-flow-bar-destination .entity-name {
             display: block;
         }
+    }
+
+    ha-card.clip-labels hnl-flow-bar-source-label,
+    ha-card.clip-labels hnl-flow-bar-destination {
+        min-width: auto;
+    }
+
+    ha-card.clip-labels .source-value,
+    ha-card.clip-labels .destination-value {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 `;

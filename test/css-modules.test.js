@@ -45,4 +45,18 @@ describe('css module split', () => {
         expect(source).toContain('@keyframes stripe-scroll-left-3');
         expect(source).toContain('repeating-linear-gradient');
     });
+
+    it('implements blueprint label fitting without presentational demo css', () => {
+        const source = readFileSync(scaffoldingPath, 'utf8');
+
+        expect(source).toContain('flex-basis: var(--bar-width, 0)');
+        expect(source).toContain('max-width: var(--bar-width, auto)');
+        expect(source).toContain('min-width: min-content');
+        expect(source).toContain('width: 0');
+        expect(source).toContain('min-width: 100%');
+        expect(source).toContain('ha-card.clip-labels hnl-flow-bar-source-label');
+        expect(source).toContain('ha-card.clip-labels hnl-flow-bar-destination');
+        expect(source).not.toContain('outline-offset');
+        expect(source).not.toContain('background-color: #F006');
+    });
 });

@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { applyEntityValueOptions, applyFontSizeOptions, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
+import { applyEntityValueOptions, applyFontSizeOptions, buildCardClasses, buildFlowBarsClasses, calculateWidthSegments, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -228,22 +228,30 @@ class HnlFlowBarsCard extends LitElement {
             unit_of_measurement: this._rawConfig.unit_of_measurement,
             font_size_scale: this._rawConfig.font_size_scale,
             font_size_max: this._rawConfig.font_size_max,
-            card_class: [
-                this._rawConfig.transparent ? 'transparent' : '',
-                this._rawConfig.theme === 'minimal' ? 'minimal' : '',
-            ].filter(Boolean).join(' '),
+            card_class: buildCardClasses(this._rawConfig),
             warnings: [...production, ...consumption].filter((ent) => ent.warning),
         };
     }
 
     _buildBarData(entities, maxValue, unitOverride) {
-        let total = 0;
-        const bars = entities.map((ent) => {
+        const renderableEntities = entities.filter((ent) => this._shouldShowBar(ent));
+        const rawTotal = entities.reduce((sum, ent) => sum + ent.value, 0);
+        const renderableTotal = renderableEntities.reduce((sum, ent) => sum + ent.value, 0);
+        const rawRemainder = Math.max(0, maxValue - rawTotal);
+        const total = entities.reduce((sum, ent) => sum + this._roundOff(ent.value), 0);
+        const remainder = this._roundOff(maxValue - total);
+        const allocatedRemainder = rawRemainder > 0 && remainder > 0
+            ? Math.max(0, maxValue - renderableTotal)
+            : 0;
+        const values = allocatedRemainder > 0
+            ? [...renderableEntities.map((ent) => ent.value), allocatedRemainder]
+            : renderableEntities.map((ent) => ent.value);
+        const widths = calculateWidthSegments(values, maxValue);
+        const bars = entities.map((ent, index) => {
             const value = ent.value;
             const unit = unitOverride || ent.unit_of_measurement;
-            const width = maxValue > 0 ? Math.round((value / maxValue) * 100) : 0;
-            total += this._roundOff(value);
-
+            const renderableIndex = renderableEntities.indexOf(ent);
+            const width = renderableIndex >= 0 ? widths[renderableIndex] ?? 0 : 0;
             return {
                 entity_id: ent.entity_id,
                 name: ent.name ?? ent.entity_id,
@@ -257,8 +265,8 @@ class HnlFlowBarsCard extends LitElement {
             };
         });
 
-        const remainder = this._roundOff(maxValue - total);
-        return { bars, total, remainder };
+        const remainderWidth = allocatedRemainder > 0 ? widths.at(-1) ?? 0 : 0;
+        return { bars, total, remainder, remainderWidth };
     }
 
     _shouldShowBar(ent) {
@@ -266,28 +274,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     get _flowBarsClasses() {
-        const { layout, theme } = this._rawConfig;
-        const classes = [];
-
-        // Layout
-        if (layout === 'native') classes.push('native');
-        if (theme === 'split-pill') classes.push('alternative');
-        if (this._rawConfig.gradient) classes.push('gradient');
-
-        // Layout modifiers
-        if (!this._rawConfig.slanted_edge) classes.push('no-slant');
-        if (!this._rawConfig.borders) classes.push('no-borders');
-
-        if (!this._rawConfig.show_names) classes.push('hide-names');
-
-        // Theme
-        if (theme === 'minimal') classes.push('minimal');
-        if (theme === 'contained') classes.push('contained');
-
-        // Toggles
-        if (this._rawConfig.animated) classes.push('animated');
-
-        return classes.join(' ');
+        return buildFlowBarsClasses(this._rawConfig);
     }
 
     _getAccoladeClasses(isRemainder = false) {
@@ -413,12 +400,13 @@ class HnlFlowBarsCard extends LitElement {
         const productionTotal = this._parsedConfig.production.reduce((sum, ent) => sum + ent.value, 0);
         const consumptionTotal = this._parsedConfig.consumption.reduce((sum, ent) => sum + ent.value, 0);
 
-        const maxValue = this._roundOff(Math.max(productionTotal, consumptionTotal));
+        const maxValue = Math.max(productionTotal, consumptionTotal);
 
         const {
             bars: prodBars,
             total: prodSum,
-            remainder: prodRemainder
+            remainder: prodRemainder,
+            remainderWidth: prodRemainderWidth,
         } = this._buildBarData(
             this._parsedConfig.production,
             maxValue,
@@ -428,7 +416,8 @@ class HnlFlowBarsCard extends LitElement {
         const {
             bars: consBars,
             total: consSum,
-            remainder: consRemainder
+            remainder: consRemainder,
+            remainderWidth: consRemainderWidth,
         } = this._buildBarData(
             this._parsedConfig.consumption,
             maxValue,
@@ -464,15 +453,15 @@ class HnlFlowBarsCard extends LitElement {
         <hnl-flow-bars class="${this._flowBarsClasses}" style=${styleMap(flowBarsStyle)}>
             <hnl-flow-bars-card-source-group>
                 ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
-                ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder, Math.round((totals.production_remainder / maxValue) * 100)) : null}
+                ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder, prodRemainderWidth) : null}
             </hnl-flow-bars-card-source-group>
             <hnl-flow-bars-card-accolade-group>
                 ${visibleProd.map((ent) => this._renderAccolade(ent))}
-                ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production', Math.round((totals.production_remainder / maxValue) * 100)) : null}
+                ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production', prodRemainderWidth) : null}
             </hnl-flow-bars-card-accolade-group>
             <hnl-flow-bars-card-destination-group>
                 ${visibleCons.map((ent) => this._renderDestination(ent))}
-                ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder, Math.round((totals.consumption_remainder / maxValue) * 100)) : null}
+                ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder, consRemainderWidth) : null}
             </hnl-flow-bars-card-destination-group>
         </hnl-flow-bars>
                 </div>
@@ -551,6 +540,7 @@ class HnlFlowBarsCard extends LitElement {
             global_bg_opacity: config.global_bg_opacity || null,
             font_size_scale: config.font_size_scale || null,
             font_size_max: config.font_size_max || null,
+            clip_labels: config.clip_labels ?? false,
             energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };

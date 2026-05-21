@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyEntityValueOptions } from '../src/utils.js';
+import { applyEntityValueOptions, calculateWidthSegments } from '../src/utils.js';
 
 /**
  * Tests for the core calculation logic in HnlFlowBarsCard.
@@ -19,13 +19,26 @@ function roundOff(x, digits = 0) {
 
 // ── Extracted _buildBarData logic ──
 
-function buildBarData(entities, maxValue, unitOverride, rounding = 0) {
-    let total = 0;
+function buildBarData(entities, maxValue, unitOverride, rounding = 0, hideZeroValues = false) {
+    const shouldShowBar = (ent) => roundOff(ent.value, rounding) > 0 || !hideZeroValues;
+    const renderableEntities = entities.filter((ent) => shouldShowBar(ent));
+    const rawTotal = entities.reduce((sum, ent) => sum + ent.value, 0);
+    const renderableTotal = renderableEntities.reduce((sum, ent) => sum + ent.value, 0);
+    const rawRemainder = Math.max(0, maxValue - rawTotal);
+    const total = entities.reduce((sum, ent) => sum + roundOff(ent.value, rounding), 0);
+    const remainder = roundOff(maxValue - total, rounding);
+    const allocatedRemainder = rawRemainder > 0 && remainder > 0
+        ? Math.max(0, maxValue - renderableTotal)
+        : 0;
+    const values = allocatedRemainder > 0
+        ? [...renderableEntities.map((ent) => ent.value), allocatedRemainder]
+        : renderableEntities.map((ent) => ent.value);
+    const widths = calculateWidthSegments(values, maxValue);
     const bars = entities.map((ent) => {
         const value = ent.value;
         const unit = unitOverride || ent.unit_of_measurement;
-        const width = maxValue > 0 ? Math.round((value / maxValue) * 100) : 0;
-        total += roundOff(value, rounding);
+        const renderableIndex = renderableEntities.indexOf(ent);
+        const width = renderableIndex >= 0 ? widths[renderableIndex] ?? 0 : 0;
 
         return {
             entity_id: ent.entity_id,
@@ -40,8 +53,8 @@ function buildBarData(entities, maxValue, unitOverride, rounding = 0) {
         };
     });
 
-    const remainder = roundOff(maxValue - total, rounding);
-    return { bars, total, remainder };
+    const remainderWidth = allocatedRemainder > 0 ? widths.at(-1) ?? 0 : 0;
+    return { bars, total, remainder, remainderWidth };
 }
 
 // ── Extracted _normalizeEntityConfig logic ──
@@ -259,6 +272,39 @@ describe('remainder rounding artifact prevention', () => {
 
         expect(totals.production_remainder).toBe(0);
         expect(totals.consumption_remainder).toBe(0);
+    });
+
+    it('derives remainder width from rendered bar widths', () => {
+        const result = buildBarData([makeEntity('sensor.solar', 10)], 15.26, null, 4);
+
+        expect(result.bars[0].width).toBe(65.5308);
+        expect(result.remainderWidth).toBe(34.4692);
+        expect(result.bars[0].width + result.remainderWidth).toBe(100);
+    });
+
+    it('allocates the rounding residue to the final rendered bar without a remainder', () => {
+        const result = buildBarData([
+            makeEntity('sensor.a', 1),
+            makeEntity('sensor.b', 1),
+            makeEntity('sensor.c', 1),
+        ], 3, null, 4);
+        const renderedWidth = result.bars.reduce((sum, bar) => sum + bar.width, 0);
+
+        expect(result.bars.map((bar) => bar.width)).toEqual([33.3333, 33.3333, 33.3334]);
+        expect(renderedWidth).toBe(100);
+        expect(result.remainderWidth).toBe(0);
+    });
+
+    it('does not allocate width to bars hidden by hide_zero_values', () => {
+        const result = buildBarData([
+            makeEntity('sensor.tiny', 0.04),
+            makeEntity('sensor.main', 9.96),
+        ], 10, null, 0, true);
+        const renderedWidth = result.bars.reduce((sum, bar) => sum + bar.width, 0);
+
+        expect(result.bars[0].width).toBe(0);
+        expect(result.bars[1].width).toBe(100);
+        expect(renderedWidth).toBe(100);
     });
 });
 

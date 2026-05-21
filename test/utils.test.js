@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
     applyEntityValueOptions,
     applyFontSizeOptions,
+    calculateRemainderWidthPercent,
+    calculateWidthSegments,
+    calculateWidthPercent,
     applyZeroThreshold,
+    buildCardClasses,
+    buildFlowBarsClasses,
     computeEntityIcon,
 } from '../src/utils.js';
 
@@ -135,6 +140,126 @@ describe('applyFontSizeOptions', () => {
         expect(applyFontSizeOptions({
             font_size_max: 'large',
         })).toEqual({});
+    });
+});
+
+describe('calculateWidthPercent', () => {
+    it('preserves fractional percentages so complementary bars fill the row', () => {
+        expect(calculateWidthPercent(65.4, 100)).toBe(65.4);
+        expect(calculateWidthPercent(34.6, 100)).toBe(34.6);
+    });
+
+    it('rounds floating point noise to stable CSS precision', () => {
+        expect(calculateWidthPercent(1, 3)).toBe(33.3333);
+    });
+
+    it('returns zero when maxValue is not positive', () => {
+        expect(calculateWidthPercent(10, 0)).toBe(0);
+    });
+
+    it('keeps complementary raw values within rounding precision', () => {
+        const maxValue = 15.26;
+        const sourceWidth = calculateWidthPercent(10, maxValue);
+        const remainderWidth = calculateWidthPercent(maxValue - 10, maxValue);
+
+        expect(sourceWidth).toBe(65.5308);
+        expect(remainderWidth).toBe(34.4692);
+        expect(sourceWidth + remainderWidth).toBe(100);
+    });
+});
+
+describe('calculateRemainderWidthPercent', () => {
+    it('fills the remaining row width from already-rendered bars', () => {
+        expect(calculateRemainderWidthPercent([{ width: 65.532 }])).toBe(34.468);
+    });
+
+    it('clamps negative remaining width to zero', () => {
+        expect(calculateRemainderWidthPercent([{ width: 65.532 }, { width: 34.4828 }])).toBe(0);
+    });
+});
+
+describe('calculateWidthSegments', () => {
+    it('allocates rounded widths that add to 100 for a full row', () => {
+        const widths = calculateWidthSegments([1, 1, 1], 3);
+
+        expect(widths).toEqual([33.3333, 33.3333, 33.3334]);
+        expect(widths.reduce((sum, width) => sum + width, 0)).toBe(100);
+    });
+
+    it('allocates source plus remainder widths that add to 100', () => {
+        const widths = calculateWidthSegments([10, 5.26], 15.26);
+
+        expect(widths).toEqual([65.5308, 34.4692]);
+        expect(widths.reduce((sum, width) => sum + width, 0)).toBe(100);
+    });
+
+    it('returns zero widths when maxValue is not positive', () => {
+        expect(calculateWidthSegments([10, 5], 0)).toEqual([0, 0]);
+    });
+});
+
+describe('buildCardClasses', () => {
+    it('keeps clip labels off by default', () => {
+        expect(buildCardClasses({})).toBe('');
+    });
+
+    it('adds clip-labels when enabled', () => {
+        expect(buildCardClasses({
+            clip_labels: true,
+        })).toBe('clip-labels');
+    });
+
+    it('preserves existing visual card classes', () => {
+        expect(buildCardClasses({
+            transparent: true,
+            layout: 'native',
+            theme: 'minimal',
+            clip_labels: true,
+        })).toBe('layout-native theme-minimal transparent minimal clip-labels');
+    });
+
+    it('adds namespaced layout and theme classes to the card', () => {
+        expect(buildCardClasses({
+            layout: 'accolade',
+            theme: 'classic',
+        })).toBe('layout-accolade theme-classic');
+    });
+});
+
+describe('buildFlowBarsClasses', () => {
+    it('adds namespaced layout and theme classes', () => {
+        expect(buildFlowBarsClasses({
+            layout: 'native',
+            theme: 'split-pill',
+        })).toContain('layout-native');
+        expect(buildFlowBarsClasses({
+            layout: 'native',
+            theme: 'split-pill',
+        })).toContain('theme-split-pill');
+    });
+
+    it('keeps legacy layout and theme classes for existing CSS', () => {
+        expect(buildFlowBarsClasses({
+            layout: 'native',
+            theme: 'contained',
+        })).toBe('layout-native theme-contained native contained');
+
+        expect(buildFlowBarsClasses({
+            layout: 'native',
+            theme: 'split-pill',
+        })).toBe('layout-native theme-split-pill native alternative');
+    });
+
+    it('preserves toggle and modifier classes', () => {
+        expect(buildFlowBarsClasses({
+            layout: 'accolade',
+            theme: 'classic',
+            gradient: true,
+            slanted_edge: false,
+            borders: false,
+            show_names: false,
+            animated: true,
+        })).toBe('layout-accolade theme-classic gradient no-slant no-borders hide-names animated');
     });
 });
 

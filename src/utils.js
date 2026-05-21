@@ -191,8 +191,68 @@ export function applyEntityValueOptions(value, item = {}) {
     return applyZeroThreshold(effectiveValue, item.zero_threshold);
 }
 
+export function buildCardClasses(config = {}) {
+    const { layout, theme } = config;
+
+    return [
+        layout ? `layout-${layout}` : '',
+        theme ? `theme-${theme}` : '',
+        config.transparent ? 'transparent' : '',
+        config.theme === 'minimal' ? 'minimal' : '',
+        config.clip_labels ? 'clip-labels' : '',
+    ].filter(Boolean).join(' ');
+}
+
+export function buildFlowBarsClasses(config = {}) {
+    const { layout, theme } = config;
+
+    return [
+        layout ? `layout-${layout}` : '',
+        theme ? `theme-${theme}` : '',
+        layout === 'native' ? 'native' : '',
+        theme === 'split-pill' ? 'alternative' : '',
+        config.gradient ? 'gradient' : '',
+        config.slanted_edge === false ? 'no-slant' : '',
+        config.borders === false ? 'no-borders' : '',
+        config.show_names === false ? 'hide-names' : '',
+        theme === 'minimal' ? 'minimal' : '',
+        theme === 'contained' ? 'contained' : '',
+        config.animated ? 'animated' : '',
+    ].filter(Boolean).join(' ');
+}
+
+export function calculateWidthPercent(value, maxValue) {
+    if (!(maxValue > 0)) {
+        return 0;
+    }
+
+    return formatCssNumber((value / maxValue) * 100);
+}
+
+export function calculateRemainderWidthPercent(bars = []) {
+    const usedWidth = bars.reduce((sum, bar) => sum + Number(bar.width || 0), 0);
+    return formatCssNumber(Math.max(0, 100 - usedWidth));
+}
+
+export function calculateWidthSegments(values = [], maxValue) {
+    if (!(maxValue > 0)) {
+        return values.map(() => 0);
+    }
+
+    let usedWidth = 0;
+    return values.map((value, index) => {
+        if (index === values.length - 1) {
+            return formatCssNumber(Math.max(0, 100 - usedWidth));
+        }
+
+        const width = calculateWidthPercent(value, maxValue);
+        usedWidth += width;
+        return width;
+    });
+}
+
 function formatCssNumber(value) {
-    return Number(value.toFixed(4)).toString();
+    return Number(value.toFixed(4));
 }
 
 function isValidFontSizeMax(value) {

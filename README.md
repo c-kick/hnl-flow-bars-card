@@ -404,6 +404,11 @@ npm start    # watch mode with dev server on :5000
 npm run build  # production build
 ```
 
+The card CSS is split into two Lit CSS modules for maintainers:
+`src/scaffolding.js` owns structural layout, sizing, overflow, and label fitting;
+`src/styles.js` owns visual styling such as colors, typography, borders,
+backgrounds, hatching, and animations.
+
 ## License
 
 MIT

@@ -49,6 +49,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     if (!config.font_size_scale || Number(config.font_size_scale) === 1) delete config.font_size_scale;
     if (!config.font_size_max || config.font_size_max === '14px') delete config.font_size_max;
     if (!config.energy_date_selection) delete config.energy_date_selection;
+    if (!config.clip_labels) delete config.clip_labels;
     // Remove legacy key
     delete config.accolade_style;
     // Omit defaults to keep YAML clean
@@ -384,6 +385,18 @@ class HnlFlowBarsCardEditor extends LitElement {
             <ha-switch
               .checked=${this._config.animated ?? false}
               @change=${(ev) => this._toggleChanged('animated', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Clip labels</span>
+              <span class="toggle-description">Cuts off the <strong>value label</strong> when the bar doesn't have enough space to fit text. 
+Note: the <strong>entity name</strong> (if enabled and shown) will always be clipped if it doesn't fit.</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.clip_labels ?? false}
+              @change=${(ev) => this._toggleChanged('clip_labels', ev)}
             ></ha-switch>
           </div>
 

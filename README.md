@@ -156,6 +156,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
+| `clip_labels` | bool | `false` | Cut off label text when the bar doesn't have enough space to fit text |
 | `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
 | `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
@@ -386,6 +387,7 @@ card_mod:
    - `gradient` — gradient shading on bars
    - `hatched` — diagonal stripe pattern on remainder bars (shortfall/surplus)
    - `animated` — animates background patterns (e.g. scrolling hatched stripes)
+   - `clip_labels` — cut off label text when the bar doesn't have enough space to fit text
 
 Below is an overview of the available themes (screenshots taken using the default HA theme in dark-mode)
 

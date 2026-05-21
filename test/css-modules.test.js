@@ -24,14 +24,18 @@ describe('css module split', () => {
         expect(sources).not.toContain('margin: 0 auto');
     });
 
-    it('places core layout selectors in scaffolding', () => {
+    it('places blueprint scaffolding selectors in scaffolding', () => {
         const source = readFileSync(scaffoldingPath, 'utf8');
 
         expect(source).toContain('export const hnlFlowBarsCardScaffolding');
-        expect(source).toContain('hnl-flow-bars');
-        expect(source).toContain('hnl-flow-bar-source-group');
-        expect(source).toContain('hnl-flow-bar-source-accolades');
-        expect(source).toContain('hnl-flow-bar-destination-group');
+        expect(source).toContain('hnl-flow-bars-card-source-group');
+        expect(source).toContain('hnl-flow-bars-card-accolade-group');
+        expect(source).toContain('hnl-flow-bars-card-destination-group');
+        expect(source).toContain('hnl-flow-bars-card-source-label');
+        expect(source).toContain('hnl-flow-bars-card-source-accolade');
+        expect(source).toContain('hnl-flow-bars-card-destination');
+        expect(source).toContain('hnl-flow-bars-card-destination-label');
+        expect(source).toContain('.hnl-flow-bars-card-value-pill');
         expect(source).toContain('min-width: min-content');
         expect(source).toContain('text-overflow: ellipsis');
     });
@@ -49,14 +53,23 @@ describe('css module split', () => {
     it('implements blueprint label fitting without presentational demo css', () => {
         const source = readFileSync(scaffoldingPath, 'utf8');
 
-        expect(source).toContain('flex-basis: var(--bar-width, 0)');
-        expect(source).toContain('max-width: var(--bar-width, auto)');
+        expect(source).toContain('flex-basis: var(--width-value, auto)');
+        expect(source).toContain('max-width: var(--width-value, auto)');
         expect(source).toContain('min-width: min-content');
         expect(source).toContain('width: 0');
         expect(source).toContain('min-width: 100%');
-        expect(source).toContain('ha-card.clip-labels hnl-flow-bar-source-label');
-        expect(source).toContain('ha-card.clip-labels hnl-flow-bar-destination');
+        expect(source).toContain('ha-card.clip-labels hnl-flow-bars-card-source-label');
+        expect(source).toContain('ha-card.clip-labels hnl-flow-bars-card-destination');
         expect(source).not.toContain('outline-offset');
         expect(source).not.toContain('background-color: #F006');
+    });
+
+    it('groups are siblings in the root grid, not nested', () => {
+        const source = readFileSync(scaffoldingPath, 'utf8');
+
+        // Each group is placed in its own grid row from the root
+        expect(source).toMatch(/hnl-flow-bars-card-source-group\s*\{[^}]*grid-row:\s*1\s*\/\s*2/);
+        expect(source).toMatch(/hnl-flow-bars-card-accolade-group\s*\{[^}]*grid-row:\s*2\s*\/\s*4/);
+        expect(source).toMatch(/hnl-flow-bars-card-destination-group\s*\{[^}]*grid-row:\s*3\s*\/\s*4/);
     });
 });

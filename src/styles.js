@@ -70,10 +70,12 @@ export const hnlFlowBarsCardStyles = css`
         font-size: var(--hnl-flow-bars-font-size);
     }
 
-    /* Z-stack so the accolade band paints above source/destination */
-    hnl-flow-bars hnl-flow-bars-card-source-group { z-index: 2; }
+    /* Z-stack: accolade band paints above the seam; destination
+       sits above source so the "contained" theme can float its
+       bar inside the source area. */
+    hnl-flow-bars hnl-flow-bars-card-source-group { z-index: 1; }
+    hnl-flow-bars hnl-flow-bars-card-destination-group { z-index: 2; }
     hnl-flow-bars hnl-flow-bars-card-accolade-group { z-index: 3; }
-    hnl-flow-bars hnl-flow-bars-card-destination-group { z-index: 1; }
 
     /* When the card has vertical headroom, give the accolade more presence */
     @container card (min-height: 12em) {
@@ -366,7 +368,6 @@ export const hnlFlowBarsCardStyles = css`
         margin: min(1cqi, 4cqb);
         height: 50cqb;
         border-radius: 15cqb;
-        align-self: end;
     }
     hnl-flow-bars.native.contained hnl-flow-bars-card-source-label > div {
         height: 50cqb;

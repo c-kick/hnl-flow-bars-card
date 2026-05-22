@@ -526,7 +526,7 @@ Note: the <strong>entity name</strong> (if enabled and shown) will always be cli
       }
 
       .section-icon {
-        --mdc-icon-size: 20px;
+        --hnl-flow-bars-icon-size: 20px;
         color: var(--primary-color);
         flex-shrink: 0;
       }

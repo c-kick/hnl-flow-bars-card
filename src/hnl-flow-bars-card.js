@@ -304,7 +304,7 @@ class HnlFlowBarsCard extends LitElement {
     _renderAccolade(ent) {
         return html`<hnl-flow-bars-card-source-accolade
             class="${this._getAccoladeClasses()}"
-            style="--background-color:${ent.color};--width-value:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};"
+            style="--background-color:${ent.color};--width-value:${ent.width}%;--hnl-flow-bars-accolade-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};"
         ></hnl-flow-bars-card-source-accolade>`;
     }
 
@@ -312,7 +312,7 @@ class HnlFlowBarsCard extends LitElement {
         const unit = this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || '';
         return html`<hnl-flow-bars-card-destination
             title="${ent.name}: ${this._roundOff(ent.value)} ${unit}"
-            style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width-value:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;"
+            style="--background-color:${ent.color};--hnl-flow-bars-destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width-value:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;"
             @click=${() => this._handleAction(ent.entity_id)}
         ><hnl-flow-bars-card-destination-label>
             <span class="hnl-flow-bars-card-value-pill"><span class="destination-value"><ha-icon icon="${ent.icon}"></ha-icon><span>${this._roundOff(ent.value)} ${unit}</span></span></span>
@@ -341,7 +341,7 @@ class HnlFlowBarsCard extends LitElement {
         return html`<hnl-flow-bars-card-destination
             class="${hatchedClass}"
             title="${cfg.name}: ${remainderValue} ${unit}"
-            style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
+            style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--hnl-flow-bars-destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
         ><hnl-flow-bars-card-destination-label>
             <span class="hnl-flow-bars-card-value-pill"><span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon><span>${remainderValue} ${unit}</span></span></span>
             <span class="entity-name">${cfg.name}</span>
@@ -352,7 +352,7 @@ class HnlFlowBarsCard extends LitElement {
         const cfg = this._parsedConfig[`${type}_remainder`];
         return html`<hnl-flow-bars-card-source-accolade
             class="${this._getAccoladeClasses(true)}"
-            style="--background-color:${cfg.color};--width-value:${width}%;--accolade-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
+            style="--background-color:${cfg.color};--width-value:${width}%;--hnl-flow-bars-accolade-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
         ></hnl-flow-bars-card-source-accolade>`;
     }
 

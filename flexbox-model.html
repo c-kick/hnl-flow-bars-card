@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Flow bars — split-level pill</title>
+	<style>
+		hnl-flow-bars-card {
+			--hnl-flow-bars-accolade-height: 0.25fr;
+			--hnl-flow-bars-slanted-edge: 20px;
+
+			display: grid;
+			grid-template-rows: 1fr var(--hnl-flow-bars-accolade-height, 5px) 1fr;
+			align-self: stretch;
+			flex-basis: 100%;
+			justify-items: stretch;
+			gap: 0px;
+			border-radius: var(--hnl-flow-bars-border-radius, 8px);
+			overflow: hidden;
+			max-height: 100%;
+		}
+
+		hnl-flow-bars-card hnl-flow-bars-card-source-group {
+			grid-column: 1;
+			grid-row: 1 / 2;
+		}
+		hnl-flow-bars-card hnl-flow-bars-card-accolade-group {
+			grid-column: 1;
+			grid-row: 2 / 4;
+		}
+		hnl-flow-bars-card hnl-flow-bars-card-destination-group {
+			grid-column: 1;
+			grid-row: 3 / 4;
+		}
+
+		hnl-flow-bars-card hnl-flow-bars-card-source-group,
+		hnl-flow-bars-card hnl-flow-bars-card-accolade-group,
+		hnl-flow-bars-card hnl-flow-bars-card-destination-group {
+			container-type: size;
+			display: flex;
+		}
+
+		hnl-flow-bars-card hnl-flow-bars-card-source-group hnl-flow-bars-card-source-label,
+		hnl-flow-bars-card hnl-flow-bars-card-accolade-group hnl-flow-bars-card-source-accolade,
+		hnl-flow-bars-card hnl-flow-bars-card-destination-group hnl-flow-bars-card-destination {
+			flex-basis: var(--width-value, auto);
+			flex-grow: 1;
+			flex-shrink: 1;
+			max-width: var(--width-value, auto);
+		}
+
+		hnl-flow-bars-card hnl-flow-bars-card-source-group hnl-flow-bars-card-source-label,
+		hnl-flow-bars-card hnl-flow-bars-card-destination-group hnl-flow-bars-card-destination {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		/* SEGMENT floor: never narrower than its min-content.
+		   min-content here resolves to the value pill only, because
+		   .entity-name contributes 0 (see width:0 below). */
+		hnl-flow-bars-card-source-label,
+		hnl-flow-bars-card-destination {
+			min-width: min-content;
+		}
+
+		/* ── FRAME ───────────────────────────────────────────────
+		   The inner column fills the whole segment and centers its
+		   children both axes. It is the clip context for the name. */
+		hnl-flow-bars-card-source-label > div,
+		hnl-flow-bars-card-destination-label {
+			display: flex;
+			flex-direction: column;
+			align-items: center;      /* H-center pill + name        */
+			justify-content: center;  /* V-center within the segment */
+			width: 100%;              /* fill segment (was: shrink)  */
+			max-width: 100%;
+			min-width: 0;             /* don't let the frame add its own floor */
+		}
+
+		/* ── PILL ────────────────────────────────────────────────
+		   Shrink-to-fit → hugs the value. This is your styleable,
+		   centered block. It sets the segment floor (value width). */
+		.hnl-flow-bars-card-value-pill {
+			display: inline-flex;
+			align-items: center;
+			max-width: 100%;          /* clamp to segment if value itself overflows */
+			white-space: nowrap;
+		}
+
+		/* VALUE: the floor-setter. Never clips in default mode. */
+		.source-value,
+		.destination-value {
+			white-space: nowrap;
+			overflow: visible;
+			min-width: min-content;
+			margin: 2px 12px;
+		}
+
+		/* ── NAME ────────────────────────────────────────────────
+		   Caption that fills the frame (= segment) and ellipsis-clips.
+		   width:0 keeps it OUT of the segment's min-content floor;
+		   min-width:100% (indefinite during intrinsic sizing) fills
+		   the frame at layout time, then clips. */
+		.entity-name {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			width: 0;
+			min-width: 100%;
+			text-align: center;
+		}
+
+		/* ── CLIP MODE ───────────────────────────────────────────
+		   Drop the floor so the segment honours its raw proportion;
+		   let the value clip too. */
+		hnl-flow-bars-card.hnl-flow-bars-card-clip-mode hnl-flow-bars-card-destination,
+		hnl-flow-bars-card.hnl-flow-bars-card-clip-mode hnl-flow-bars-card-source-label {
+			min-width: auto;
+		}
+		hnl-flow-bars-card.hnl-flow-bars-card-clip-mode .source-value,
+		hnl-flow-bars-card.hnl-flow-bars-card-clip-mode .destination-value {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		
+		
+		/* PRESENTATIONAL DEBUGGING STYLES - IGNORE THIS BLOCK ENTIRELY */
+
+		hnl-flow-bars-card {
+			height: 150px;
+			outline: 1px solid blue;
+			outline-offset: -1px;
+			width: 600px;
+			margin: 0 auto;
+			margin-bottom: 25px;
+		}
+		hnl-flow-bars-card hnl-flow-bars-card-source-group hnl-flow-bars-card-source-labels,
+		hnl-flow-bars-card hnl-flow-bars-card-source-group hnl-flow-bars-card-source-accolades,
+		hnl-flow-bars-card hnl-flow-bars-card-destination-group {
+			outline: 1px solid green;
+			outline-offset: -1px;
+		}
+		hnl-flow-bars-card-source-label {
+			background-color: #F006;
+			outline: 1px solid #F008;
+			outline-offset: -1px;
+		}
+		hnl-flow-bars-card-source-label:nth-child(2) {
+			background-color: #F005;
+		}
+
+		hnl-flow-bars-card-source-accolade {
+			background-color: #F002;
+			outline: 1px solid red;
+			outline-offset: -1px;
+		}
+		hnl-flow-bars-card-source-accolade:nth-child(2) {
+			background-color: #F001;
+		}
+
+		hnl-flow-bars-card-destination {
+			background-color: #0802;
+			outline: 1px solid #0808;
+			outline-offset: -1px;
+		}
+		hnl-flow-bars-card-destination:nth-child(2) {
+			background-color: #0803;
+		}
+		.hnl-flow-bars-card-value-pill {
+			border-radius: 999px;
+			background: #2e7d32;
+			color: #fff;
+			font: 600 14px/1.25 system-ui, sans-serif;
+		}
+		.entity-name {
+			font: 12px/1.3 system-ui, sans-serif;
+			margin-top: 2px;
+		}
+
+		/* END DEBUGGING, END IGNORE */
+	</style>
+  </head>
+  <body>
+	<h1>Basic hnl-flow-bars-card layout scaffolding</h1>
+	<hnl-flow-bars-card>
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 25%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">25 kWh</span></span>
+					<span class="entity-name">Source</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+			<hnl-flow-bars-card-source-label style="--width-value: 75%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">75 kWh</span></span>
+					<span class="entity-name">Remainder</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 25%;--color:red;"></hnl-flow-bars-card-source-accolade>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 75%;--color:blue;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 100%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">100 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<h3>Source label too small, but make sure label is never smaller than value ("don't clip"-mode)</h3>
+
+	<hnl-flow-bars-card>
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 5%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">5 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+			<hnl-flow-bars-card-source-label style="--width-value: 95%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">95 kWh</span></span>
+					<span class="entity-name">Remainder</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 5%;"></hnl-flow-bars-card-source-accolade>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 95%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 100%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">100 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<hnl-flow-bars-card>
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 95%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">95 kWh</span></span>
+					<span class="entity-name">Remainder</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+			<hnl-flow-bars-card-source-label style="--width-value: 5%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">5 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 95%;"></hnl-flow-bars-card-source-accolade>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 5%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 100%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">100 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<hnl-flow-bars-card>
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 100%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">100 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 100%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 95%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">95 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+			<hnl-flow-bars-card-destination style="--width-value: 5%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">5 kWh</span></span>
+					<span class="entity-name">Surplus</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<h3>Source label too small, clip mode</h3>
+
+	<hnl-flow-bars-card class="hnl-flow-bars-card-clip-mode">
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 5%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">5 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+			<hnl-flow-bars-card-source-label style="--width-value: 95%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">95 kWh</span></span>
+					<span class="entity-name">Remainder</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 5%;"></hnl-flow-bars-card-source-accolade>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 95%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 100%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">100 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<hnl-flow-bars-card class="hnl-flow-bars-card-clip-mode">
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 95%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">95 kWh</span></span>
+					<span class="entity-name">Remainder</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+			<hnl-flow-bars-card-source-label style="--width-value: 5%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">5 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 95%;"></hnl-flow-bars-card-source-accolade>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 5%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 100%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">100 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+
+	<hnl-flow-bars-card class="hnl-flow-bars-card-clip-mode">
+		<hnl-flow-bars-card-source-group>
+			<hnl-flow-bars-card-source-label style="--width-value: 100%;">
+				<div>
+					<span class="hnl-flow-bars-card-value-pill"><span class="source-value">100 kWh</span></span>
+					<span class="entity-name">Source but with a very long name</span>
+				</div>
+			</hnl-flow-bars-card-source-label>
+		</hnl-flow-bars-card-source-group>
+		<hnl-flow-bars-card-accolade-group>
+			<hnl-flow-bars-card-source-accolade style="--width-value: 100%;"></hnl-flow-bars-card-source-accolade>
+		</hnl-flow-bars-card-accolade-group>
+		<hnl-flow-bars-card-destination-group>
+			<hnl-flow-bars-card-destination style="--width-value: 95%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">95 kWh</span></span>
+					<span class="entity-name">Consumption</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+			<hnl-flow-bars-card-destination style="--width-value: 5%">
+				<hnl-flow-bars-card-destination-label>
+					<span class="hnl-flow-bars-card-value-pill"><span class="destination-value">5 kWh</span></span>
+					<span class="entity-name">Surplus</span>
+				</hnl-flow-bars-card-destination-label>
+			</hnl-flow-bars-card-destination>
+		</hnl-flow-bars-card-destination-group>
+	</hnl-flow-bars-card>
+  </body>
+</html>

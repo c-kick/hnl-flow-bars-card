@@ -353,15 +353,13 @@ hnl-flow-bars {
 
 ## CSS overrides
 
-You can use [`card_mod`](https://github.com/thomasloven/lovelace-card-mod) to override certain CSS variables. For example, if you want the bars to always have the *exact percentual width* they should have, instead of always prioritzing visibility of the value label inside as a minimum size, you can set:
+By default, bars keep enough minimum width for their value labels. If you want bars to keep their exact proportional width instead, enable label clipping:
 
+```yaml
+clip_labels: true
 ```
-card_mod:
-  style: |
-    :host {
-      --min-bar-width: auto !important;
-    }
-```
+
+You can still use [`card_mod`](https://github.com/thomasloven/lovelace-card-mod) to override documented CSS custom properties for advanced styling.
 
 ## Grid sizing
 

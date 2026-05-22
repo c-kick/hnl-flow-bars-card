@@ -226,7 +226,7 @@ class EntityListEditor extends LitElement {
       }
 
       .section-icon {
-        --mdc-icon-size: 20px;
+        --hnl-flow-bars-icon-size: 20px;
         color: var(--primary-color);
         flex-shrink: 0;
       }

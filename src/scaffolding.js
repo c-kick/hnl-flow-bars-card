@@ -2,6 +2,14 @@ import { css } from 'lit';
 
 export const hnlFlowBarsCardScaffolding = css`
     :host {
+        --hnl-flow-bars-accolade-height: 8px;
+        --hnl-flow-bars-font-size-scale: 1;
+        --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
+        --hnl-flow-bars-font-size-fluid: 22cqb;
+        --hnl-flow-bars-font-size-max: 14px;
+        --hnl-flow-bars-card-row-height: 56px;
+        --hnl-flow-bars-card-grid-gap: 4px;
+
         display: block;
         height: 100%;
         min-height: var(--hnl-flow-bars-card-row-height, var(--ha-section-grid-row-height, 56px));
@@ -45,7 +53,7 @@ export const hnlFlowBarsCardScaffolding = css`
         align-self: stretch;
         flex-basis: 100%;
         justify-items: stretch;
-        grid-template-rows: 1fr var(--accolade-height, 5px) 1fr;
+        grid-template-rows: 1fr var(--hnl-flow-bars-accolade-height, 5px) 1fr;
         overflow: hidden;
         max-height: 100%;
     }
@@ -184,5 +192,26 @@ export const hnlFlowBarsCardScaffolding = css`
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    ha-card.clip-labels .source-value > span,
+    ha-card.clip-labels .destination-value > span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    ha-card.clip-labels .source-value ha-icon,
+    ha-card.clip-labels .destination-value ha-icon {
+        overflow: hidden;
+    }
+    ha-card.clip-labels hnl-flow-bars-card-source-label > div {
+        container-type: size;
+        container-name: label-container;
+        display: flex;
+        width: 100%;
+    }
+    @container label-container (max-width: 12ex) {
+        ha-card.clip-labels ha-icon {
+            display: none;
+        }
     }
 `;

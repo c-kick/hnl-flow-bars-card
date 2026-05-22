@@ -2,21 +2,14 @@ import { css } from 'lit';
 
 export const hnlFlowBarsCardStyles = css`
     :host {
-        --accolade-height: 8px;
-        --accolade-border-width: 2px;
-        --accolade-bg-opacity: 0.4;
-        --destination-bg-opacity: 0.65;
-        --border-radius: calc(var(--ha-card-border-radius, 14px) / 2);
-        --font-size: min(calc(0.12em * var(--column-size)), var(--card-primary-font-size, 14px));
-        --mdc-icon-size: min(calc(var(--font-size, 0.8em) + 0.5em), 1.2em);
-        --label-edge-padding: calc(var(--font-size, 0.8em) * .7);
-        --label-padding: 0.1em 0.5em;
-        --hnl-flow-bars-font-size-scale: 1;
-        --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
-        --hnl-flow-bars-font-size-fluid: 22cqb;
-        --hnl-flow-bars-font-size-max: 14px;
-        --hnl-flow-bars-card-row-height: 56px;
-        --hnl-flow-bars-card-grid-gap: 4px;
+        --hnl-flow-bars-accolade-border-width: 2px;
+        --hnl-flow-bars-accolade-bg-opacity: 0.4;
+        --hnl-flow-bars-destination-bg-opacity: 0.65;
+        --hnl-flow-bars-border-radius: calc(var(--ha-card-border-radius, 14px) / 2);
+        --hnl-flow-bars-font-size: min(calc(0.12em * var(--column-size)), var(--card-primary-font-size, 14px));
+        --hnl-flow-bars-icon-size: min(calc(var(--hnl-flow-bars-font-size, 0.8em) + 0.5em), 1.2em);
+        --hnl-flow-bars-label-edge-padding: calc(var(--hnl-flow-bars-font-size, 0.8em) * .7);
+        --hnl-flow-bars-label-padding: 0.1em 0.5em;
 
         --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
@@ -37,7 +30,7 @@ export const hnlFlowBarsCardStyles = css`
         --hnl-flow-bars-color-shortfall: #ce513a;
         --hnl-flow-bars-color-surplus: #3c9940;
 
-        font-size: var(--font-size, 0.8em);
+        font-size: var(--hnl-flow-bars-font-size, 0.8em);
         font-weight: 500;
     }
 
@@ -58,7 +51,7 @@ export const hnlFlowBarsCardStyles = css`
 
     /* ═══ ROOT (visual) ══════════════════════════════════════ */
     hnl-flow-bars {
-        border-radius: var(--border-radius, 8px);
+        border-radius: var(--hnl-flow-bars-border-radius, 8px);
         --hnl-flow-bars-font-size: clamp(
             var(--hnl-flow-bars-font-size-min),
             var(--hnl-flow-bars-font-size-fluid),
@@ -74,7 +67,7 @@ export const hnlFlowBarsCardStyles = css`
     /* When the card has vertical headroom, give the accolade more presence */
     @container card (min-height: 12em) {
         hnl-flow-bars {
-            --accolade-height: 10px;
+            --hnl-flow-bars-accolade-height: 10px;
         }
     }
 
@@ -93,7 +86,7 @@ export const hnlFlowBarsCardStyles = css`
     }
 
     hnl-flow-bars-card-destination {
-        --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
+        --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--hnl-flow-bars-destination-bg-opacity));
         --bg-gradient: linear-gradient(transparent, transparent);
         --bg-hatched: linear-gradient(transparent, transparent);
         background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color);
@@ -112,33 +105,37 @@ export const hnlFlowBarsCardStyles = css`
        gradient/hatch/base background. */
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label {
         --slanted-edge: 20px;
-        --correction: min(var(--accolade-height), calc(var(--ha-card-border-radius, 14px) / 2), var(--accolade-border-width));
-        padding-right: calc(var(--border-radius, 8px) - var(--correction, 0px));
+        --correction: min(var(--hnl-flow-bars-accolade-height), calc(var(--ha-card-border-radius, 14px) / 2), var(--hnl-flow-bars-accolade-border-width));
+        padding-right: calc(var(--hnl-flow-bars-border-radius, 8px) - var(--correction, 0px));
         margin-bottom: calc(-1 * var(--correction, 5px));
     }
 
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label > div {
         background: var(--bg-hatched), var(--bg-gradient), var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
-        padding: 10cqb 1.5cqi;
-        padding-right: calc((var(--label-edge-padding) / 2) + var(--slanted-edge, 20px));
+        padding: var(--hnl-flow-bars-label-padding);
+        padding-right: calc((var(--hnl-flow-bars-label-edge-padding) / 2) + var(--slanted-edge, 20px));
         clip-path: polygon(0 0, calc(100% - var(--slanted-edge, 20px)) 0%, 100% 100%, 0% 100%);
-        border-top-left-radius: var(--border-radius, 8px);
-		width: auto;
+        border-top-left-radius: var(--hnl-flow-bars-border-radius, 8px);
+		    width: auto;
     }
 
+    hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-label .entity-name {
+        text-align: start;
+    }
+    
     /* ═══ DEFAULT (Accolade) — ACCOLADE BAND ═════════════════ */
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade {
-        border: var(--accolade-border-width, var(--accolade-height, 2px)) solid var(--adjusted-bg-color, green);
+        border: var(--hnl-flow-bars-accolade-border-width, var(--hnl-flow-bars-accolade-height, 2px)) solid var(--adjusted-bg-color, green);
         border-bottom: 0;
         --bg-hatched: linear-gradient(transparent, transparent);
-        background: var(--bg-hatched), oklch(from var(--background-color) l c h / var(--accolade-bg-opacity));
+        background: var(--bg-hatched), oklch(from var(--background-color) l c h / var(--hnl-flow-bars-accolade-bg-opacity));
         color: oklch(from var(--background-color) calc(l * .3) c h / 1);
         --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
-        min-width: var(--border-radius, 8px);
+        min-width: var(--hnl-flow-bars-border-radius, 8px);
     }
 
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade:last-child {
-        border-radius: 0 var(--border-radius, 8px) 0 0;
+        border-radius: 0 var(--hnl-flow-bars-border-radius, 8px) 0 0;
     }
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-accolade-group > hnl-flow-bars-card-source-accolade:first-child:not(:only-child),
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-source-accolade:nth-child(n+2):not(:last-child) {
@@ -153,7 +150,7 @@ export const hnlFlowBarsCardStyles = css`
         padding: 0 1.5cqi;
     }
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination:last-child {
-        border-radius: 0 max(0px, calc(var(--border-radius, 8px) - var(--accolade-height))) 0 0;
+        border-radius: 0 max(0px, calc(var(--hnl-flow-bars-border-radius, 8px) - var(--hnl-flow-bars-accolade-height))) 0 0;
     }
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination.hatched > hnl-flow-bars-card-destination-label,
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination-label {
@@ -168,8 +165,8 @@ export const hnlFlowBarsCardStyles = css`
 
     hnl-flow-bars.layout-accolade hnl-flow-bars-card-destination-group .hnl-flow-bars-card-value-pill {
         background-color: var(--span-bg-color, oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1));
-        border-radius: clamp(5cqb, var(--border-radius, 8px), var(--ha-card-border-radius, 14px));
-        padding: var(--label-padding, 0.2em 0.4em);
+        border-radius: clamp(5cqb, var(--hnl-flow-bars-border-radius, 8px), var(--ha-card-border-radius, 14px));
+        padding: var(--hnl-flow-bars-label-padding, 0.2em 0.4em);
     }
 
     .source-value,
@@ -179,7 +176,6 @@ export const hnlFlowBarsCardStyles = css`
 
     .entity-name {
         opacity: 0.85;
-        padding: 0 4px;
     }
 
     /* Per-user opt-out */
@@ -225,8 +221,8 @@ export const hnlFlowBarsCardStyles = css`
     hnl-flow-bars.gradient hnl-flow-bars-card-destination {
         --bg-gradient: linear-gradient(
             to left,
-            oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity)),
-            oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--destination-bg-opacity))
+            oklch(from var(--background-color) l calc(c * 1.2) h / var(--hnl-flow-bars-destination-bg-opacity)),
+            oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--hnl-flow-bars-destination-bg-opacity))
         );
     }
 
@@ -262,7 +258,7 @@ export const hnlFlowBarsCardStyles = css`
     hnl-flow-bars.layout-native hnl-flow-bars-card-source-label > div {
         clip-path: none;
         background: none;
-        padding: var(--label-padding);
+        padding: var(--hnl-flow-bars-label-padding);
 	padding-top: 0;
 	padding-bottom: 0;
         border-radius: 0;
@@ -303,6 +299,13 @@ export const hnlFlowBarsCardStyles = css`
     hnl-flow-bars.layout-native.theme-split-pill {
         gap: var(--hnl-flow-bars-card-grid-gap);
     }
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-source-group {
+        border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0;
+    }
+    hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-destination-group {
+        border-radius: 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg)) var(--ha-card-border-radius, var(--ha-border-radius-lg));
+    }
+    /* Seems ridiculous, as the -group elements already clip the contents, but otherwise themes with border-effects will have clipped borders. */
     hnl-flow-bars.layout-native.theme-split-pill hnl-flow-bars-card-source-label:first-child {
         border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0 0;
     }
@@ -336,8 +339,8 @@ export const hnlFlowBarsCardStyles = css`
     hnl-flow-bars.layout-native.gradient hnl-flow-bars-card-destination {
         --bg-gradient: linear-gradient(
             to left,
-            oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity)),
-            oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--destination-bg-opacity))
+            oklch(from var(--background-color) l calc(c * 1.2) h / var(--hnl-flow-bars-destination-bg-opacity)),
+            oklch(from var(--background-color) calc(l * 0.85) calc(c * 1.2) calc(h - 30) / var(--hnl-flow-bars-destination-bg-opacity))
         );
     }
 
@@ -406,7 +409,7 @@ export const hnlFlowBarsCardStyles = css`
     }
     hnl-flow-bars.no-slant:not(.layout-native) hnl-flow-bars-card-source-label > div {
         clip-path: none;
-        border-top-right-radius: var(--border-radius, 8px);
+        border-top-right-radius: var(--hnl-flow-bars-border-radius, 8px);
     }
 
     /* ═══ TOGGLE: Hatched ════════════════════════════════════ */
@@ -437,10 +440,10 @@ export const hnlFlowBarsCardStyles = css`
         background-size: 8.485px 8.485px, auto;
     }
     hnl-flow-bars hnl-flow-bars-card-source-accolade.hatched {
-        --hatch-opacity: var(--accolade-bg-opacity);
+        --hatch-opacity: var(--hnl-flow-bars-accolade-bg-opacity);
     }
     hnl-flow-bars hnl-flow-bars-card-destination.hatched {
-        --hatch-opacity: var(--destination-bg-opacity);
+        --hatch-opacity: var(--hnl-flow-bars-destination-bg-opacity);
     }
 
     /* 3-layer elements: destinations scroll right, source-labels scroll left */

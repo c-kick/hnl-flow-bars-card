@@ -156,7 +156,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
-| `clip_labels` | bool | `false` | Cut off label text when the bar doesn't have enough space to fit text |
+| `clip_labels` | bool | `false` | Cut off label text when the bar doesn't have enough space to fit text (see [Clipping or non-clipping labels](#clipping-or-non-clipping-labels)) |
 | `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
 | `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
@@ -283,6 +283,23 @@ font_size_max: 18px
 
 `font_size_scale` changes how aggressively the responsive font grows. `font_size_max` raises or lowers the ceiling where the font stops growing; use a CSS length or variable such as `18px`, `1.2rem`, `var(--ha-font-size-l)`, or `calc(var(--ha-font-size-m) * 1.25)`. Invalid values are ignored and the default `14px` ceiling remains active.
 
+### Clipping or non-clipping labels
+
+By default, bars keep enough minimum width for their value labels (they don't clip, for as long as there is enough room in the card). If you want bars to keep their exact proportional width instead, enable label clipping:
+
+```yaml
+clip_labels: true
+```
+In these demo images, the bottom card has `clip_labels: true`. Result: the cards "bars" are always proportionate to the values represented (in the screenshots thats roughly 30%/70% for the top two bars), and in regular, non-clipping mode, it tries to keep the value visible even if that means sizing the bar disproportionate to the value it represents. So basically, `clip_labels` determines legibility vs accuracy.
+
+<img width="218" height="131" alt="Image" src="https://github.com/user-attachments/assets/89fe29c3-ddaa-48c7-abff-c8b904abcc0d" />
+
+<img width="168" height="136" alt="Image" src="https://github.com/user-attachments/assets/d6bb5dd7-96ec-4207-a6d6-75391ace2b51" />
+
+<img width="116" height="131" alt="Image" src="https://github.com/user-attachments/assets/93c4081d-3605-4f34-afd4-2317f0821c7a" />
+
+<img width="75" height="70" alt="Image" src="https://github.com/user-attachments/assets/90d98b99-f8ea-4a61-9fc8-768b026493d8" />
+
 ### Entity warnings
 
 The card shows inline warnings when:
@@ -350,16 +367,6 @@ hnl-flow-bars {
   );
 }
 ```
-
-## CSS overrides
-
-By default, bars keep enough minimum width for their value labels. If you want bars to keep their exact proportional width instead, enable label clipping:
-
-```yaml
-clip_labels: true
-```
-
-You can still use [`card_mod`](https://github.com/thomasloven/lovelace-card-mod) to override documented CSS custom properties for advanced styling.
 
 ## Grid sizing
 

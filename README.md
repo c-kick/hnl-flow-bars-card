@@ -112,7 +112,7 @@ If the card does not appear in HACS yet, refresh HACS first. If you still need t
 
 [![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=c-kick&repository=hnl-flow-bars-card&category=plugin)
 
-Or add it manually:
+Or:
 
 1. Open HACS → three-dot menu → Custom repositories
 2. Add `c-kick/hnl-flow-bars-card` with category **Dashboard**

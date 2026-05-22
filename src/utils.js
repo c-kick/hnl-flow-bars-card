@@ -286,3 +286,49 @@ export function applyFontSizeOptions(config = {}) {
 
     return styles;
 }
+
+export function normalizeCssVars(input = {}) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+        return {};
+    }
+
+    return Object.entries(input).reduce((styles, [rawKey, rawValue]) => {
+        const key = String(rawKey).trim();
+        if (!key || rawValue == null) return styles;
+
+        let property;
+        if (key.startsWith('--')) {
+            if (!key.startsWith('--hnl-flow-bars-')) return styles;
+            property = key;
+        } else {
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(key)) return styles;
+            property = `--hnl-flow-bars-${key}`;
+        }
+
+        const value = String(rawValue).trim();
+        if (!value) return styles;
+
+        styles[property] = value;
+        return styles;
+    }, {});
+}
+
+export function buildFlowBarsStyle(config = {}) {
+    return {
+        ...normalizeCssVars(config.css_vars),
+        ...applyFontSizeOptions(config),
+    };
+}
+
+export function syncHostCssVars(style, previous = new Set(), next = {}) {
+    const nextKeys = new Set(Object.keys(next));
+    previous.forEach((property) => {
+        if (!nextKeys.has(property)) {
+            style.removeProperty(property);
+        }
+    });
+    Object.entries(next).forEach(([property, value]) => {
+        style.setProperty(property, value);
+    });
+    return nextKeys;
+}

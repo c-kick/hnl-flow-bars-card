@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { applyEntityValueOptions, applyFontSizeOptions, buildCardClasses, buildFlowBarsClasses, calculateWidthSegments, computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
+import { applyEntityValueOptions, buildCardClasses, buildFlowBarsClasses, buildFlowBarsStyle, calculateWidthSegments, computeEntityIcon, normalizeCssVars, resolveLayoutAndTheme, syncHostCssVars } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -31,6 +31,7 @@ class HnlFlowBarsCard extends LitElement {
     _energyError = null;
     _energyLoading = false;
     _energyUnsub = null;
+    _appliedCssVars = new Set();
 
     //part of LitElement interface
     static get properties() {
@@ -51,6 +52,14 @@ class HnlFlowBarsCard extends LitElement {
     disconnectedCallback() {
         super.disconnectedCallback();
         this._unsubscribeEnergy();
+    }
+
+    _applyHostCssVars() {
+        this._appliedCssVars = syncHostCssVars(
+            this.style,
+            this._appliedCssVars,
+            this._rawConfig?.css_vars || {},
+        );
     }
 
     _subscribeEnergy() {
@@ -438,7 +447,7 @@ class HnlFlowBarsCard extends LitElement {
 
         const visibleProd = barData.production.filter((ent) => this._shouldShowBar(ent));
         const visibleCons = barData.consumption.filter((ent) => this._shouldShowBar(ent));
-        const flowBarsStyle = applyFontSizeOptions(this._parsedConfig);
+        const flowBarsStyle = buildFlowBarsStyle(this._rawConfig);
 
         return html`
             <ha-card class="${this._parsedConfig.card_class}">
@@ -540,10 +549,12 @@ class HnlFlowBarsCard extends LitElement {
             global_bg_opacity: config.global_bg_opacity || null,
             font_size_scale: config.font_size_scale || null,
             font_size_max: config.font_size_max || null,
+            css_vars: normalizeCssVars(config.css_vars),
             clip_labels: config.clip_labels ?? false,
             energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };
+        this._applyHostCssVars();
         this._updatedParsedConfig = null;
 
         // Re-subscribe if energy mode changed while connected

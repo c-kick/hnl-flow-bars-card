@@ -7,8 +7,11 @@ import {
     calculateWidthPercent,
     applyZeroThreshold,
     buildCardClasses,
+    buildFlowBarsStyle,
     buildFlowBarsClasses,
     computeEntityIcon,
+    normalizeCssVars,
+    syncHostCssVars,
 } from '../src/utils.js';
 
 describe('computeEntityIcon', () => {
@@ -140,6 +143,108 @@ describe('applyFontSizeOptions', () => {
         expect(applyFontSizeOptions({
             font_size_max: 'large',
         })).toEqual({});
+    });
+});
+
+describe('normalizeCssVars', () => {
+    it('prefixes shorthand hnl flow bars variable names', () => {
+        expect(normalizeCssVars({
+            'destination-bg-opacity': 1,
+            'label-edge-padding': '1rem',
+        })).toEqual({
+            '--hnl-flow-bars-destination-bg-opacity': '1',
+            '--hnl-flow-bars-label-edge-padding': '1rem',
+        });
+    });
+
+    it('preserves already-prefixed hnl flow bars custom properties', () => {
+        expect(normalizeCssVars({
+            '--hnl-flow-bars-card-row-height': '72px',
+        })).toEqual({
+            '--hnl-flow-bars-card-row-height': '72px',
+        });
+    });
+
+    it('ignores non-card namespaces and malformed keys', () => {
+        expect(normalizeCssVars({
+            '--primary-color': 'red',
+            background: 'red',
+            '--hnl-other-value': '1px',
+            '': '1px',
+        })).toEqual({});
+    });
+
+    it('ignores empty values', () => {
+        expect(normalizeCssVars({
+            'label-padding': '',
+            'border-radius': null,
+            'card-grid-gap': undefined,
+        })).toEqual({});
+    });
+
+    it('returns an empty object for non-object inputs', () => {
+        expect(normalizeCssVars(null)).toEqual({});
+        expect(normalizeCssVars(undefined)).toEqual({});
+        expect(normalizeCssVars([])).toEqual({});
+        expect(normalizeCssVars('destination-bg-opacity')).toEqual({});
+        expect(normalizeCssVars(1)).toEqual({});
+    });
+});
+
+describe('buildFlowBarsStyle', () => {
+    it('merges css variables with font sizing options while font options win', () => {
+        expect(buildFlowBarsStyle({
+            css_vars: {
+                'font-size-max': '30px',
+                'destination-bg-opacity': 1,
+            },
+            font_size_max: '18px',
+        })).toEqual({
+            '--hnl-flow-bars-font-size-max': '18px',
+            '--hnl-flow-bars-destination-bg-opacity': '1',
+        });
+    });
+
+    it('omits invalid css vars from the style object', () => {
+        expect(buildFlowBarsStyle({
+            css_vars: {
+                '--primary-color': 'red',
+                '--hnl-other-value': '1px',
+            },
+        })).toEqual({});
+    });
+});
+
+describe('syncHostCssVars', () => {
+    it('sets new variables and removes stale variables from a style object', () => {
+        const operations = [];
+        const style = {
+            setProperty(name, value) {
+                operations.push(['set', name, value]);
+            },
+            removeProperty(name) {
+                operations.push(['remove', name]);
+            },
+        };
+        const previous = new Set([
+            '--hnl-flow-bars-label-padding',
+            '--hnl-flow-bars-card-row-height',
+        ]);
+
+        const applied = syncHostCssVars(style, previous, {
+            '--hnl-flow-bars-card-row-height': '72px',
+            '--hnl-flow-bars-destination-bg-opacity': '1',
+        });
+
+        expect(operations).toEqual([
+            ['remove', '--hnl-flow-bars-label-padding'],
+            ['set', '--hnl-flow-bars-card-row-height', '72px'],
+            ['set', '--hnl-flow-bars-destination-bg-opacity', '1'],
+        ]);
+        expect([...applied]).toEqual([
+            '--hnl-flow-bars-card-row-height',
+            '--hnl-flow-bars-destination-bg-opacity',
+        ]);
     });
 });
 

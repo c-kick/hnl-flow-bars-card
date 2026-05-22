@@ -159,6 +159,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `clip_labels` | bool | `false` | Cut off label text when the bar doesn't have enough space to fit text (see [Clipping or non-clipping labels](#clipping-or-non-clipping-labels)) |
 | `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
 | `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
+| `css_vars` | object | `{}` | Advanced: override `--hnl-flow-bars-*` CSS custom properties without `card_mod` |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
 | `theme` | string | layout default | Visual theme within the chosen layout (see [Layouts & Themes](#layouts--themes)) |
 | `gradient` | bool | `false` | Apply gradient shading to bars |
@@ -219,6 +220,10 @@ slanted_edge: true
 show_names: true
 font_size_scale: 1
 font_size_max: 14px
+css_vars:
+  destination-bg-opacity: 1
+  label-edge-padding: 1rem
+  card-row-height: 72px
 layout: accolade
 theme: classic
 gradient: false

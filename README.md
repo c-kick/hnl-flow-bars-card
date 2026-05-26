@@ -131,15 +131,32 @@ The card is equipped with a visual editor, with which you can adjust all setting
 
 ### General settings
 
-<img width="502" height="712" alt="image" src="https://github.com/user-attachments/assets/7b0abc96-da7e-4380-b29b-440c9a5979cd" />
+<img width="497" height="412" alt="image" src="https://github.com/user-attachments/assets/f93c26d1-7635-499d-9854-b807ebef1418" />
 
-### Entites & surplus/shortfall
+#### Behaviour
 
-<img width="507" height="641" alt="image" src="https://github.com/user-attachments/assets/ed74985b-f516-445d-89f5-c5bc014d8eb9" />
+<img width="499" height="214" alt="image" src="https://github.com/user-attachments/assets/0390741a-2156-4691-8aad-8f0607db8489" />
+
+#### Appearance
+
+<img width="499" height="511" alt="image" src="https://github.com/user-attachments/assets/a3d00a05-cc81-404e-9de1-a13f81b18b1e" />
+
+#### Advanced
+
+<img width="497" height="322" alt="image" src="https://github.com/user-attachments/assets/8a3cf940-1ae9-4ed8-b0c1-d1a074781665" />
+
+### Entites
+
+<img width="496" height="518" alt="image" src="https://github.com/user-attachments/assets/c9c4cf92-5e2e-4007-8ae9-f40772748949" />
+
+### Surplus & Shortfall
+
+
+<img width="490" height="1037" alt="image" src="https://github.com/user-attachments/assets/fc29acf1-8d97-420c-83ac-92f9a757eedc" />
 
 ### Settings per entity:
 
-<img width="497" height="566" alt="image" src="https://github.com/user-attachments/assets/517b3da8-b9b2-41fa-98fe-93a5fbbc115b" />
+<img width="490" height="703" alt="image" src="https://github.com/user-attachments/assets/99b96877-7ce5-4a0e-a811-bc5981b2f514" />
 
 ### Card options
 
@@ -392,12 +409,11 @@ The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, 
 In masonry layout, Home Assistant uses `getCardSize()` for column balancing but the card still needs an intrinsic height. Advanced users can override `--hnl-flow-bars-card-row-height` to control that minimum height:
 
 ```yaml
-card_mod:
-  style: |
-    hnl-flow-bars-card {
-      --hnl-flow-bars-card-row-height: 72px;
-    }
+css_vars:
+  card-row-height: 72px
 ```
+
+This sets `--hnl-flow-bars-card-row-height` to `72px`, which makes the card visible in Masonry.
 
 ## Layouts & Themes
 

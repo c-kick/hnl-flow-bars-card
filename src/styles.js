@@ -228,6 +228,7 @@ export const hnlFlowBarsCardStyles = css`
 
     /* ═══ LAYOUT: Native ═════════════════════════════════════ */
     hnl-flow-bars.layout-native {
+		--hnl-flow-bars-label-padding: 0.2em 0.8em;
         grid-template-rows: 1fr 1fr;
         gap: var(--hnl-flow-bars-card-grid-gap);
         padding: 0;
@@ -258,12 +259,15 @@ export const hnlFlowBarsCardStyles = css`
     hnl-flow-bars.layout-native hnl-flow-bars-card-source-label > div {
         clip-path: none;
         background: none;
-        padding: var(--hnl-flow-bars-label-padding);
-	padding-top: 0;
-	padding-bottom: 0;
+		padding-top: 0;
+		padding-bottom: 0;
         border-radius: 0;
         border-top-left-radius: 0;
     }
+	hnl-flow-bars.layout-native hnl-flow-bars-card-destination-label > span,
+    hnl-flow-bars.layout-native hnl-flow-bars-card-source-label > div {
+        padding: var(--hnl-flow-bars-label-padding);
+	}
     /* Rounded ends only on outer edges */
     hnl-flow-bars.layout-native hnl-flow-bars-card-source-label:first-child {
         border-radius: 9999px 0 0 9999px;

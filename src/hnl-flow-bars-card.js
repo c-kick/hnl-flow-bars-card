@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { applyEntityValueOptions, buildCardClasses, buildFlowBarsClasses, buildFlowBarsStyle, calculateWidthSegments, computeEntityIcon, normalizeCssVars, resolveLayoutAndTheme, syncHostCssVars } from './utils.js';
+import { applyEntityValueOptions, buildCardClasses, buildFlowBarsClasses, buildFlowBarsStyle, calculateWidthSegments, computeEntityIcon, normalizeCssVars, resolveBooleanConfig, getBooleanConfigEntity, resolveLayoutAndTheme, syncHostCssVars } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -151,7 +151,21 @@ class HnlFlowBarsCard extends LitElement {
         return this._updatedParsedConfig;
     }
 
+    _getDynamicConfigEntities() {
+        return [
+            getBooleanConfigEntity(this._rawConfig?.clip_labels),
+        ].filter(Boolean);
+    }
+
+    _getResolvedRuntimeConfig() {
+        return {
+            ...this._rawConfig,
+            clip_labels: resolveBooleanConfig(this._rawConfig?.clip_labels, this.hass),
+        };
+    }
+
     _hydrateParsedConfig() {
+        const runtimeConfig = this._getResolvedRuntimeConfig();
         const globalColor = this._rawConfig.global_color;
         const globalTextColor = this._rawConfig.global_text_color;
         const globalBgOpacity = this._rawConfig.global_bg_opacity;
@@ -234,10 +248,11 @@ class HnlFlowBarsCard extends LitElement {
             production_remainder: this._rawConfig.production_remainder,
             rounding: this._rawConfig.rounding,
             hide_zero_values: this._rawConfig.hide_zero_values,
+            show_icons: this._rawConfig.show_icons,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
             font_size_scale: this._rawConfig.font_size_scale,
             font_size_max: this._rawConfig.font_size_max,
-            card_class: buildCardClasses(this._rawConfig),
+            card_class: buildCardClasses(runtimeConfig),
             warnings: [...production, ...consumption].filter((ent) => ent.warning),
         };
     }
@@ -298,6 +313,12 @@ class HnlFlowBarsCard extends LitElement {
         return `${(1.5 - (Math.max(0, Math.min(100, width)) / 100) * 1.2).toFixed(2)}s`;
     }
 
+    _renderIcon(icon) {
+        return this._parsedConfig.show_icons
+            ? html`<ha-icon icon="${icon || 'mdi:eye'}"></ha-icon>`
+            : null;
+    }
+
     _renderSourceLabel(ent) {
         const unit = this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || '';
         return html`<hnl-flow-bars-card-source-label
@@ -305,7 +326,7 @@ class HnlFlowBarsCard extends LitElement {
             style="--background-color:${ent.color};--text-color:${ent.text_color};--width-value:${ent.width}%;--source-bg-opacity:${ent.bg_opacity};--animation-duration:${this._animDuration(ent.width)};cursor:pointer;"
             @click=${() => this._handleAction(ent.entity_id)}
         ><div>
-            <span class="hnl-flow-bars-card-value-pill"><span class="source-value"><ha-icon icon="${ent.icon || 'mdi:eye'}"></ha-icon><span>${this._roundOff(ent.value)} ${unit}</span></span></span>
+            <span class="hnl-flow-bars-card-value-pill"><span class="source-value">${this._renderIcon(ent.icon)}<span>${this._roundOff(ent.value)} ${unit}</span></span></span>
             <span class="entity-name">${ent.name}</span>
         </div></hnl-flow-bars-card-source-label>`;
     }
@@ -324,7 +345,7 @@ class HnlFlowBarsCard extends LitElement {
             style="--background-color:${ent.color};--hnl-flow-bars-destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width-value:${ent.width}%;--animation-duration:${this._animDuration(ent.width)};cursor:pointer;"
             @click=${() => this._handleAction(ent.entity_id)}
         ><hnl-flow-bars-card-destination-label>
-            <span class="hnl-flow-bars-card-value-pill"><span class="destination-value"><ha-icon icon="${ent.icon}"></ha-icon><span>${this._roundOff(ent.value)} ${unit}</span></span></span>
+            <span class="hnl-flow-bars-card-value-pill"><span class="destination-value">${this._renderIcon(ent.icon)}<span>${this._roundOff(ent.value)} ${unit}</span></span></span>
             <span class="entity-name">${ent.name}</span>
         </hnl-flow-bars-card-destination-label></hnl-flow-bars-card-destination>`;
     }
@@ -343,7 +364,7 @@ class HnlFlowBarsCard extends LitElement {
                 title="${cfg.name}: ${remainderValue} ${unit}"
                 style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--source-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
             ><div>
-                <span class="hnl-flow-bars-card-value-pill"><span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon><span>${remainderValue} ${unit}</span></span></span>
+                <span class="hnl-flow-bars-card-value-pill"><span class="source-value">${this._renderIcon(cfg.icon)}<span>${remainderValue} ${unit}</span></span></span>
                 <span class="entity-name">${cfg.name}</span>
             </div></hnl-flow-bars-card-source-label>`;
         }
@@ -352,7 +373,7 @@ class HnlFlowBarsCard extends LitElement {
             title="${cfg.name}: ${remainderValue} ${unit}"
             style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--hnl-flow-bars-destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
         ><hnl-flow-bars-card-destination-label>
-            <span class="hnl-flow-bars-card-value-pill"><span class="destination-value"><ha-icon icon="${cfg.icon}"></ha-icon><span>${remainderValue} ${unit}</span></span></span>
+            <span class="hnl-flow-bars-card-value-pill"><span class="destination-value">${this._renderIcon(cfg.icon)}<span>${remainderValue} ${unit}</span></span></span>
             <span class="entity-name">${cfg.name}</span>
         </hnl-flow-bars-card-destination-label></hnl-flow-bars-card-destination>`;
     }
@@ -492,6 +513,7 @@ class HnlFlowBarsCard extends LitElement {
         const relevantEntities = [
             ...this._rawConfig.production.map((p) => p.entity),
             ...this._rawConfig.consumption.map((c) => c.entity),
+            ...this._getDynamicConfigEntities(),
         ];
 
         const anyChanged = relevantEntities.some((entity_id) => {
@@ -541,6 +563,7 @@ class HnlFlowBarsCard extends LitElement {
 
             show_names: config.show_names ?? true,
             hide_zero_values: config.hide_zero_values ?? true,
+            show_icons: config.show_icons ?? true,
             rounding: config.rounding ?? 0,
             transparent: config.transparent ?? true,
             unit_of_measurement: config.unit_of_measurement,

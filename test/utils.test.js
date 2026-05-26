@@ -11,6 +11,7 @@ import {
     buildFlowBarsClasses,
     computeEntityIcon,
     normalizeCssVars,
+    resolveBooleanConfig,
     syncHostCssVars,
 } from '../src/utils.js';
 
@@ -328,6 +329,40 @@ describe('buildCardClasses', () => {
             layout: 'accolade',
             theme: 'classic',
         })).toBe('layout-accolade theme-classic');
+    });
+});
+
+describe('resolveBooleanConfig', () => {
+    const hass = {
+        states: {
+            'input_boolean.enabled': { state: 'on' },
+            'input_boolean.disabled': { state: 'off' },
+            'binary_sensor.true': { state: 'true' },
+            'binary_sensor.false': { state: 'false' },
+            'sensor.unavailable': { state: 'unavailable' },
+        },
+    };
+
+    it('preserves static boolean values', () => {
+        expect(resolveBooleanConfig(true, hass)).toBe(true);
+        expect(resolveBooleanConfig(false, hass)).toBe(false);
+    });
+
+    it('resolves entity-backed boolean values from Home Assistant state', () => {
+        expect(resolveBooleanConfig({ entity: 'input_boolean.enabled' }, hass)).toBe(true);
+        expect(resolveBooleanConfig({ entity: 'input_boolean.disabled' }, hass)).toBe(false);
+        expect(resolveBooleanConfig({ entity: 'binary_sensor.true' }, hass)).toBe(true);
+        expect(resolveBooleanConfig({ entity: 'binary_sensor.false' }, hass)).toBe(false);
+    });
+
+    it('falls back to the configured default when the entity cannot provide a boolean state', () => {
+        expect(resolveBooleanConfig({ entity: 'sensor.missing', default: true }, hass)).toBe(true);
+        expect(resolveBooleanConfig({ entity: 'sensor.unavailable', default: false }, hass)).toBe(false);
+    });
+
+    it('uses false as the default fallback for unsupported values', () => {
+        expect(resolveBooleanConfig({ entity: 'sensor.missing' }, hass)).toBe(false);
+        expect(resolveBooleanConfig('yes', hass)).toBe(false);
     });
 });
 

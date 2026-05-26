@@ -11,4 +11,10 @@ describe('editor config preservation', () => {
         expect(editorSource).toContain('const config = { ...this._config };');
         expect(editorSource).not.toContain('delete config.css_vars');
     });
+
+    it('keeps show_icons enabled by default and omits it unless disabled', () => {
+        expect(editorSource).toContain('Show icons');
+        expect(editorSource).toContain('.checked=${this._config.show_icons ?? true}');
+        expect(editorSource).toContain("if (config.show_icons ?? true) delete config.show_icons;");
+    });
 });

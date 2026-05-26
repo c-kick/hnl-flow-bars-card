@@ -156,7 +156,8 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
-| `clip_labels` | bool | `false` | Cut off label text when the bar doesn't have enough space to fit text (see [Clipping or non-clipping labels](#clipping-or-non-clipping-labels)) |
+| `show_icons` | bool | `true` | Show icons inside value labels |
+| `clip_labels` | bool/object | `false` | Cut off label text when the bar doesn't have enough space to fit text. Can also reference an entity with `{ entity, default? }` (see [Clipping or non-clipping labels](#clipping-or-non-clipping-labels)) |
 | `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
 | `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
 | `css_vars` | object | `{}` | Advanced: override `--hnl-flow-bars-*` CSS custom properties without `card_mod` |
@@ -278,6 +279,7 @@ The card adapts to its available height:
 - **Compact (1 row):** Only icon + value shown in source labels and destinations.
 - **Taller layouts (2+ rows):** Entity names automatically appear below the value in both source labels and destination bars *if the row has enough vertical space for two lines*. Bars always stretch to fill the available card height. The threshold is content-relative (based on `lh` units, not fixed pixels), so it scales with font size.
 - **`show_names: false`:** Disables entity names entirely, regardless of available space.
+- **`show_icons: false`:** Disables all icons inside the rendered card bars and remainder labels.
 
 The default font sizing is tuned for compact cards and uses a responsive clamp. Large cards can opt into bigger text without losing the compact-card behavior:
 
@@ -296,6 +298,16 @@ By default, bars keep enough minimum width for their value labels (they don't cl
 clip_labels: true
 ```
 In these demo images, the bottom card has `clip_labels: true`. Result: the cards "bars" are always proportionate to the values represented (in the screenshots thats roughly 30%/70% for the top two bars), and in regular, non-clipping mode, it tries to keep the value visible even if that means sizing the bar disproportionate to the value it represents. So basically, `clip_labels` determines legibility vs accuracy.
+
+You can also control label clipping from a boolean-like Home Assistant entity:
+
+```yaml
+clip_labels:
+  entity: input_boolean.clip_flow_bar_labels
+  default: false
+```
+
+The card treats entity states `on`, `true`, and `1` as enabled, and `off`, `false`, and `0` as disabled. If the entity is missing or has another state, `default` is used when provided; otherwise clipping stays disabled.
 
 <img width="218" height="131" alt="Image" src="https://github.com/user-attachments/assets/89fe29c3-ddaa-48c7-abff-c8b904abcc0d" />
 

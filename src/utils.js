@@ -191,6 +191,36 @@ export function applyEntityValueOptions(value, item = {}) {
     return applyZeroThreshold(effectiveValue, item.zero_threshold);
 }
 
+function coerceBooleanConfig(value, fallback = false) {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (['on', 'true', '1'].includes(normalized)) return true;
+        if (['off', 'false', '0'].includes(normalized)) return false;
+    }
+    return fallback;
+}
+
+export function getBooleanConfigEntity(configValue) {
+    if (!configValue || typeof configValue !== 'object' || Array.isArray(configValue)) {
+        return null;
+    }
+
+    return typeof configValue.entity === 'string' && configValue.entity.trim()
+        ? configValue.entity.trim()
+        : null;
+}
+
+export function resolveBooleanConfig(configValue, hass, fallback = false) {
+    const entityId = getBooleanConfigEntity(configValue);
+    if (!entityId) {
+        return coerceBooleanConfig(configValue, fallback);
+    }
+
+    const entityFallback = coerceBooleanConfig(configValue.default, fallback);
+    return coerceBooleanConfig(hass?.states?.[entityId]?.state, entityFallback);
+}
+
 export function buildCardClasses(config = {}) {
     const { layout, theme } = config;
 

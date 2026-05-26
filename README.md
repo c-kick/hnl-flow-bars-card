@@ -177,7 +177,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `clip_labels` | bool/object | `false` | Cut off label text when the bar doesn't have enough space to fit text. Can also reference an entity with `{ entity, default? }` (see [Clipping or non-clipping labels](#clipping-or-non-clipping-labels)) |
 | `font_size_scale` | number | `1` | Advanced: scale responsive font growth while preserving automatic sizing |
 | `font_size_max` | string | `14px` | Advanced: CSS length, variable, or calculation where responsive font growth stops |
-| `css_vars` | object | `{}` | Advanced: override `--hnl-flow-bars-*` CSS custom properties without `card_mod` |
+| `css_vars` | object | `{}` | Advanced: override `--hnl-flow-bars-*` CSS custom properties without `card_mod` (see [Available CSS vars keys](#available-css_vars-keys)) |
 | `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
 | `theme` | string | layout default | Visual theme within the chosen layout (see [Layouts & Themes](#layouts--themes)) |
 | `gradient` | bool | `false` | Apply gradient shading to bars |
@@ -363,57 +363,65 @@ The card uses the following default colors:
 
 Enable the `hatched` toggle to give remainder bars a diagonal stripe pattern, visually distinguishing them from regular bars.
 
-These defaults are defined in `src/const.js` and can be overridden per entity/remainder in the card config. The card also exposes CSS custom properties for theme-level overrides:
+These defaults are defined in `src/const.js` and can be overridden per entity/remainder in the card config. For card-wide styling, use `css_vars`. Keys are written without the `--hnl-flow-bars-` prefix:
 
-```css
-:host {
-  /* Base source/destination colors */
-  --hnl-flow-bars-color-production: #ffd407;
-  --hnl-flow-bars-color-consumption: #8b58bf;
-
-  /* Auto-generated palette variants (0–4 per side, shifted in hue/lightness) */
-  --hnl-flow-bars-color-production-0: /* base */;
-  --hnl-flow-bars-color-production-1: /* darker, hue-shifted */;
-  --hnl-flow-bars-color-production-2: /* lighter, hue-shifted */;
-  --hnl-flow-bars-color-production-3: /* darker, wider hue shift */;
-  --hnl-flow-bars-color-production-4: /* lighter, wider hue shift */;
-  /* Same pattern for consumption-0 through consumption-4 */
-
-  /* Remainder colors */
-  --hnl-flow-bars-color-shortfall: #ce513a;
-  --hnl-flow-bars-color-surplus: #3c9940;
-
-  /* Responsive font sizing */
-  --hnl-flow-bars-font-size-scale: 1;
-  --hnl-flow-bars-font-size-min: var(--ha-font-size-xs, 9px);
-  --hnl-flow-bars-font-size-fluid: 22cqb;
-  --hnl-flow-bars-font-size-max: 14px;
-
-  /* Advanced: intrinsic card row height, mainly for masonry layout */
-  --hnl-flow-bars-card-row-height: 56px;
-}
-
-hnl-flow-bars {
-  --hnl-flow-bars-font-size: clamp(
-    var(--hnl-flow-bars-font-size-min),
-    var(--hnl-flow-bars-font-size-fluid),
-    var(--hnl-flow-bars-font-size-max)
-  );
-}
+```yaml
+css_vars:
+  color-production: "#ffd407"
+  color-consumption: "#8b58bf"
+  color-shortfall: "#ce513a"
+  color-surplus: "#3c9940"
+  destination-bg-opacity: 0.65
+  card-row-height: 72px
 ```
+
+Advanced users can also use the full CSS custom property name, such as `--hnl-flow-bars-card-row-height`, but the shorter `css_vars` form is recommended in card YAML.
+
+### Available `css_vars` keys:
+
+| Key | Default | Description |
+|---|---|---|
+| `color-production` | `#ffd407` | Base color for production/source bars |
+| `color-production-0` | derived from `color-production` | First generated production palette color |
+| `color-production-1` | derived from `color-production` | Darker, hue-shifted production palette color |
+| `color-production-2` | derived from `color-production` | Lighter, hue-shifted production palette color |
+| `color-production-3` | derived from `color-production` | Darker production palette color with a wider hue shift |
+| `color-consumption` | `#8b58bf` | Base color for consumption/destination bars |
+| `color-consumption-0` | derived from `color-consumption` | First generated consumption palette color |
+| `color-consumption-1` | derived from `color-consumption` | Darker, hue-shifted consumption palette color |
+| `color-consumption-2` | derived from `color-consumption` | Lighter, hue-shifted consumption palette color |
+| `color-consumption-3` | derived from `color-consumption` | Darker consumption palette color with a wider hue shift |
+| `color-shortfall` | `#ce513a` | Remainder color when consumption is greater than production |
+| `color-surplus` | `#3c9940` | Remainder color when production is greater than consumption |
+| `color-default` | `hsl(205, 90%, 55%)` | Fallback color if a generated bar color cannot be resolved |
+| `accolade-bg-opacity` | `0.4` | Background opacity for accolade connector bars |
+| `destination-bg-opacity` | `0.65` | Background opacity for destination bars |
+| `accolade-border-width` | `2px` | Border width for accolade connector bars |
+| `accolade-height` | `8px` | Height of the accolade connector row |
+| `border-radius` | `calc(var(--ha-card-border-radius, 14px) / 2)` | Radius used by bar corners and value pills |
+| `label-padding` | `0.1em 0.5em` | Padding inside source labels and value pills |
+| `label-edge-padding` | `calc(var(--hnl-flow-bars-font-size, 0.8em) * .7)` | Extra padding near the slanted source-label edge |
+| `font-size-min` | `var(--ha-font-size-xs, 9px)` | Lower bound for responsive card text |
+| `font-size-fluid` | `22cqb` | Responsive text-size middle value |
+| `font-size-max` | `14px` | Upper bound for responsive card text |
+| `font-size-scale` | `1` | Internal scale value for responsive text sizing |
+| `font-size` | responsive `clamp(...)` | Final card font size; usually prefer `font_size_scale` and `font_size_max` |
+| `icon-size` | `min(calc(var(--hnl-flow-bars-font-size, 0.8em) + 0.5em), 1.2em)` | Size of icons inside labels |
+| `card-row-height` | `56px` | Intrinsic card height, mainly for Masonry layout |
+| `card-grid-gap` | `4px` | Gap between rows in native layouts |
 
 ## Grid sizing
 
 The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, `min_rows: 1`). Override with `grid_options` in the card config, or resize via the HA UI.
 
-In masonry layout, Home Assistant uses `getCardSize()` for column balancing but the card still needs an intrinsic height. Advanced users can override `--hnl-flow-bars-card-row-height` to control that minimum height:
+In masonry layout, Home Assistant uses `getCardSize()` for column balancing but the card still needs an intrinsic height. Advanced users can override `card-row-height` through `css_vars` to control that minimum height:
 
 ```yaml
 css_vars:
   card-row-height: 72px
 ```
 
-This sets `--hnl-flow-bars-card-row-height` to `72px`, which makes the card visible in Masonry.
+This sets the card row height to `72px`, which makes the card visible in Masonry.
 
 ## Layouts & Themes
 

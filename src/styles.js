@@ -385,22 +385,22 @@ export const hnlFlowBarsCardStyles = css`
         }
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:first-child {
-        border-radius: 15cqb 0 0 15cqb;
+        border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:last-child {
-        border-radius: 0 15cqb 15cqb 0;
+        border-radius: 0 var(--ha-card-border-radius, var(--ha-border-radius-lg))var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0;
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label:only-child {
-        border-radius: 15cqb;
+        border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:first-child {
-        border-radius: 15cqb 0 0 15cqb;
+        border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0 0 var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:last-child {
-        border-radius: 0 15cqb 15cqb 0;
+        border-radius: 0 var(--ha-card-border-radius, var(--ha-border-radius-lg))var(--ha-card-border-radius, var(--ha-border-radius-lg)) 0;
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination:only-child {
-        border-radius: 15cqb;
+        border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
     }
 
     /* ═══ LAYOUT MODIFIER: No borders ════════════════════════ */

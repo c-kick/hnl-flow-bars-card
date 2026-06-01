@@ -8,6 +8,8 @@ A custom Home Assistant Lovelace card that visualizes supply vs demand flows as 
 
 <img width="510" height="66" alt="image" src="https://github.com/user-attachments/assets/10fb01db-b17a-4e70-8fb2-bc25df63f658" /><br/>
 
+<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" /><br/>
+
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
 
 The main purpose of this card is to show source(s), destination(s), surplus and shortfall - all in one.

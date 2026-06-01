@@ -365,13 +365,16 @@ export const hnlFlowBarsCardStyles = css`
     /* ═══ NATIVE THEME: Contained ════════════════════════════
        Source fills the card; destination floats inside as a
        smaller rounded bar. Hide the name on short rows. */
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-group,
+    hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination-group {
+		border-radius: var(--ha-card-border-radius, var(--ha-border-radius-lg));
+    }	
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-group {
         grid-row: 1 / -1;
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-destination-group {
         margin: min(1cqi, 4cqb);
         height: 50cqb;
-        border-radius: 15cqb;
     }
     hnl-flow-bars.layout-native.theme-contained hnl-flow-bars-card-source-label > div {
         height: 50cqb;

@@ -2,13 +2,11 @@
 
 A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars with accolade connectors.
 
-<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" />
+<img width="520" height="70" alt="chrome-capture-2026-06-01" src="https://github.com/user-attachments/assets/9c563cf5-2138-4649-9a84-fa08c7cc4502" /><br/>
 
-<img width="518" height="63" alt="image" src="https://github.com/user-attachments/assets/852d8bfe-4447-419a-a672-e2b42b260841" />
+<img width="518" height="63" alt="image" src="https://github.com/user-attachments/assets/852d8bfe-4447-419a-a672-e2b42b260841" /><br/>
 
-<img width="510" height="66" alt="image" src="https://github.com/user-attachments/assets/10fb01db-b17a-4e70-8fb2-bc25df63f658" />
-
-![Screen Recording 2026-03-12 092019 (1)](https://github.com/user-attachments/assets/7b7157bb-34dc-45f4-87d5-c8cf152db90d)
+<img width="510" height="66" alt="image" src="https://github.com/user-attachments/assets/10fb01db-b17a-4e70-8fb2-bc25df63f658" /><br/>
 
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
 

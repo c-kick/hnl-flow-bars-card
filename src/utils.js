@@ -1,4 +1,4 @@
-import { LAYOUTS, DEFAULT_LAYOUT } from './const.js';
+import { LAYOUTS, DEFAULT_LAYOUT, CARD_NAME } from './const.js';
 
 /**
  * Resolves legacy `theme` / `accolade_style` config into separate `layout` + `theme` values.
@@ -189,6 +189,125 @@ export function applyZeroThreshold(value, zeroThreshold) {
 export function applyEntityValueOptions(value, item = {}) {
     const effectiveValue = item.invert ? -value : value;
     return applyZeroThreshold(effectiveValue, item.zero_threshold);
+}
+
+const SUGGESTION_DEVICE_CLASSES = new Set([
+    'power',
+    'energy',
+    'water',
+    'gas',
+    'volume',
+    'volume_flow_rate',
+]);
+
+const SUGGESTION_UNITS = new Set([
+    'W',
+    'kW',
+    'Wh',
+    'kWh',
+    'L',
+    'm³',
+    'm3',
+    'L/min',
+    'm³/h',
+    'm3/h',
+]);
+
+const SUGGESTION_KEYWORDS = [
+    'solar',
+    'power',
+    'energy',
+    'consumption',
+    'production',
+    'house',
+    'load',
+    'battery',
+    'grid',
+    'water',
+    'gas',
+    'flow',
+];
+
+function isFiniteNumericState(state) {
+    // Suggestion gating is intentionally stricter than rendering:
+    // the picker should only offer configs for clean numeric states.
+    if (state === 'unavailable' || state === 'unknown') return false;
+    return !isNaN(parseFloat(state)) && isFinite(state);
+}
+
+function isRelevantFlowSensor(stateObj) {
+    const attributes = stateObj?.attributes || {};
+    const deviceClass = attributes.device_class || '';
+    const unit = attributes.unit_of_measurement || '';
+    return (
+        SUGGESTION_DEVICE_CLASSES.has(deviceClass) ||
+        SUGGESTION_UNITS.has(unit)
+    );
+}
+
+export function isSuggestionCandidate(hass, entityId) {
+    const stateObj = hass?.states?.[entityId];
+    return Boolean(
+        stateObj &&
+        stateObj.entity_id?.startsWith('sensor.') &&
+        isFiniteNumericState(stateObj.state) &&
+        isRelevantFlowSensor(stateObj)
+    );
+}
+
+function findSuggestionCounterpart(hass, selectedEntityId) {
+    const candidates = Object.values(hass?.states || {})
+        .filter((stateObj) => stateObj.entity_id !== selectedEntityId)
+        .filter((stateObj) => isSuggestionCandidate(hass, stateObj.entity_id));
+
+    return candidates.find((stateObj) =>
+        stateObj.entity_id.includes('house') ||
+        stateObj.entity_id.includes('consumption') ||
+        stateObj.entity_id.includes('load')
+    ) || candidates.find((stateObj) =>
+        stateObj.entity_id.includes('solar') ||
+        stateObj.entity_id.includes('production')
+    ) || candidates[0] || hass?.states?.[selectedEntityId];
+}
+
+export function buildEntitySuggestions(hass, entityId) {
+    if (!isSuggestionCandidate(hass, entityId)) return null;
+
+    const counterpart = findSuggestionCounterpart(hass, entityId);
+    const counterpartEntityId = counterpart?.entity_id || entityId;
+
+    return [
+        {
+            label: 'As production',
+            config: {
+                type: `custom:${CARD_NAME}`,
+                production: [{ entity: entityId }],
+                consumption: [{ entity: counterpartEntityId }],
+            },
+        },
+        {
+            label: 'As consumption',
+            config: {
+                type: `custom:${CARD_NAME}`,
+                production: [{ entity: counterpartEntityId }],
+                consumption: [{ entity: entityId }],
+            },
+        },
+    ];
+}
+
+export function formatFlowEntityName(hass, stateObj, fallbackEntityId = stateObj?.entity_id) {
+    if (!stateObj) return fallbackEntityId;
+
+    if (typeof hass?.formatEntityName === 'function') {
+        return hass.formatEntityName(
+            stateObj,
+            [{ type: 'device' }, { type: 'entity' }],
+            { separator: ' · ' },
+        );
+    }
+
+    return stateObj.attributes?.friendly_name || fallbackEntityId;
 }
 
 function coerceBooleanConfig(value, fallback = false) {

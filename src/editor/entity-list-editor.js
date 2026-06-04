@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { formatFlowEntityName } from '../utils.js';
 
 // Force HA to load ha-entity-picker by creating a temporary entities card
 const loadEntityPicker = async () => {
@@ -69,8 +70,9 @@ class EntityListEditor extends LitElement {
   _getEntityName(entityConfig) {
     const entityId = entityConfig.entity;
     if (!entityId) return 'New entity';
-    const stateObj = this.hass?.states[entityId];
-    return stateObj?.attributes?.friendly_name || entityId;
+
+    const stateObj = this.hass?.states?.[entityId];
+    return formatFlowEntityName(this.hass, stateObj, entityId);
   }
 
   _renderEntityRow(entity, index) {

@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { applyEntityValueOptions, buildCardClasses, buildFlowBarsClasses, buildFlowBarsStyle, calculateWidthSegments, computeEntityIcon, normalizeCssVars, resolveBooleanConfig, getBooleanConfigEntity, resolveLayoutAndTheme, syncHostCssVars } from './utils.js';
+import { applyEntityValueOptions, buildCardClasses, buildEntitySuggestions, buildFlowBarsClasses, buildFlowBarsStyle, calculateWidthSegments, computeEntityIcon, formatFlowEntityName, normalizeCssVars, resolveBooleanConfig, getBooleanConfigEntity, resolveLayoutAndTheme, syncHostCssVars } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
@@ -22,6 +22,7 @@ window.customCards.push({
     description: CARD_DESCRIPTION,
     preview: true,
     documentationURL: 'https://github.com/c-kick/hnl-flow-bars-card',
+    getEntitySuggestion: buildEntitySuggestions,
 });
 
 class HnlFlowBarsCard extends LitElement {
@@ -179,7 +180,7 @@ class HnlFlowBarsCard extends LitElement {
             if (!stateObj) {
               return {
                 entity_id: entityId,
-                name: item.name || entityId,
+                name: item.name || formatFlowEntityName(this.hass, stateObj, entityId),
                 value: 0,
                 icon: item.icon || fallbackIcon,
                 color: item.color || globalColor || fallbackVar,
@@ -200,7 +201,7 @@ class HnlFlowBarsCard extends LitElement {
             const isNonNumeric = !isUnavailable && isNaN(parsed);
             let value = applyEntityValueOptions(parsed || 0, item);
             value = Math.max(0, value);
-            const displayName = item.name || stateObj.attributes.friendly_name || entityId;
+            const displayName = item.name || formatFlowEntityName(this.hass, stateObj, entityId);
             let warning = null;
             if (useEnergy && this._energyStats[entityId] == null) {
               warning = `${displayName}: no statistics available for this period`;

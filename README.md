@@ -91,6 +91,11 @@ We do, but that card only shows _composition_, not the flow from production to c
 
 <img width="510" height="158" alt="image" src="https://github.com/user-attachments/assets/ee50cadb-7ec6-4b70-94ba-5efe6177b35e" />
 
+## Home Assistant compatibility notes
+
+- On Home Assistant 2026.6 and newer, the card can appear as a Community suggestion in the card picker for relevant numeric flow sensors, such as power, energy, water, and gas sensors.
+- On Home Assistant 2026.4 and newer, default entity labels use Home Assistant's registry-aware entity name formatter when available. Older Home Assistant versions keep using the entity `friendly_name` fallback.
+
 ## Installation
 
 ### HACS

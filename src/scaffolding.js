@@ -102,7 +102,7 @@ export const hnlFlowBarsCardScaffolding = css`
         flex-grow: 1;
         flex-shrink: 1;
         max-width: var(--width-value, auto);
-        transition: flex-basis 0.3s ease;
+        transition: max-width 0.3s ease;
     }
 
     hnl-flow-bars hnl-flow-bars-card-source-group hnl-flow-bars-card-source-label,

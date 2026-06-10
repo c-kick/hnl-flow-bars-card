@@ -90,6 +90,16 @@ describe('css module split', () => {
         expect(source).not.toContain('background-color: #F006');
     });
 
+    it('bridges the icon-size hook onto ha-icon\'s --mdc-icon-size API', () => {
+        const source = readFileSync(stylesPath, 'utf8');
+
+        // --hnl-flow-bars-icon-size is the public hook, but ha-icon only
+        // listens to --mdc-icon-size; without this bridge icons render at
+        // ha-icon's 24px default (regression shipped in v1.9.0).
+        expect(source).toContain('--hnl-flow-bars-icon-size:');
+        expect(source).toMatch(/ha-icon\s*\{[^}]*--mdc-icon-size:\s*var\(--hnl-flow-bars-icon-size\)/);
+    });
+
     it('groups are siblings in the root grid, not nested', () => {
         const source = readFileSync(scaffoldingPath, 'utf8');
 

@@ -105,7 +105,7 @@ class RemainderEditor extends LitElement {
       }
 
       .panel-icon {
-        --hnl-flow-bars-icon-size: 18px;
+        --mdc-icon-size: 18px;
         color: var(--secondary-text-color);
         flex-shrink: 0;
       }

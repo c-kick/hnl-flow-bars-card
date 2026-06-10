@@ -159,6 +159,12 @@ export const hnlFlowBarsCardStyles = css`
     }
 
     /* ═══ PILL + VALUE + NAME (visual layer) ═════════════════ */
+    /* Bridge: --hnl-flow-bars-icon-size is the card's public hook,
+       but ha-icon only listens to --mdc-icon-size. */
+    ha-icon {
+        --mdc-icon-size: var(--hnl-flow-bars-icon-size);
+    }
+
     .hnl-flow-bars-card-value-pill {
         gap: 3px;
     }

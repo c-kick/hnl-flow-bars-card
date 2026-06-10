@@ -28,10 +28,13 @@ window.customCards.push({
 class HnlFlowBarsCard extends LitElement {
 
     _updatedParsedConfig = null;
-    _energyStats = null;
-    _energyError = null;
-    _energyLoading = false;
     _energyUnsub = null;
+    // Bumped by _unsubscribeEnergy to invalidate in-flight subscribes and
+    // their callbacks (the subscribe promise can resolve after supersession).
+    _energyGeneration = 0;
+    // Bumped per statistics fetch so late responses for an older date range
+    // can't overwrite newer data.
+    _energyFetchSeq = 0;
     _appliedCssVars = new Set();
 
     //part of LitElement interface
@@ -43,6 +46,15 @@ class HnlFlowBarsCard extends LitElement {
             _energyError: { state: true },
             _energyLoading: { state: true },
         };
+    }
+
+    constructor() {
+        super();
+        // Reactive state must be initialized here, not as class fields —
+        // class fields shadow Lit's accessors and break change detection.
+        this._energyStats = null;
+        this._energyError = null;
+        this._energyLoading = false;
     }
 
     connectedCallback() {
@@ -66,16 +78,18 @@ class HnlFlowBarsCard extends LitElement {
     _subscribeEnergy() {
         if (!this._rawConfig?.energy_date_selection) return;
 
+        const generation = this._energyGeneration;
         this._energyLoading = true;
         this._energyError = null;
 
         subscribeEnergyDateSelection(this.hass, async (data) => {
-            if (!this.hass) return;
+            if (generation !== this._energyGeneration || !this.hass) return;
 
             const entityIds = [
                 ...this._rawConfig.production.map(p => p.entity),
                 ...this._rawConfig.consumption.map(c => c.entity),
             ];
+            const fetchId = ++this._energyFetchSeq;
 
             try {
                 const stats = await fetchStatistics(
@@ -84,6 +98,7 @@ class HnlFlowBarsCard extends LitElement {
                     data.end || new Date(),
                     entityIds,
                 );
+                if (generation !== this._energyGeneration || fetchId !== this._energyFetchSeq) return;
                 this._energyStats = stats;
                 this._energyLoading = false;
                 this._energyError = null;
@@ -91,18 +106,26 @@ class HnlFlowBarsCard extends LitElement {
                 this._updatedParsedConfig = this._hydrateParsedConfig();
                 this.requestUpdate();
             } catch (err) {
+                if (generation !== this._energyGeneration || fetchId !== this._energyFetchSeq) return;
                 this._energyError = err.message || 'Failed to fetch statistics';
                 this._energyLoading = false;
             }
         }).then(unsub => {
+            if (generation !== this._energyGeneration) {
+                // Superseded or disconnected while subscribing — release immediately
+                unsub();
+                return;
+            }
             this._energyUnsub = unsub;
         }).catch(err => {
+            if (generation !== this._energyGeneration) return;
             this._energyError = err.message;
             this._energyLoading = false;
         });
     }
 
     _unsubscribeEnergy() {
+        this._energyGeneration++;
         if (this._energyUnsub) {
             this._energyUnsub();
             this._energyUnsub = null;

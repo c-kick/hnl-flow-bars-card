@@ -207,7 +207,7 @@ class HnlFlowBarsCard extends LitElement {
                 value: 0,
                 icon: item.icon || fallbackIcon,
                 color: item.color || globalColor || fallbackVar,
-                bg_opacity: item.bg_opacity || globalBgOpacity || 'inherit',
+                bg_opacity: item.bg_opacity ?? globalBgOpacity ?? 'inherit',
                 text_color: item.text_color || globalTextColor || 'inherit',
                 unit_of_measurement: item.unit_of_measurement,
                 warning: `${entityId}: entity not found`,
@@ -242,7 +242,7 @@ class HnlFlowBarsCard extends LitElement {
               value,
               icon: item.icon || computeEntityIcon(stateObj) || fallbackIcon,
               color: item.color || globalColor || fallbackVar,
-              bg_opacity: item.bg_opacity || globalBgOpacity || 'inherit',
+              bg_opacity: item.bg_opacity ?? globalBgOpacity ?? 'inherit',
               text_color: item.text_color || globalTextColor || 'inherit',
               hatched: item.hatched || false,
               invert: item.invert || false,
@@ -541,9 +541,9 @@ class HnlFlowBarsCard extends LitElement {
         ];
 
         const anyChanged = relevantEntities.some((entity_id) => {
-            const oldState = prevStates[entity_id];
-            const newState = currentStates[entity_id];
-            return !oldState || !newState || oldState.state !== newState.state;
+            // HA replaces the state object on any change, including
+            // attribute-only updates (name, icon, unit), so compare identity.
+            return prevStates[entity_id] !== currentStates[entity_id];
         });
 
         if (anyChanged) {
@@ -567,7 +567,7 @@ class HnlFlowBarsCard extends LitElement {
                 name: config.production_remainder?.name || "Shortfall",
                 icon: config.production_remainder?.icon || 'mdi:eye',
                 color: config.production_remainder?.color || config.global_color || 'var(--hnl-flow-bars-color-shortfall)',
-                bg_opacity: config.production_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
+                bg_opacity: config.production_remainder?.bg_opacity ?? config.global_bg_opacity ?? 'inherit',
                 text_color: config.production_remainder?.text_color || config.global_text_color || 'inherit',
                 unit_of_measurement: config.production_remainder?.unit_of_measurement || null,
                 _inherit_unit_from: production[0]?.entity || null,
@@ -576,7 +576,7 @@ class HnlFlowBarsCard extends LitElement {
                 name: config.consumption_remainder?.name || "Surplus",
                 icon: config.consumption_remainder?.icon || 'mdi:eye',
                 color: config.consumption_remainder?.color || config.global_color || 'var(--hnl-flow-bars-color-surplus)',
-                bg_opacity: config.consumption_remainder?.bg_opacity || config.global_bg_opacity || 'inherit',
+                bg_opacity: config.consumption_remainder?.bg_opacity ?? config.global_bg_opacity ?? 'inherit',
                 text_color: config.consumption_remainder?.text_color || config.global_text_color || 'inherit',
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null,
                 _inherit_unit_from: consumption[0]?.entity || null,
@@ -593,7 +593,7 @@ class HnlFlowBarsCard extends LitElement {
             unit_of_measurement: config.unit_of_measurement,
             global_color: config.global_color || null,
             global_text_color: config.global_text_color || null,
-            global_bg_opacity: config.global_bg_opacity || null,
+            global_bg_opacity: config.global_bg_opacity ?? null,
             font_size_scale: config.font_size_scale || null,
             font_size_max: config.font_size_max || null,
             css_vars: normalizeCssVars(config.css_vars),
@@ -667,7 +667,8 @@ class HnlFlowBarsCard extends LitElement {
 
     //part of HASS card API — masonry view sizing (1 unit = 50px)
     getCardSize() {
-        return this._rawConfig?.grid_options?.rows || 1;
+        const rows = this._rawConfig?.grid_options?.rows;
+        return Number.isFinite(rows) ? rows : 1;
     }
 
     //part of HASS card API — section view grid sizing

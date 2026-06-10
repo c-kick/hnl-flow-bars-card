@@ -41,7 +41,6 @@ class HnlFlowBarsCard extends LitElement {
     static get properties() {
         return {
             hass: {},
-            layout: { type: String },
             _energyStats: { state: true },
             _energyError: { state: true },
             _energyLoading: { state: true },
@@ -244,7 +243,6 @@ class HnlFlowBarsCard extends LitElement {
               color: item.color || globalColor || fallbackVar,
               bg_opacity: item.bg_opacity ?? globalBgOpacity ?? 'inherit',
               text_color: item.text_color || globalTextColor || 'inherit',
-              hatched: item.hatched || false,
               invert: item.invert || false,
               zero_threshold: item.zero_threshold,
               unit_of_measurement: unit,

@@ -130,9 +130,10 @@ export function selectPeriod(start, end) {
  * Uses the `recorder/statistics_during_period` WebSocket API to retrieve
  * statistics, then sums them into a single value per entity.
  *
- * For cumulative sensors (energy meters) the net value is computed as the
- * difference between the last and first `state` values. For non-cumulative
- * sensors the `sum` field is used when available, otherwise `mean` is used.
+ * The per-period `change` values are summed — this is correct for both
+ * cumulative (total_increasing) and daily-resetting sensors. When no entry
+ * has a `change` value, falls back to the cumulative `sum` difference, then
+ * to averaging `mean` (measurement sensors).
  *
  * @param {object}   hass       – Home Assistant connection object
  * @param {Date}     startTime  – Start of the period
@@ -168,11 +169,11 @@ export async function fetchStatistics(hass, startTime, endTime, entityIds) {
         const changes = entries.filter(e => e.change != null).map(e => e.change);
         if (changes.length) {
             result[entityId] = changes.reduce((a, b) => a + b, 0);
-        } else if (entries[entries.length - 1].state != null && entries[0].state != null) {
-            // Fallback: use the difference in cumulative `state`
-            result[entityId] = entries[entries.length - 1].state - entries[0].state;
         } else if (entries[entries.length - 1].sum != null && entries[0].sum != null) {
-            // Fallback: use the difference in cumulative `sum`
+            // Fallback: difference in cumulative `sum`. Imperfect — `sum` is
+            // sampled at the END of each bucket, so the first bucket's change
+            // is missed — but recorder returns `change` for all sum-type
+            // statistics, so this should never fire in practice.
             result[entityId] = entries[entries.length - 1].sum - entries[0].sum;
         } else {
             // Fallback: average the mean values across all entries

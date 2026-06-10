@@ -61,13 +61,13 @@ describe('fetchStatistics', () => {
         expect(result).toEqual({});
     });
 
-    it('computes value from state difference for cumulative sensors', async () => {
+    it('sums per-period change values (handles daily-resetting sensors)', async () => {
         const hass = {
             callWS: async () => ({
                 'sensor.energy': [
-                    { state: 100, sum: null, mean: null },
-                    { state: 150, sum: null, mean: null },
-                    { state: 250, sum: null, mean: null },
+                    { change: 5, sum: 105, mean: null },
+                    { change: 3, sum: 108, mean: null },
+                    { change: 7, sum: 115, mean: null },
                 ],
             }),
         };
@@ -77,10 +77,10 @@ describe('fetchStatistics', () => {
             new Date('2025-01-02'),
             ['sensor.energy'],
         );
-        expect(result['sensor.energy']).toBe(150); // 250 - 100
+        expect(result['sensor.energy']).toBe(15); // 5 + 3 + 7, never last - first state
     });
 
-    it('computes value from sum difference when state is not available', async () => {
+    it('computes value from sum difference when change is not available', async () => {
         const hass = {
             callWS: async () => ({
                 'sensor.energy': [
@@ -187,12 +187,12 @@ describe('fetchStatistics', () => {
         const hass = {
             callWS: async () => ({
                 'sensor.solar': [
-                    { state: 0, sum: null, mean: null },
-                    { state: 500, sum: null, mean: null },
+                    { change: 200, sum: null, mean: null },
+                    { change: 300, sum: null, mean: null },
                 ],
                 'sensor.grid': [
-                    { state: 100, sum: null, mean: null },
-                    { state: 300, sum: null, mean: null },
+                    { change: 50, sum: null, mean: null },
+                    { change: 150, sum: null, mean: null },
                 ],
             }),
         };

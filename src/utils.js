@@ -1,4 +1,4 @@
-import { LAYOUTS, DEFAULT_LAYOUT, CARD_NAME } from './const.js';
+import { LAYOUTS, CARD_NAME } from './const.js';
 
 /**
  * Resolves legacy `theme` / `accolade_style` config into separate `layout` + `theme` values.

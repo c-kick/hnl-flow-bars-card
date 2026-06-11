@@ -105,6 +105,13 @@ export const hnlFlowBarsCardScaffolding = css`
         transition: max-width 0.3s ease;
     }
 
+    hnl-flow-bars hnl-flow-bars-card-source-group .hnl-flow-bars-card-remainder,
+    hnl-flow-bars hnl-flow-bars-card-accolade-group .hnl-flow-bars-card-remainder,
+    hnl-flow-bars hnl-flow-bars-card-destination-group .hnl-flow-bars-card-remainder {
+        flex-basis: auto;
+        max-width: none;
+    }
+
     hnl-flow-bars hnl-flow-bars-card-source-group hnl-flow-bars-card-source-label,
     hnl-flow-bars hnl-flow-bars-card-destination-group hnl-flow-bars-card-destination {
         display: flex;

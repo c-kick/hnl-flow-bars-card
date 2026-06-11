@@ -90,6 +90,17 @@ describe('css module split', () => {
         expect(source).not.toContain('background-color: #F006');
     });
 
+    it('lets remainder segments fill leftover row space instead of constraining layout to width value', () => {
+        const source = readFileSync(scaffoldingPath, 'utf8');
+
+        const remainderRule = source.match(/hnl-flow-bars hnl-flow-bars-card-source-group \.hnl-flow-bars-card-remainder,[\s\S]+?max-width: none;\n\s{4}\}/)?.[0];
+
+        expect(remainderRule).toBeDefined();
+        expect(remainderRule).toContain('flex-basis: auto;');
+        expect(remainderRule).toContain('max-width: none;');
+        expect(remainderRule).not.toContain('var(--width-value');
+    });
+
     it('bridges the icon-size hook onto ha-icon\'s --mdc-icon-size API', () => {
         const source = readFileSync(stylesPath, 'utf8');
 

@@ -273,6 +273,7 @@ export const hnlFlowBarsCardStyles = css`
 	hnl-flow-bars.layout-native hnl-flow-bars-card-destination-label > span,
     hnl-flow-bars.layout-native hnl-flow-bars-card-source-label > div {
         padding: var(--hnl-flow-bars-label-padding);
+		padding-block: 0;
 	}
     /* Rounded ends only on outer edges */
     hnl-flow-bars.layout-native hnl-flow-bars-card-source-label:first-child {

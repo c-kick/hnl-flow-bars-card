@@ -380,9 +380,10 @@ class HnlFlowBarsCard extends LitElement {
             : null;
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || inheritedUnit || '';
         const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
+        const remainderClass = `${hatchedClass} hnl-flow-bars-card-remainder`.trim();
         if (type === 'production') {
             return html`<hnl-flow-bars-card-source-label
-                class="${hatchedClass}"
+                class="${remainderClass}"
                 title="${cfg.name}: ${remainderValue} ${unit}"
                 style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--source-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
             ><div>
@@ -391,7 +392,7 @@ class HnlFlowBarsCard extends LitElement {
             </div></hnl-flow-bars-card-source-label>`;
         }
         return html`<hnl-flow-bars-card-destination
-            class="${hatchedClass}"
+            class="${remainderClass}"
             title="${cfg.name}: ${remainderValue} ${unit}"
             style="--background-color:${cfg.color};--text-color:${cfg.text_color};--width-value:${width}%;--hnl-flow-bars-destination-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
         ><hnl-flow-bars-card-destination-label>
@@ -403,7 +404,7 @@ class HnlFlowBarsCard extends LitElement {
     _renderRemainderAccolade(type, width = 50) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         return html`<hnl-flow-bars-card-source-accolade
-            class="${this._getAccoladeClasses(true)}"
+            class="${`${this._getAccoladeClasses(true)} hnl-flow-bars-card-remainder`.trim()}"
             style="--background-color:${cfg.color};--width-value:${width}%;--hnl-flow-bars-accolade-bg-opacity:${cfg.bg_opacity};--animation-duration:${this._animDuration(width)};"
         ></hnl-flow-bars-card-source-accolade>`;
     }

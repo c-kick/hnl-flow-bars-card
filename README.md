@@ -4,11 +4,7 @@ A custom Home Assistant Lovelace card that visualizes supply vs demand flows as 
 
 <img width="520" height="70" alt="chrome-capture-2026-06-01" src="https://github.com/user-attachments/assets/9c563cf5-2138-4649-9a84-fa08c7cc4502" /><br/>
 
-<img width="518" height="63" alt="image" src="https://github.com/user-attachments/assets/852d8bfe-4447-419a-a672-e2b42b260841" /><br/>
-
-<img width="510" height="66" alt="image" src="https://github.com/user-attachments/assets/10fb01db-b17a-4e70-8fb2-bc25df63f658" /><br/>
-
-<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" /><br/>
+<img width="508" height="65" alt="2b: 1.3kWh surplus" src="https://github.com/user-attachments/assets/a8221caf-ff95-4477-bcd1-d56b6aba4a5f" />
 
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
 
@@ -41,13 +37,13 @@ Both bars scale proportionally so you can see the balance at a glance.
 - If something remains: how much flows back to the grid?
 - If we fall short: how much is drawn from the grid?
 
-<img width="470" height="62" alt="image" src="https://github.com/user-attachments/assets/caed18fc-78ca-4418-8432-bdad4e134ce2" />
+<img width="508" height="65" alt="1a: 315W surplus — More solar power is being generated than consumed" src="https://github.com/user-attachments/assets/ee599820-d441-477c-b210-057ae73f47e8" />
 
-<sub>1a: 805W surplus</sub>
+<sub>1a: 315W surplus — More solar power is being generated than consumed</sub>
 
-<img width="471" height="63" alt="image" src="https://github.com/user-attachments/assets/427557fe-cc5e-4481-b5fa-4998d5a4ae5f" />
+<img width="508" height="65" alt="1b: 315W Shortfall — More power is being consumed than solar generates" src="https://github.com/user-attachments/assets/873a34c0-a8ca-472d-8516-a28dc143e740" />
 
-<sub>1b: 822W Shortfall</sub>
+<sub>1b: 315W Shortfall — More power is being consumed than solar generates</sub>
 
 ### Example 2 - Total energy flow
 - Show how much solar power was generated today
@@ -55,25 +51,25 @@ Both bars scale proportionally so you can see the balance at a glance.
 - How much was returned to the grid
 - How much was drawn additionally from the grid
 
-<img width="469" height="63" alt="image" src="https://github.com/user-attachments/assets/d2828741-d399-4aa6-99d0-61a1953a8882" />
+<img width="508" height="65" alt="2a: 1.3kWh shortfall" src="https://github.com/user-attachments/assets/d56ab3dc-dc8f-4a96-93bf-820ad903de81" />
 
-<sub>2a: 7kWh shortfall</sub>
+<sub>2a: 1.3kWh shortfall</sub>
 
-<img width="471" height="62" alt="image" src="https://github.com/user-attachments/assets/5df197ca-89ae-4f24-a889-59f9dd43aa1a" />
+<img width="508" height="65" alt="2b: 1.1kWh surplus" src="https://github.com/user-attachments/assets/30536764-7e2e-42e3-aac8-162287340a5b" />
 
-<sub>2b: 7kWh surplus</sub>
+<sub>2b: 1.1kWh surplus</sub>
 
 ### Example 3 - Layout variants
 
-#### Small (half width)
-The card performs very well in small spaces (as this was the initial intended purpose when I started work on it). Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
+#### Small (half width and less)
+The card performs very well in small spaces (this was the initial intended purpose when I started work on it). Here are three power distribution cards in 1 row, 5, 4 and 3 columns wide:
 
-<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/8fec86bd-3b9a-4978-9804-46cd82f56997" />
+<img width="508" height="65" alt="Smaller variants" src="https://github.com/user-attachments/assets/f01bc533-861a-4606-9833-dec77ad642e6" />
 
 #### Larger (higher)
 Or, spread over 2 rows, with `Show names` enabled:
 
-<img width="472" height="112" alt="image" src="https://github.com/user-attachments/assets/75beb743-19da-467a-a276-da5fa374f36f" />
+<img width="508" height="128" alt="Larger variant" src="https://github.com/user-attachments/assets/f87f8d99-94c8-4d97-b854-e4e2c31a2820" />
 
 ### Example 4 - Compare whatever you like
 

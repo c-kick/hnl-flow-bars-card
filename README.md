@@ -1,6 +1,6 @@
 # HNL Flow Bars Card
 
-A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars with accolade connectors.
+A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars.
 
 <img width="520" height="70" alt="chrome-capture-2026-06-01" src="https://github.com/user-attachments/assets/9c563cf5-2138-4649-9a84-fa08c7cc4502" /><br/>
 

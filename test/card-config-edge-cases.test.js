@@ -73,7 +73,7 @@ describe('card config edge cases', () => {
         expect(card._parsedConfig.production[0].name).toBe('Solar');
 
         card.hass = hassV2;
-        card.updated(new Map([['hass', hassV1]]));
+        card.willUpdate(new Map([['hass', hassV1]]));
         expect(card._parsedConfig.production[0].name).toBe('Solar PV');
     });
 

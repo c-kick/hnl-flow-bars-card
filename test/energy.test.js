@@ -1,5 +1,64 @@
-import { describe, it, expect } from 'vitest';
-import { selectPeriod, fetchStatistics, getEnergyDataCollection } from '../src/energy.js';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { selectPeriod, fetchStatistics, getEnergyDataCollection, subscribeEnergyDateSelection } from '../src/energy.js';
+
+afterEach(() => vi.useRealTimers());
+
+describe('energy isolation and cleanup', () => {
+    it('waits for the current panel instead of taking another dashboard collection', () => {
+        expect(getEnergyDataCollection({ panelUrl: 'second', connection: {
+            _energy_first: { subscribe() {} },
+        } })).toBeNull();
+    });
+
+    it('prefers the current panel over the legacy collection', () => {
+        const current = { subscribe() {} };
+        expect(getEnergyDataCollection({ panelUrl: 'current', connection: {
+            _energy_current: current, _energy: { subscribe() {} },
+        } })).toBe(current);
+    });
+
+    it('cancels polling immediately when disconnected', async () => {
+        vi.useFakeTimers();
+        const controller = new AbortController();
+        const promise = subscribeEnergyDateSelection({ connection: {} }, vi.fn(), { signal: controller.signal });
+        expect(vi.getTimerCount()).toBe(1);
+        controller.abort();
+        await promise;
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('rejects subscription failures even when the collection appears after polling', async () => {
+        vi.useFakeTimers();
+        const hass = { connection: {} };
+        const promise = subscribeEnergyDateSelection(hass, vi.fn());
+        const result = expect(promise).rejects.toThrow('subscription failed');
+        hass.connection._energy = { subscribe() { throw new Error('subscription failed'); } };
+        await vi.advanceTimersByTimeAsync(100);
+        await result;
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('lets the collection own its initial refresh and releases it on abort', async () => {
+        const unsub = vi.fn();
+        const collection = { subscribe: vi.fn(() => unsub), refresh: vi.fn() };
+        const controller = new AbortController();
+        const cleanup = await subscribeEnergyDateSelection({ connection: { _energy: collection } }, vi.fn(), { signal: controller.signal });
+        expect(collection.refresh).not.toHaveBeenCalled();
+        controller.abort();
+        cleanup();
+        expect(unsub).toHaveBeenCalledTimes(1);
+    });
+
+    it('preserves partial-month query boundaries', async () => {
+        const callWS = vi.fn(async () => ({}));
+        const start = new Date('2026-07-15T22:00:00Z');
+        const end = new Date('2026-09-02T21:59:59Z');
+        await fetchStatistics({ callWS }, start, end, ['sensor.energy']);
+        expect(callWS).toHaveBeenCalledWith(expect.objectContaining({
+            start_time: start.toISOString(), end_time: end.toISOString(), period: 'hour',
+        }));
+    });
+});
 
 describe('selectPeriod', () => {
     it('returns "hour" for ranges of 2 days or less', () => {
@@ -14,22 +73,22 @@ describe('selectPeriod', () => {
         expect(selectPeriod(start, end)).toBe('hour');
     });
 
-    it('returns "day" for ranges between 2 and 35 days', () => {
+    it('returns "hour" for ranges between 2 and 35 days', () => {
         const start = new Date('2025-01-01T00:00:00Z');
         const end = new Date('2025-01-10T00:00:00Z');
-        expect(selectPeriod(start, end)).toBe('day');
+        expect(selectPeriod(start, end)).toBe('hour');
     });
 
-    it('returns "day" for exactly 35 days', () => {
+    it('returns "hour" for exactly 35 days', () => {
         const start = new Date('2025-01-01T00:00:00Z');
         const end = new Date('2025-02-05T00:00:00Z');
-        expect(selectPeriod(start, end)).toBe('day');
+        expect(selectPeriod(start, end)).toBe('hour');
     });
 
-    it('returns "month" for ranges over 35 days', () => {
+    it('returns "hour" for ranges over 35 days', () => {
         const start = new Date('2025-01-01T00:00:00Z');
         const end = new Date('2025-06-01T00:00:00Z');
-        expect(selectPeriod(start, end)).toBe('month');
+        expect(selectPeriod(start, end)).toBe('hour');
     });
 });
 
@@ -155,23 +214,23 @@ describe('fetchStatistics', () => {
             },
         };
 
-        // 60 day range → should use "month"
+        // 60 day range → preserve boundaries with "hour"
         await fetchStatistics(
             hass,
             new Date('2025-01-01'),
             new Date('2025-03-02'),
             ['sensor.a'],
         );
-        expect(capturedMsg.period).toBe('month');
+        expect(capturedMsg.period).toBe('hour');
 
-        // 7 day range → should use "day"
+        // 7 day range → preserve boundaries with "hour"
         await fetchStatistics(
             hass,
             new Date('2025-01-01'),
             new Date('2025-01-08'),
             ['sensor.a'],
         );
-        expect(capturedMsg.period).toBe('day');
+        expect(capturedMsg.period).toBe('hour');
 
         // 1 day range → should use "hour"
         await fetchStatistics(

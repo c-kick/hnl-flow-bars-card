@@ -19,7 +19,7 @@ const ENERGY_POLL_INTERVAL = 100;   // ms between polls
  *
  * HA 2026.4+ changed the collection key from `_energy` to
  * `_energy_${hass.panelUrl}` (panel-specific). We try the new key first,
- * then fall back to the legacy key, then scan all `_energy*` keys.
+ * then fall back to the legacy key. Never use another panel's collection.
  */
 export function getEnergyDataCollection(hass) {
     if (!hass?.connection) return null;
@@ -33,13 +33,6 @@ export function getEnergyDataCollection(hass) {
     // Legacy key (HA < 2026.4)
     if (isCollection(conn['_energy'])) return conn['_energy'];
 
-    // Fallback: scan for any _energy* collection
-    for (const key of Object.keys(conn)) {
-        if (key.startsWith('_energy') && isCollection(conn[key])) {
-            return conn[key];
-        }
-    }
-
     return null;
 }
 
@@ -50,18 +43,30 @@ export function getEnergyDataCollection(hass) {
  * card on the same view) and once found subscribes to its updates.
  *
  * @param {object}   hass     – Home Assistant connection object
- * @param {function} callback – Called with `{ start: Date, end: Date }` on
- *                              every date selection change and on initial load.
- *                              Also receives the full energy `data` object as
- *                              second argument.
+ * @param {function} callback – Receives the energy data, including start/end.
+ * @param {object} options – Optional AbortSignal for pending polling and cleanup.
  * @returns {Promise<function>} Unsubscribe function
  */
-export function subscribeEnergyDateSelection(hass, callback) {
+export function subscribeEnergyDateSelection(hass, callback, { signal } = {}) {
     let cancelled = false;
     let collectionUnsub = null;
+    let timer;
 
     const promise = new Promise((resolve, reject) => {
         const start = Date.now();
+        const cleanup = () => {
+            cancelled = true;
+            clearTimeout(timer);
+            signal?.removeEventListener('abort', cleanup);
+            collectionUnsub?.();
+            collectionUnsub = null;
+            resolve(() => {});
+        };
+        if (signal?.aborted) {
+            cleanup();
+            return;
+        }
+        signal?.addEventListener('abort', cleanup, { once: true });
 
         const poll = () => {
             if (cancelled) {
@@ -71,26 +76,23 @@ export function subscribeEnergyDateSelection(hass, callback) {
 
             const collection = getEnergyDataCollection(hass);
             if (collection) {
-                // Subscribe to collection updates (fires on date change)
-                collectionUnsub = collection.subscribe((data) => {
-                    if (!cancelled) {
-                        callback(data);
-                    }
-                });
+                try {
+                    // Subscribe to collection updates (fires on date change)
+                    collectionUnsub = collection.subscribe((data) => {
+                        if (!cancelled) {
+                            callback(data);
+                        }
+                    });
 
-                // Trigger an initial refresh so data is fetched immediately
-                if (typeof collection.refresh === 'function') {
-                    collection.refresh();
+                    // HA's collection subscription handles its initial fetch.
+                    // A forced refresh duplicates requests and can reject unhandled.
+                    resolve(cleanup);
+                } catch (error) {
+                    signal?.removeEventListener('abort', cleanup);
+                    reject(error);
                 }
-
-                resolve(() => {
-                    cancelled = true;
-                    if (collectionUnsub) {
-                        collectionUnsub();
-                        collectionUnsub = null;
-                    }
-                });
             } else if (Date.now() - start > ENERGY_DATA_TIMEOUT) {
+                signal?.removeEventListener('abort', cleanup);
                 reject(
                     new Error(
                         'No energy data received. Make sure to add a ' +
@@ -98,7 +100,7 @@ export function subscribeEnergyDateSelection(hass, callback) {
                     )
                 );
             } else {
-                setTimeout(poll, ENERGY_POLL_INTERVAL);
+                timer = setTimeout(poll, ENERGY_POLL_INTERVAL);
             }
         };
 
@@ -110,17 +112,15 @@ export function subscribeEnergyDateSelection(hass, callback) {
 }
 
 /**
- * Determine the statistics period granularity based on the date range.
+ * Use hourly buckets to preserve the selected range. Recorder expands day and
+ * month requests to whole calendar periods in the server's time zone, which
+ * includes unwanted readings for partial months and differing browser zones.
  *
  * @param {Date} start
  * @param {Date} end
- * @returns {"month"|"day"|"hour"}
+ * @returns {"hour"}
  */
 export function selectPeriod(start, end) {
-    const msPerDay = 86_400_000;
-    const days = (end - start) / msPerDay;
-    if (days > 35) return 'month';
-    if (days > 2) return 'day';
     return 'hour';
 }
 

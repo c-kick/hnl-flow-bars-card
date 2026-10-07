@@ -80,54 +80,14 @@ export function resolveLayoutAndTheme(config) {
 /**
  * Resolves an icon for a given Home Assistant state object.
  *
- * Delegates to HA's built-in icon resolution (via stateIcon from the frontend)
- * when available, falling back to a minimal local mapping only when needed.
+ * Uses explicit overrides and a local fallback mapping. HA does not expose
+ * a standalone state-icon.js module at a stable URL for custom cards to import.
  */
-
-let _stateIconFn = null;
-let _stateIconLoaded = false;
-
-async function _loadStateIcon() {
-    if (_stateIconLoaded) return;
-    _stateIconLoaded = true;
-    try {
-        // HA frontend exposes stateIcon in its common utilities.
-        // Variable-based paths prevent Rollup from resolving these at build time;
-        // they only exist at runtime inside the HA browser environment.
-        const paths = ['/frontend_latest/state-icon.js', '/hacsfiles/state-icon.js'];
-        for (const p of paths) {
-            try {
-                const mod = await import(/* @vite-ignore */ p);
-                if (mod?.stateIcon) {
-                    _stateIconFn = mod.stateIcon;
-                    return;
-                }
-            } catch {
-                // try next path
-            }
-        }
-    } catch {
-        // Not available — fall through to local fallback
-    }
-}
-
-// Kick off loading immediately on import
-_loadStateIcon();
 
 export function computeEntityIcon(stateObj) {
     // Explicit icon override always wins
     if (stateObj.attributes.icon) {
         return stateObj.attributes.icon;
-    }
-
-    // Use HA's built-in resolution if available
-    if (_stateIconFn) {
-        try {
-            const icon = _stateIconFn(stateObj);
-            if (icon) return icon;
-        } catch {
-            // fall through to local fallback
-        }
     }
 
     // Minimal local fallback — kept intentionally small

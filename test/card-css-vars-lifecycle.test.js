@@ -63,7 +63,7 @@ describe('card css_vars lifecycle', () => {
         expect(card._parsedConfig.card_class).not.toContain('clip-labels');
 
         card.hass = onHass;
-        card.updated(new Map([['hass', offHass]]));
+        card.willUpdate(new Map([['hass', offHass]]));
 
         expect(card._parsedConfig.card_class).toContain('clip-labels');
     });

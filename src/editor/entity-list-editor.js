@@ -10,7 +10,6 @@ const loadEntityPicker = async () => {
     card && await card.constructor.getConfigElement?.();
   }
 };
-loadEntityPicker();
 
 class EntityListEditor extends LitElement {
 
@@ -29,6 +28,13 @@ class EntityListEditor extends LitElement {
     super();
     this.entities = [];
     this.usedEntities = [];
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    loadEntityPicker().catch((error) => {
+      console.warn('Unable to load Home Assistant entity picker', error);
+    });
   }
 
   _fireChanged() {
@@ -133,8 +139,7 @@ class EntityListEditor extends LitElement {
           <ha-input
             .label=${'Color (CSS, optional)'}
             .value=${entity.color || ''}
-            .helper=${'Any CSS color: #hex, rgb(), var(--name)'}
-            helperPersistent
+            .hint=${'Any CSS color: #hex, rgb(), var(--name)'}
             @input=${(ev) =>
               this._entityFieldChanged(index, 'color', ev.target.value)}
           ></ha-input>
@@ -154,11 +159,11 @@ class EntityListEditor extends LitElement {
                 min="0"
                 max="1"
                 step="0.1"
-                .value=${String(entity.bg_opacity || '0.5')}
+                .value=${String(entity.bg_opacity ?? '0.5')}
                 @input=${(ev) =>
                   this._entityFieldChanged(index, 'bg_opacity', ev.target.value)}
               />
-              <span class="slider-value">${entity.bg_opacity || '0.5'}</span>
+              <span class="slider-value">${entity.bg_opacity ?? '0.5'}</span>
             </div>
           </div>
 
@@ -186,8 +191,7 @@ class EntityListEditor extends LitElement {
             .value=${entity.zero_threshold ?? ''}
             type="number"
             min="0"
-            .helper=${'Treat values at or below this as zero'}
-            helperPersistent
+            .hint=${'Treat values at or below this as zero'}
             @input=${(ev) =>
               this._entityFieldChanged(index, 'zero_threshold', ev.target.value)}
           ></ha-input>
@@ -206,7 +210,7 @@ class EntityListEditor extends LitElement {
         ${this.description ? html`<p class="section-description">${this.description}</p>` : ''}
         ${this.entities.map((ent, i) => this._renderEntityRow(ent, i))}
         <ha-button @click=${this._addEntity}>
-          <ha-icon icon="mdi:plus" slot="icon"></ha-icon>
+          <ha-icon icon="mdi:plus" slot="start"></ha-icon>
           Add entity
         </ha-button>
       </div>

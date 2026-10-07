@@ -1,5 +1,6 @@
 {
   "name": "HNL Flow Bars Card",
   "render_readme": true,
-  "filename": "hnl-flow-bars-card.js"
+  "filename": "hnl-flow-bars-card.js",
+  "homeassistant": "2026.4.0"
 }

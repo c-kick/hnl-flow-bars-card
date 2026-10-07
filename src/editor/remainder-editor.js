@@ -41,8 +41,7 @@ class RemainderEditor extends LitElement {
             <ha-input
               .label=${'Display name'}
               .value=${this.remainder.name || ''}
-              .helper=${'Label shown on the bar'}
-              helperPersistent
+              .hint=${'Label shown on the bar'}
               @input=${(ev) => this._valueChanged('name', ev)}
             ></ha-input>
 
@@ -59,8 +58,7 @@ class RemainderEditor extends LitElement {
             <ha-input
               .label=${'Color (CSS)'}
               .value=${this.remainder.color || ''}
-              .helper=${'Any CSS color: #hex, rgb(), var(--name)'}
-              helperPersistent
+              .hint=${'Any CSS color: #hex, rgb(), var(--name)'}
               @input=${(ev) => this._valueChanged('color', ev)}
             ></ha-input>
 
@@ -72,10 +70,10 @@ class RemainderEditor extends LitElement {
                   min="0"
                   max="1"
                   step="0.1"
-                  .value=${String(this.remainder.bg_opacity || '0.5')}
+                  .value=${String(this.remainder.bg_opacity ?? '0.5')}
                   @input=${(ev) => this._valueChanged('bg_opacity', ev)}
                 />
-                <span class="slider-value">${this.remainder.bg_opacity || '0.5'}</span>
+                <span class="slider-value">${this.remainder.bg_opacity ?? '0.5'}</span>
               </div>
             </div>
 

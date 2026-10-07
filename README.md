@@ -89,8 +89,9 @@ We do, but that card only shows _composition_, not the flow from production to c
 
 ## Home Assistant compatibility notes
 
+- Requires Home Assistant 2026.4 or newer. The visual editor uses Home Assistant's `ha-input` component, which first shipped in 2026.4; on older versions its text fields render empty.
 - On Home Assistant 2026.6 and newer, the card can appear as a Community suggestion in the card picker for relevant numeric flow sensors, such as power, energy, water, and gas sensors.
-- On Home Assistant 2026.4 and newer, default entity labels use Home Assistant's registry-aware entity name formatter when available. Older Home Assistant versions keep using the entity `friendly_name` fallback.
+- Default entity labels use Home Assistant's registry-aware entity name formatter (`hass.formatEntityName`), falling back to the entity `friendly_name` when it is unavailable.
 
 ## Installation
 
@@ -277,8 +278,12 @@ consumption_remainder:
 When `energy_date_selection` is enabled and the card is placed on a view that contains an `energy-date-selection` card, bar values automatically reflect the selected date range (today, this week, this month, etc.) using recorder statistics instead of live sensor states. This lets you use the card as a companion to the built-in Energy Dashboard.
 
 Requirements:
+
 - Add a `type: energy-date-selection` card to the same view (this is the date picker from the Energy Dashboard)
 - Your entities must have recorder statistics available (energy sensors typically do)
+- Use the date picker's default collection; custom `collection_key` values are not supported.
+
+Missing statistics produce a warning and contribute zero to the chart; live sensor totals are never substituted for the selected period. Statistics use hourly buckets so a partial-month selection does not expand to whole months. Long ranges therefore fetch more data than daily or monthly aggregation.
 
 ```yaml
 type: custom:hnl-flow-bars-card

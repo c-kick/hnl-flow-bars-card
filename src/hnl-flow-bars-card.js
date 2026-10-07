@@ -29,6 +29,7 @@ class HnlFlowBarsCard extends LitElement {
 
     _updatedParsedConfig = null;
     _energyUnsub = null;
+    _energyAbort = null;
     // Bumped by _unsubscribeEnergy to invalidate in-flight subscribes and
     // their callbacks (the subscribe promise can resolve after supersession).
     _energyGeneration = 0;
@@ -75,9 +76,10 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _subscribeEnergy() {
-        if (!this._rawConfig?.energy_date_selection) return;
+        if (!this._rawConfig?.energy_date_selection || !this.hass?.connection || this._energyAbort) return;
 
         const generation = this._energyGeneration;
+        this._energyAbort = new AbortController();
         this._energyLoading = true;
         this._energyError = null;
 
@@ -89,6 +91,10 @@ class HnlFlowBarsCard extends LitElement {
                 ...this._rawConfig.consumption.map(c => c.entity),
             ];
             const fetchId = ++this._energyFetchSeq;
+            this._energyLoading = true;
+            this._energyError = null;
+            this._energyStats = null;
+            this._updatedParsedConfig = null;
 
             try {
                 const stats = await fetchStatistics(
@@ -109,7 +115,7 @@ class HnlFlowBarsCard extends LitElement {
                 this._energyError = err.message || 'Failed to fetch statistics';
                 this._energyLoading = false;
             }
-        }).then(unsub => {
+        }, { signal: this._energyAbort.signal }).then(unsub => {
             if (generation !== this._energyGeneration) {
                 // Superseded or disconnected while subscribing — release immediately
                 unsub();
@@ -125,6 +131,8 @@ class HnlFlowBarsCard extends LitElement {
 
     _unsubscribeEnergy() {
         this._energyGeneration++;
+        this._energyAbort?.abort();
+        this._energyAbort = null;
         if (this._energyUnsub) {
             this._energyUnsub();
             this._energyUnsub = null;
@@ -132,6 +140,7 @@ class HnlFlowBarsCard extends LitElement {
         this._energyStats = null;
         this._energyError = null;
         this._energyLoading = false;
+        this._updatedParsedConfig = null;
     }
 
     _roundOff(x, digits = this._parsedConfig.rounding) {
@@ -215,13 +224,13 @@ class HnlFlowBarsCard extends LitElement {
 
             // Use energy statistics when available, otherwise use live state
             const useEnergy = this._rawConfig.energy_date_selection && this._energyStats;
-            const raw = useEnergy && this._energyStats[entityId] != null
-                ? String(this._energyStats[entityId])
+            const raw = useEnergy
+                ? String(this._energyStats[entityId] ?? 0)
                 : stateObj.state;
             const isUnavailable = raw === 'unavailable' || raw === 'unknown';
-            const parsed = parseFloat(raw);
-            const isNonNumeric = !isUnavailable && isNaN(parsed);
-            let value = applyEntityValueOptions(parsed || 0, item);
+            const parsed = typeof raw === 'string' && raw.trim() ? Number(raw) : NaN;
+            const isNonNumeric = !isUnavailable && !Number.isFinite(parsed);
+            let value = applyEntityValueOptions(Number.isFinite(parsed) ? parsed : 0, item);
             value = Math.max(0, value);
             const displayName = item.name || formatFlowEntityName(this.hass, stateObj, entityId);
             let warning = null;
@@ -285,7 +294,7 @@ class HnlFlowBarsCard extends LitElement {
         const renderableTotal = renderableEntities.reduce((sum, ent) => sum + ent.value, 0);
         const rawRemainder = Math.max(0, maxValue - rawTotal);
         const total = entities.reduce((sum, ent) => sum + this._roundOff(ent.value), 0);
-        const remainder = this._roundOff(maxValue - total);
+        const remainder = this._roundOff(rawRemainder);
         const allocatedRemainder = rawRemainder > 0 && remainder > 0
             ? Math.max(0, maxValue - renderableTotal)
             : 0;
@@ -522,12 +531,22 @@ class HnlFlowBarsCard extends LitElement {
         `;
     }
 
-    //part of HASS card API
-    updated(changedProps) {
+    // Hydrate before Lit renders so the DOM uses the current HA snapshot.
+    willUpdate(changedProps) {
+        if (!this._rawConfig || !this.hass) return;
         if (!changedProps.has("hass")) return;
 
         const changedHass = changedProps.get("hass");
-        if (!changedHass) return;
+        if (this.isConnected) {
+            if (changedHass && (changedHass.connection !== this.hass.connection || changedHass.panelUrl !== this.hass.panelUrl)) {
+                this._unsubscribeEnergy();
+            }
+            this._subscribeEnergy();
+        }
+        if (!changedHass) {
+            this._updatedParsedConfig = null;
+            return;
+        }
 
         const prevStates = changedHass.states;
         const currentStates = this.hass.states;
@@ -545,7 +564,9 @@ class HnlFlowBarsCard extends LitElement {
             return prevStates[entity_id] !== currentStates[entity_id];
         });
 
-        if (anyChanged) {
+        const namesChanged = ['entities', 'devices', 'areas', 'floors', 'locale', 'formatEntityName']
+            .some((key) => changedHass[key] !== this.hass[key]);
+        if (anyChanged || namesChanged) {
             this._updatedParsedConfig = this._hydrateParsedConfig();
         }
     }
@@ -602,6 +623,7 @@ class HnlFlowBarsCard extends LitElement {
         };
         this._applyHostCssVars();
         this._updatedParsedConfig = null;
+        this.requestUpdate();
 
         // Re-subscribe if energy mode changed while connected
         if (this.isConnected) {

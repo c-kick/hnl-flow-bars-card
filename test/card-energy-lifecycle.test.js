@@ -60,11 +60,10 @@ describe('card energy subscription lifecycle', () => {
         card.setConfig(energyConfig);
         await flush();
 
-        card.disconnectedCallback();
+        card.remove();
         await flush();
 
         expect(collection.subscribers.size).toBe(0);
-        document.body.removeChild(card);
     });
 
     it('does not leak a subscription when the card disconnects during subscribe', async () => {
@@ -75,11 +74,10 @@ describe('card energy subscription lifecycle', () => {
         card.setConfig(energyConfig);
         document.body.appendChild(card);
         // Disconnect before the subscribe promise has handed back the unsub.
-        card.disconnectedCallback();
+        card.remove();
         await flush();
 
         expect(collection.subscribers.size).toBe(0);
-        document.body.removeChild(card);
     });
 
     it('discards out-of-order statistics responses', async () => {
@@ -114,7 +112,35 @@ describe('card energy subscription lifecycle', () => {
 
         expect(card._energyStats['sensor.solar_power']).toBe(222);
 
-        card.disconnectedCallback();
-        document.body.removeChild(card);
+        card.remove();
+    });
+
+    it('subscribes when hass arrives after the card connects', async () => {
+        const collection = makeCollection();
+        const card = document.createElement('hnl-flow-bars-card');
+        card.setConfig(energyConfig);
+        document.body.append(card);
+        await card.updateComplete;
+        card.hass = makeHass(collection);
+        await flush();
+        expect(collection.subscribers.size).toBe(1);
+        card.remove();
+        expect(collection.subscribers.size).toBe(0);
+    });
+
+    it('rebinds to the new connection without retaining the old subscription', async () => {
+        const first = makeCollection();
+        const second = makeCollection();
+        const card = document.createElement('hnl-flow-bars-card');
+        card.setConfig(energyConfig);
+        card.hass = makeHass(first);
+        document.body.append(card);
+        await flush();
+        card.hass = makeHass(second);
+        await flush();
+        expect(first.subscribers.size).toBe(0);
+        expect(second.subscribers.size).toBe(1);
+        card.remove();
+        expect(second.subscribers.size).toBe(0);
     });
 });

@@ -45,7 +45,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
     if (!config.global_color) delete config.global_color;
     if (!config.global_text_color) delete config.global_text_color;
-    if (!config.global_bg_opacity) delete config.global_bg_opacity;
+    if (config.global_bg_opacity == null || config.global_bg_opacity === '') delete config.global_bg_opacity;
     if (!config.font_size_scale || Number(config.font_size_scale) === 1) delete config.font_size_scale;
     if (!config.font_size_max || config.font_size_max === '14px') delete config.font_size_max;
     if (!config.energy_date_selection) delete config.energy_date_selection;
@@ -67,7 +67,7 @@ class HnlFlowBarsCardEditor extends LitElement {
       if (ent.icon) cleaned.icon = ent.icon;
       if (ent.color) cleaned.color = ent.color;
       if (ent.unit_of_measurement) cleaned.unit_of_measurement = ent.unit_of_measurement;
-      if (ent.bg_opacity) cleaned.bg_opacity = ent.bg_opacity;
+      if (ent.bg_opacity != null && ent.bg_opacity !== '') cleaned.bg_opacity = ent.bg_opacity;
       if (ent.text_color) cleaned.text_color = ent.text_color;
       if (ent.invert) cleaned.invert = true;
       if (ent.zero_threshold !== undefined && ent.zero_threshold !== '') cleaned.zero_threshold = Number(ent.zero_threshold);
@@ -79,7 +79,8 @@ class HnlFlowBarsCardEditor extends LitElement {
     ['production_remainder', 'consumption_remainder'].forEach((key) => {
       if (config[key]) {
         const r = config[key];
-        const hasCustomValues = r.name || r.icon || r.color || r.bg_opacity || r.text_color || r.unit_of_measurement;
+        const hasCustomValues = r.name || r.icon || r.color ||
+          (r.bg_opacity != null && r.bg_opacity !== '') || r.text_color || r.unit_of_measurement;
         if (!hasCustomValues) {
           delete config[key];
         }
@@ -202,8 +203,7 @@ class HnlFlowBarsCardEditor extends LitElement {
           <ha-input
             .label=${'Unit of measurement'}
             .value=${this._config.unit_of_measurement || ''}
-            .helper=${'Override the unit for all entities (e.g. W, L/min, m\u00B3)'}
-            helperPersistent
+            .hint=${'Override the unit for all entities (e.g. W, L/min, m\u00B3)'}
             @input=${(ev) => this._textChanged('unit_of_measurement', ev)}
           ></ha-input>
 
@@ -219,16 +219,14 @@ class HnlFlowBarsCardEditor extends LitElement {
           <ha-input
             .label=${'Default color (CSS, optional)'}
             .value=${this._config.global_color || ''}
-            .helper=${'Fallback bar color when not set per entity'}
-            helperPersistent
+            .hint=${'Fallback bar color when not set per entity'}
             @input=${(ev) => this._textChanged('global_color', ev)}
           ></ha-input>
 
           <ha-input
             .label=${'Default text color (CSS, optional)'}
             .value=${this._config.global_text_color || ''}
-            .helper=${'Fallback text color when not set per entity'}
-            helperPersistent
+            .hint=${'Fallback text color when not set per entity'}
             @input=${(ev) => this._textChanged('global_text_color', ev)}
           ></ha-input>
 
@@ -241,10 +239,10 @@ class HnlFlowBarsCardEditor extends LitElement {
                 min="0"
                 max="1"
                 step="0.1"
-                .value=${String(this._config.global_bg_opacity || '1')}
+                .value=${String(this._config.global_bg_opacity ?? '1')}
                 @input=${(ev) => this._textChanged('global_bg_opacity', ev)}
               />
-              <span class="slider-value">${this._config.global_bg_opacity || '1'}</span>
+              <span class="slider-value">${this._config.global_bg_opacity ?? '1'}</span>
             </div>
           </div>
 
@@ -425,8 +423,7 @@ Note: the <strong>entity name</strong> (if enabled and shown) will always be cli
                   type="number"
                   min="0.1"
                   step="0.05"
-                  .helper=${'Default: 1'}
-                  helperPersistent
+                  .hint=${'Default: 1'}
                   @input=${(ev) => this._floatChanged('font_size_scale', ev)}
                 ></ha-input>
               </div>
@@ -439,8 +436,7 @@ Note: the <strong>entity name</strong> (if enabled and shown) will always be cli
                 <ha-input
                   .label=${'Maximum'}
                   .value=${this._config.font_size_max || ''}
-                  .helper=${'CSS length or variable, e.g. 18px, 1.2rem, var(--ha-font-size-l). Default: 14px'}
-                  helperPersistent
+                  .hint=${'CSS length or variable, e.g. 18px, 1.2rem, var(--ha-font-size-l). Default: 14px'}
                   @input=${(ev) => this._textChanged('font_size_max', ev)}
                 ></ha-input>
               </div>
@@ -463,7 +459,7 @@ Note: the <strong>entity name</strong> (if enabled and shown) will always be cli
         <div class="flip-row">
           <div class="divider flip-divider"></div>
           <ha-button @click=${this._flipSourcesAndDestinations}>
-            <ha-icon icon="mdi:swap-vertical" slot="icon"></ha-icon>
+            <ha-icon icon="mdi:swap-vertical" slot="start"></ha-icon>
             Flip sources &amp; destinations
           </ha-button>
           <div class="divider flip-divider"></div>
